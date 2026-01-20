@@ -183,9 +183,9 @@ void SceneGUI::HandleMouseInput() {
 		// End of step 3
 	}
 
-	/*if (MouseController::GetInstance()->IsButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
+	if (MouseController::GetInstance()->IsButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
 		std::cout << "LMU PRESSED" << std::endl;
-	}*/
+	}
 }
 
 void SceneGUI::Update(double dt)
