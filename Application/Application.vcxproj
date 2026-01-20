@@ -149,19 +149,31 @@
   <ItemGroup>
     <ClCompile Include="Source\AltAzCamera.cpp" />
     <ClCompile Include="Source\Application.cpp" />
+    <ClCompile Include="Source\evochat.cpp" />
+    <ClCompile Include="Source\FPCamera.cpp" />
+    <ClCompile Include="Source\LoadOBJ.cpp" />
+    <ClCompile Include="Source\LoadTGA.cpp" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\MatrixStack.cpp" />
     <ClCompile Include="Source\Mesh.cpp" />
     <ClCompile Include="Source\MeshBuilder.cpp" />
     <ClCompile Include="Source\Scene1.cpp" />
     <ClCompile Include="Source\Scene2.cpp" />
+    <ClCompile Include="Source\SceneGUI.cpp" />
     <ClCompile Include="Source\SceneLight.cpp" />
+    <ClCompile Include="Source\SceneModel.cpp" />
+    <ClCompile Include="Source\SceneSkybox.cpp" />
+    <ClCompile Include="Source\SceneTexture.cpp" />
     <ClCompile Include="Source\shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\AltAzCamera.h" />
     <ClInclude Include="Source\Application.h" />
+    <ClInclude Include="Source\evochat.h" />
+    <ClInclude Include="Source\FPCamera.h" />
     <ClInclude Include="Source\Light.h" />
+    <ClInclude Include="Source\LoadOBJ.h" />
+    <ClInclude Include="Source\LoadTGA.h" />
     <ClInclude Include="Source\Material.h" />
     <ClInclude Include="Source\MatrixStack.h" />
     <ClInclude Include="Source\Mesh.h" />
@@ -169,7 +181,11 @@
     <ClInclude Include="Source\Scene.h" />
     <ClInclude Include="Source\Scene1.h" />
     <ClInclude Include="Source\Scene2.h" />
+    <ClInclude Include="Source\SceneGUI.h" />
     <ClInclude Include="Source\SceneLight.h" />
+    <ClInclude Include="Source\SceneModel.h" />
+    <ClInclude Include="Source\SceneSkybox.h" />
+    <ClInclude Include="Source\SceneTexture.h" />
     <ClInclude Include="Source\shader.hpp" />
     <ClInclude Include="Source\Vertex.h" />
   </ItemGroup>

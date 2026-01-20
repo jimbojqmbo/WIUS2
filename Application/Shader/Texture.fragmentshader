@@ -1,0 +1,103 @@
+#version 330 core
+
+// Interpolated values from the vertex shaders
+in vec3 vertexPosition_cameraspace;
+in vec3 fragmentColor;
+in vec3 vertexNormal_cameraspace;
+in vec2 texCoord;
+
+// Ouput data
+out vec3 color;
+out vec4 FragColor;
+
+struct Light {
+	int type;
+	vec3 position_cameraspace;
+	vec3 color;
+	float power;
+	float kC;
+	float kL;
+	float kQ;
+	vec3 spotDirection;
+	float cosCutoff;
+	float cosInner;
+	float exponent;
+};
+
+struct Material {
+	vec3 kAmbient;
+	vec3 kDiffuse;
+	vec3 kSpecular;
+	float kShininess;
+};
+
+float getAttenuation(Light light, float distance) {
+	if(light.type == 1)
+		return 1;
+	else
+		return 1 / max(1, light.kC + light.kL * distance + light.kQ * distance * distance);
+}
+
+float getSpotlightEffect(Light light, vec3 lightDirection) {
+	vec3 S = normalize(light.spotDirection);
+	vec3 L = normalize(lightDirection);
+	float cosDirection = dot(L, S);
+	//return smoothstep(light.cosCutoff, light.cosInner, cosDirection);
+	if(cosDirection < light.cosCutoff)
+		return 0;
+	else
+		return 1; //pow(cosDirection, light.exponent);
+}
+
+// Constant values
+const int MAX_LIGHTS = 8;
+
+// Values that stay constant for the whole mesh.
+uniform bool lightEnabled;
+uniform Light lights[MAX_LIGHTS];
+uniform Material material;
+uniform int numLights;
+uniform bool colorTextureEnabled;
+uniform sampler2D colorTexture;
+
+void main()
+{
+    if(lightEnabled)
+    {
+        vec3 materialColor;
+        if(colorTextureEnabled)
+            materialColor = texture(colorTexture, texCoord).rgb;
+        else
+            materialColor = fragmentColor;
+
+        vec3 E = normalize(-vertexPosition_cameraspace);
+        vec3 N = normalize(vertexNormal_cameraspace);
+
+        vec3 result = materialColor * material.kAmbient;
+
+        for(int i = 0; i < numLights; ++i)
+        {
+            vec3 lightDir = lights[i].position_cameraspace - vertexPosition_cameraspace;
+            float dist = length(lightDir);
+            vec3 L = normalize(lightDir);
+
+            float diff = max(dot(N, L), 0.0);
+            vec3 R = reflect(-L, N);
+            float spec = pow(max(dot(E, R), 0.0), material.kShininess);
+
+            float att = getAttenuation(lights[i], dist);
+
+            result += materialColor * material.kDiffuse * diff * lights[i].color * lights[i].power * att;
+            result += material.kSpecular * spec * lights[i].color * lights[i].power * att;
+        }
+
+        FragColor = vec4(result, 1.0);
+    }
+    else
+    {
+        if(colorTextureEnabled)
+            FragColor = texture(colorTexture, texCoord);
+        else
+            FragColor = vec4(fragmentColor, 1.0);
+    }
+}

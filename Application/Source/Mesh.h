@@ -2,6 +2,7 @@
 #define MESH_H
 
 #include <string>
+#include <vector>
 #include "Material.h"
 
 /******************************************************************************/
@@ -31,6 +32,15 @@ public:
 	unsigned indexSize;
 
 	Material material;
+	unsigned textureID;
+
+	static void SetMaterialLoc(unsigned kA, unsigned kD, unsigned kS, unsigned nS);
+	// Step 11 - Add the following variables
+	std::vector<Material> materials;
+	static unsigned locationKa;
+	static unsigned locationKd;
+	static unsigned locationKs;
+	static unsigned locationNs;
 };
 
 #endif

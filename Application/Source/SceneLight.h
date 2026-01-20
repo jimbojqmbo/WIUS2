@@ -15,11 +15,11 @@ public:
 	{
 		GEO_AXES,
 		GEO_SPHERE,
-		GEO_SPHERE_ORANGE,
-		GEO_SPHERE_BLUE,
-		GEO_SPHERE_GREY,
 		GEO_LIGHT,
+
+		GEO_HEAD,
 		GEO_CYLINDER,
+		GEO_HEMISPHERE,
 		NUM_GEOMETRY,
 	};
 
@@ -48,9 +48,20 @@ public:
 		ANIM_MOON,
 		ANIM_EARTH,
 		ANIM_SUN,
+
+		ANIM_NONE,
+		ANIM_IDLE,
+		ANIM_WAVE,
+		ANIM_ATTACK,
+		ANIM_SOMERSAULT,
+
 		NUM_ANIM
 	};
 	
+	ANIMATION currentAnim = ANIM_NONE;
+	float animTime = 0.f;
+	bool animPlaying = false;
+
 	// Keep track of current animation
 	ANIMATION currAnim;
 
@@ -82,8 +93,64 @@ private:
 	float earthRotation;
 	float sunRotation;
 
+	float pelvisTranslation;
+	float pelvisRotation;
+
+	float leftHipTranslation;
+	float rightHipTranslation;
+	float leftHipRotation;
+	float rightHipRotation;
+	float leftThighTranslation;
+	float rightThighTranslation;
+	float leftThighRotation;
+	float rightThighRotation;
+	float leftTibiaTranslation;
+	float rightTibiaTranslation;
+	float leftTibiaRotation;
+	float rightTibiaRotation;
+
+	float thoraxTranslation;
+	float thoraxRotation;
+
+	float leftClavicleTranslation;
+	float leftClavicleRotation;
+	float rightClavicleTranslation;
+	float rightClavicleRotation;
+
+	float leftShoulderTranslation;
+	float leftShoulderRotation;
+	float rightShoulderTranslation;
+	float rightShoulderRotation;
+
+	float leftForearmTranslation;
+	float leftForearmRotation;
+	float rightForearmTranslation;
+	float rightForearmRotation;
+
+	float headTranslation;
+	float headRotation;
+
+	float leftEyeTranslation;
+	float leftEyeRotation;
+	float rightEyeTranslation;
+	float rightEyeRotation;
+
+	float thoraxRotationX;
+	float thoraxTranslationY;
+	float rightFeetRotation;
+	float leftFeetRotation;
+
 	Light light[1];
 	bool enableLight;
+
+	float idleTime = 0.f;
+	bool idleActive = false;
+
+	void AnimateAttack();
+	void AnimateIdle();
+	void AnimateWave();
+	void AnimateSomersault();
+	void ResetAllTransforms();
 };
 
 #endif

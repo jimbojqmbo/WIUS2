@@ -1,4 +1,4 @@
-#include "SceneLight.h"
+﻿#include "SceneLight.h"
 #include "GL\glew.h"
 
 #include "shader.hpp"
@@ -40,7 +40,7 @@ void SceneLight::Init()
 	sunRotation = 0.0f;
 
 	// Set background color to dark blue
-	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+	glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
 
 	//Enable depth buffer and depth testing
 	glEnable(GL_DEPTH_TEST);
@@ -89,11 +89,10 @@ void SceneLight::Init()
 	}
 
 	meshList[GEO_AXES] = MeshBuilder::GenerateAxes("Axes", 10000.f, 10000.f, 10000.f);
-	//meshList[GEO_SPHERE_ORANGE] = MeshBuilder::GenerateSphere("Sun", glm::vec3(0.9f, 0.3f, 0.f), 1.f, 12, 12);
-	//meshList[GEO_SPHERE_BLUE] = MeshBuilder::GenerateSphere("Earth", glm::vec3(0.4f, 0.2f, 0.8f), 1.f, 12, 12);
-	//meshList[GEO_SPHERE_GREY] = MeshBuilder::GenerateSphere("Moon", glm::vec3(0.5f, 0.5f, 0.5f), 1.f, 12, 12);
 	meshList[GEO_SPHERE] = MeshBuilder::GenerateSphere("Light", glm::vec3(1.f, 1.f, 1.f), 1.f, 16, 16);
-	meshList[GEO_CYLINDER] = MeshBuilder::GenerateCylinder("Cylinder", glm::vec3(0.f, 0.f, 0.f), 36, 1.f, 5.f);
+	meshList[GEO_CYLINDER] = MeshBuilder::GenerateCylinder("Cylinder", glm::vec3(0.6f, 0.7f, 0.8f), 36, 1.f, 5.f);
+	meshList[GEO_HEMISPHERE] = MeshBuilder::GenerateHemisphere("Hemisphere", glm::vec3(0.6f, 0.7f, 0.8f), 18, 36, 1.f);
+	meshList[GEO_HEAD] = MeshBuilder::GenerateHead("Head", glm::vec3(0.6f, 0.7f, 0.8f), 20, 36, 1.f, 2.5f);
 
 	light[0].position = glm::vec3(0, 5, 0);
 	light[0].color = glm::vec3(1, 1, 1);
@@ -132,16 +131,150 @@ void SceneLight::Update(double dt)
 
 	moonRotation += static_cast<float>(dt) * 20.f;
 
-	switch (currAnim) {
-	case ANIM_MOON:
-		moonRotation += static_cast<float>(dt) * 45.f;
+	if (animPlaying)
+		animTime += dt;
+
+	switch (currentAnim)
+	{
+	case ANIM_IDLE:
+		AnimateIdle();
 		break;
-	case ANIM_EARTH:
-		earthRotation += static_cast<float>(dt) * 25.f;
+
+	case ANIM_WAVE:
+		AnimateWave();
 		break;
-	case ANIM_SUN:
-		sunRotation += static_cast<float>(dt) * 10.f;
+
+	case ANIM_ATTACK:
+		AnimateAttack();
 		break;
+
+	case ANIM_SOMERSAULT:
+		AnimateSomersault();
+		break;
+	}
+
+	if (idleActive)
+	{
+		idleTime += dt;
+	}
+}
+
+void SceneLight::AnimateIdle()
+{
+	if (currentAnim != ANIM_IDLE)
+		return;
+
+	float breath = sin(animTime * 2.0f) * 0.1f;
+	float bob = sin(animTime * 1.5f) * 0.05f;
+
+	thoraxTranslation = breath;
+	headTranslation = bob;
+
+	leftShoulderRotation = sin(animTime * 1.3f) * 5;
+	rightShoulderRotation = sin(animTime * 1.3f + 3.14f) * 5;
+}
+
+void SceneLight::AnimateWave()
+{
+	// Loop the wave (period 2 seconds)
+	float t = animTime;
+	float swing = sin(t * 4.0f) * 35.f; // big arm swing ±35 degrees
+
+	// Right arm only
+	rightClavicleRotation = -100.f;          // shoulder joint
+	rightShoulderRotation = -100.f * 0.7f;   // forearm follow-through
+
+	float shoulderSwing = glm::clamp(swing, -50.f, swing);
+	rightShoulderRotation = shoulderSwing;
+
+	// Slight body twist
+	//pelvisRotation = sin(t * 2.5f) * 5.f;
+
+	// Optional: stop after 4 seconds
+	if (t > 4.0f) {
+		animPlaying = false;
+		currentAnim = ANIM_NONE;
+	}
+}
+
+void SceneLight::AnimateAttack()
+{
+	float t = animTime;
+	float duration = 0.7f;
+	float phase = glm::clamp(t / duration, 0.f, 1.f);
+
+	float punch = sin(phase * 3.14159f);
+
+	// STOP HEAD BOBBING
+	headTranslation = 0.f;
+
+	// torso: push straight forward (NO SIDEWAYS)
+	thoraxTranslation = punch * 0.3f;   // moves forward along Z or Y depending on your model
+	pelvisRotation = punch * 0.f;    // NO SIDE TWIST
+
+	// shoulders: both move symmetrically forward/back
+	float shoulderPullBack = -punch * 20.f;   // pull back equally
+	float shoulderExtend = punch * 60.f;    // punch forward equally
+
+	leftClavicleRotation = shoulderPullBack + shoulderExtend;
+	rightClavicleRotation = shoulderPullBack + shoulderExtend;
+
+	// upper arms: punch forward, no sideways rotation
+	leftShoulderRotation = punch * -70.f;   // arms go straight forward
+	rightShoulderRotation = punch * -70.f;
+
+	// forearms: extend straight forward
+	leftForearmRotation = punch * -90.f;
+	rightForearmRotation = punch * -90.f;
+
+	// hands move slightly forward during punch
+	leftForearmTranslation = punch * 0.05f;
+	rightForearmTranslation = punch * 0.05f;
+
+	// Lean back slightly as the leg kicks forward
+	thoraxRotationX = punch * 6.f;       // negative X = forward lean, positive = backward lean
+	thoraxTranslationY = -punch * 0.2f;     // slight dip
+
+	// RIGHT LEG (KICKING LEG)
+	// Hip swings forward (robot faces +Z → negative X rotation moves forward)
+	rightHipRotation = punch * -25.f;
+
+	// upper leg lifts
+	rightThighRotation = punch * -55.f;
+
+	// tibia snaps forward
+	rightTibiaRotation = punch * -85.f;
+
+	// foot points forward
+	rightFeetRotation = punch * 20.f;
+
+	if (t > duration)
+	{
+		animPlaying = false;
+		currentAnim = ANIM_NONE;
+	}
+}
+
+void SceneLight::AnimateSomersault()
+{
+	float t = animTime;
+	float duration = 1.2f;
+	float phase = glm::clamp(t / duration, 0.f, 1.f);
+
+	float jumpY = sin(phase * 3.14159f) * 2.0f;
+	pelvisTranslation = jumpY;
+
+	pelvisRotation = phase * 360.f;
+
+	leftShoulderRotation = -20.f;
+	rightShoulderRotation = 20.f;
+	leftHipRotation = 15.f;
+	rightHipRotation = -15.f;
+
+	if (t > duration)
+	{
+		animPlaying = false;
+		currentAnim = ANIM_NONE;
 	}
 }
 
@@ -179,22 +312,240 @@ void SceneLight::Render()
 	// Render light
 	modelStack.Translate(light[0].position.x, light[0].position.y, light[0].position.z);
 	modelStack.Scale(0.1f, 0.1f, 0.1f);
-	RenderMesh(meshList[GEO_CYLINDER], false);
+	RenderMesh(meshList[GEO_SPHERE], false);
 	modelStack.PopMatrix();
 
 	{
 
 		// pelvis location
 		modelStack.PushMatrix();
-		modelStack.Translate(0.f, 0.f, 0.f);
+		modelStack.Translate(0.f, pelvisTranslation, 0.f);
+		modelStack.Rotate(pelvisRotation, 1.f, 0.f, 0.f);
+
 
 		{
-			// body
+			// thorax
+			// note: body is +2.8f height from pelvis
+			
 			modelStack.PushMatrix();
-			modelStack.Translate(0.f, 2.3f, 0.f);
+			modelStack.Translate(0.f, 2.8f, 0.f);
+			//modelStack.Rotate(pelvisRotation, pelvisRotation, pelvisRotation, pelvisRotation);
+
+			{
+				// head
+				modelStack.PushMatrix();
+				modelStack.Translate(0.f, 5.f, 0.f);
+				//modelStack.Rotate
+
+				{
+					// left eye
+					modelStack.PushMatrix();
+					modelStack.Translate((headTranslation - 0.4f), (headTranslation - 0.5f), (headTranslation + 0.9f));
+					//modelStack.Rotate
+
+					{
+						// left pupil
+						modelStack.PushMatrix();
+						modelStack.Translate(leftEyeTranslation, leftEyeTranslation, (leftEyeTranslation + 0.4f));
+
+						// pop pupil
+						modelStack.Scale(0.1f, 0.12f, 0.1f);
+						meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+						meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
+						meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+						meshList[GEO_SPHERE]->material.kShininess = 5.0f;
+						RenderMesh(meshList[GEO_SPHERE], true);
+						modelStack.PopMatrix();
+					}
+
+					// pop eye
+					modelStack.Scale(0.4f, 0.5f, 0.4f);
+					meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+					meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.992f, 0.992f, 0.588f);
+					meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+					meshList[GEO_SPHERE]->material.kShininess = 5.0f;
+					RenderMesh(meshList[GEO_SPHERE], true);
+					modelStack.PopMatrix();
+				}
+
+				{
+					// right eye
+					modelStack.PushMatrix();
+					modelStack.Translate((headTranslation + 0.4f), (headTranslation - 0.5f), (headTranslation + 0.9f));
+					//modelStack.Rotate
+
+					{
+						// right pupil
+						modelStack.PushMatrix();
+						modelStack.Translate(rightEyeTranslation, rightEyeTranslation, (rightEyeTranslation + 0.4f));
+
+						// pop pupil
+						modelStack.Scale(0.1f, 0.12f, 0.1f);
+						meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+						meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
+						meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+						meshList[GEO_SPHERE]->material.kShininess = 5.0f;
+						RenderMesh(meshList[GEO_SPHERE], true);
+						modelStack.PopMatrix();
+					}
+
+					// pop eye
+					modelStack.Scale(0.4f, 0.5f, 0.4f);
+					meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+					meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.992f, 0.992f, 0.588f);
+					meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+					meshList[GEO_SPHERE]->material.kShininess = 5.0f;
+					RenderMesh(meshList[GEO_SPHERE], true);
+					modelStack.PopMatrix();
+				}
+
+				// pop head
+				modelStack.Scale(0.9f, 1.f, 0.9f);
+				meshList[GEO_HEAD]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+				meshList[GEO_HEAD]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[GEO_HEAD]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+				meshList[GEO_HEAD]->material.kShininess = 5.0f;
+				RenderMesh(meshList[GEO_HEAD], true);
+				modelStack.PopMatrix();
+			}
+
+			{
+				// left clavicle (shoulder)
+				// note: clavicle is +2.2f height from thorax
+				modelStack.PushMatrix();
+				// Fixed position: clavicle is 1.2 left, 2.2 up from thorax
+				modelStack.Translate(-1.2f, 2.2f, 0.f);
+				modelStack.Rotate(leftClavicleRotation, 1.f, 0.f, 0.f);
+
+				{
+					// left real shoulder
+					// note: shoulder height is -0.7f from clavicle
+
+					modelStack.PushMatrix();
+					// Shoulder sits slightly below clavicle (-0.7)
+					modelStack.Translate(0.f, -0.7f, 0.f);
+					modelStack.Rotate(leftShoulderRotation, 1.f, 0.f, 0.f);
+
+					{
+						// left forearm
+						// note: forearm is -1.6f height from shoulder
+
+						modelStack.PushMatrix();
+						// Forearm is fixed offset below shoulder
+						modelStack.Translate(0.f, -1.6f, 0.f);
+						modelStack.Rotate(leftForearmRotation, 1.f, 0.f, 0.f);
+
+						{
+							// left palm
+							
+							modelStack.PushMatrix();
+							modelStack.Translate(leftForearmTranslation, (leftForearmTranslation - 1.f), leftForearmTranslation);
+							//modelStack.Rotate(5.f, leftForearmRotation, leftForearmRotation, leftForearmRotation);
+
+							// pop palm
+							modelStack.Scale(0.3f, 0.25f, 0.3f);
+							meshList[GEO_HEMISPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+							meshList[GEO_HEMISPHERE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+							meshList[GEO_HEMISPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+							meshList[GEO_HEMISPHERE]->material.kShininess = 5.0f;
+							RenderMesh(meshList[GEO_HEMISPHERE], true);
+							modelStack.PopMatrix();
+						}
+
+						// pop forearm
+						modelStack.Scale(0.2f, 0.35f, 0.2f);
+						meshList[GEO_CYLINDER]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+						meshList[GEO_CYLINDER]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+						meshList[GEO_CYLINDER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+						meshList[GEO_CYLINDER]->material.kShininess = 5.0f;
+						RenderMesh(meshList[GEO_CYLINDER], true);
+						modelStack.PopMatrix();
+					}
+
+					// pop shoulder
+					modelStack.Scale(0.2f, 0.35f, 0.2f);
+					meshList[GEO_CYLINDER]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+					meshList[GEO_CYLINDER]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+					meshList[GEO_CYLINDER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+					meshList[GEO_CYLINDER]->material.kShininess = 5.0f;
+					RenderMesh(meshList[GEO_CYLINDER], true);
+					modelStack.PopMatrix();
+				}
+
+				// pop clavicle
+				modelStack.Scale(0.1f, 0.1f, 0.1f);
+				RenderMesh(meshList[GEO_SPHERE], true);
+				modelStack.PopMatrix();
+			}
+
+			{
+				// right clavicle (shoulder)
+				// note: clavicle is +2.2f height from thorax
+				modelStack.PushMatrix();
+				modelStack.Translate(1.2f, 2.2f, 0.f);
+				modelStack.Rotate(rightClavicleRotation, 1.f, 0.f, 0.f);
+
+				{
+					// right real shoulder
+					// note: shoulder height is -0.7f from clavicle
+
+					modelStack.PushMatrix();
+					modelStack.Translate(0.f, -0.7f, 0.f);
+					modelStack.Rotate(rightShoulderRotation, 1.f, 0.f, 0.f);
+
+					{
+						// right forearm
+						// note: forearm is -1.6f height from shoulder
+
+						modelStack.PushMatrix();
+						modelStack.Translate(0.f, -1.6f, 0.f);
+						modelStack.Rotate(rightForearmRotation, 1.f, 0.f, 0.f);
+
+						{
+							// right palm
+
+							modelStack.PushMatrix();
+							modelStack.Translate(rightForearmTranslation, (rightForearmTranslation - 1.f), rightForearmTranslation);
+							//modelStack.Rotate(5.f, leftForearmRotation, leftForearmRotation, leftForearmRotation);
+
+							// pop palm
+							modelStack.Scale(0.3f, 0.25f, 0.3f);
+							meshList[GEO_HEMISPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+							meshList[GEO_HEMISPHERE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+							meshList[GEO_HEMISPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+							meshList[GEO_HEMISPHERE]->material.kShininess = 5.0f;
+							RenderMesh(meshList[GEO_HEMISPHERE], true);
+							modelStack.PopMatrix();
+						}
+
+						// pop forearm
+						modelStack.Scale(0.2f, 0.35f, 0.2f);
+						meshList[GEO_CYLINDER]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+						meshList[GEO_CYLINDER]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+						meshList[GEO_CYLINDER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+						meshList[GEO_CYLINDER]->material.kShininess = 5.0f;
+						RenderMesh(meshList[GEO_CYLINDER], true);
+						modelStack.PopMatrix();
+					}
+
+					// pop shoulder
+					modelStack.Scale(0.2f, 0.35f, 0.2f);
+					meshList[GEO_CYLINDER]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+					meshList[GEO_CYLINDER]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+					meshList[GEO_CYLINDER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+					meshList[GEO_CYLINDER]->material.kShininess = 5.0f;
+					RenderMesh(meshList[GEO_CYLINDER], true);
+					modelStack.PopMatrix();
+				}
+
+				// pop clavicle
+				modelStack.Scale(0.1f, 0.1f, 0.1f);
+				RenderMesh(meshList[GEO_SPHERE], true);
+				modelStack.PopMatrix();
+			}
 
 			// pop body
-			modelStack.Scale(1.f, 1.f, 1.f);
+			modelStack.Scale(1.2f, 1.2f, 1.2f);
 			meshList[GEO_CYLINDER]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
 			meshList[GEO_CYLINDER]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
 			meshList[GEO_CYLINDER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
@@ -203,12 +554,218 @@ void SceneLight::Render()
 			modelStack.PopMatrix();
 		}
 
+		{
+
+			// right hip
+			modelStack.PushMatrix();
+			modelStack.Translate(0.6f, -0.2f, 0.f);
+			modelStack.Rotate(rightHipRotation, 1.f, 0.f, 0.f);
+
+			{
+
+				// left thigh
+				// note: put thigh y-axis as 0.4f
+				modelStack.PushMatrix();
+				modelStack.Translate(0.f, -0.4f, 0.f);     // fixed offset from hip
+				modelStack.Translate(rightHipTranslation, 0.f, 0.f);  // animation, if any
+				modelStack.Rotate(rightThighRotation, 1.f, 0.f, 0.f);
+
+				{
+					// right tibia
+					// note: put tibia y-axis as -2.4f
+					modelStack.PushMatrix();
+					modelStack.Translate(rightThighTranslation, (rightThighTranslation - 2.4f), (rightThighTranslation));
+					modelStack.Rotate(rightTibiaRotation, 1.f, 0.f, 0.f);
+
+					{
+						// right feet
+						// note: set feet y-axis as -1.8f
+						modelStack.PushMatrix();
+						modelStack.Translate(rightTibiaTranslation, (rightTibiaTranslation - 1.8f), rightTibiaTranslation);
+						modelStack.Rotate(rightFeetRotation, 1.f, 0.f, 0.f);
+						
+						// pop feet
+						modelStack.Scale(0.6f, 0.6f, 0.6f);
+						meshList[GEO_HEMISPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+						meshList[GEO_HEMISPHERE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+						meshList[GEO_HEMISPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+						meshList[GEO_HEMISPHERE]->material.kShininess = 5.0f;
+						RenderMesh(meshList[GEO_HEMISPHERE], true);
+						modelStack.PopMatrix();
+					}
+
+					// pop tibia
+					modelStack.Scale(0.2f, 0.5f, 0.2f);
+					meshList[GEO_CYLINDER]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+					meshList[GEO_CYLINDER]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+					meshList[GEO_CYLINDER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+					meshList[GEO_CYLINDER]->material.kShininess = 5.0f;
+					RenderMesh(meshList[GEO_CYLINDER], true);
+					modelStack.PopMatrix();
+				}
+
+				// pop thigh
+				modelStack.Scale(0.2f, 0.5f, 0.2f);
+				meshList[GEO_CYLINDER]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+				meshList[GEO_CYLINDER]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[GEO_CYLINDER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+				meshList[GEO_CYLINDER]->material.kShininess = 5.0f;
+				RenderMesh(meshList[GEO_CYLINDER], true);
+				modelStack.PopMatrix();
+
+			}
+
+			modelStack.Scale(0.1f, 0.1f, 0.1f);
+			RenderMesh(meshList[GEO_SPHERE], true);
+			modelStack.PopMatrix();
+		}
+
+		{
+
+			// left hip
+			modelStack.PushMatrix();
+			modelStack.Translate(-0.6f, -0.2f, 0.f);
+			//modelStack.Rotate(pelvisRotation, pelvisRotation, pelvisRotation, pelvisRotation);
+
+				{
+
+					// left thigh
+					// note: put thigh y-axis as -0.4f
+					modelStack.PushMatrix();
+					modelStack.Translate(0.f, -0.4f, 0.f);     // fixed offset from hip
+					modelStack.Translate(leftHipTranslation, 0.f, 0.f);  // animation, if any
+					modelStack.Rotate(leftThighRotation, 1.f, 0.f, 0.f);
+
+					{
+						// left tibia
+						// note: put tibia y-axis as -2.4f
+						modelStack.PushMatrix();
+						modelStack.Translate(leftThighTranslation, (leftThighTranslation - 2.4f), (leftThighTranslation));
+						modelStack.Rotate(leftTibiaRotation, 1.f, 0.f, 0.f);
+
+						{
+							// right feet
+							// note: set feet y-axis as -2.3f
+							modelStack.PushMatrix();
+							modelStack.Translate(leftTibiaTranslation, (leftTibiaTranslation - 1.8f), leftTibiaTranslation);
+							modelStack.Rotate(leftFeetRotation, 1.f, 0.f, 0.f);
+
+							// pop feet
+							modelStack.Scale(0.6f, 0.6f, 0.6f);
+							meshList[GEO_HEMISPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+							meshList[GEO_HEMISPHERE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+							meshList[GEO_HEMISPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+							meshList[GEO_HEMISPHERE]->material.kShininess = 5.0f;
+							RenderMesh(meshList[GEO_HEMISPHERE], true);
+							modelStack.PopMatrix();
+						}
+
+						// pop tibia
+						modelStack.Scale(0.2f, 0.5f, 0.2f);
+						meshList[GEO_CYLINDER]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+						meshList[GEO_CYLINDER]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+						meshList[GEO_CYLINDER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+						meshList[GEO_CYLINDER]->material.kShininess = 5.0f;
+						RenderMesh(meshList[GEO_CYLINDER], true);
+						modelStack.PopMatrix();
+					}
+
+					// pop thigh
+					modelStack.Scale(0.2f, 0.5f, 0.2f);
+					meshList[GEO_CYLINDER]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+					meshList[GEO_CYLINDER]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+					meshList[GEO_CYLINDER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+					meshList[GEO_CYLINDER]->material.kShininess = 5.0f;
+					RenderMesh(meshList[GEO_CYLINDER], true);
+					modelStack.PopMatrix();
+
+				}
+
+			// pop left hip
+			modelStack.Scale(0.1f, 0.1f, 0.1f);
+			RenderMesh(meshList[GEO_SPHERE], true);
+			modelStack.PopMatrix();
+
+		}
+
 		// pop for pelvis
 		modelStack.Scale(0.1f, 0.1f, 0.1f);
 		RenderMesh(meshList[GEO_SPHERE], true);
 		modelStack.PopMatrix();
 	}
 
+}
+
+void SceneLight::ResetAllTransforms()
+{
+	// Master timer reset
+	animTime = 0.f;
+
+	// ------------------------------
+	// PELVIS (root joint)
+	// ------------------------------
+	pelvisTranslation = 0.f;
+	pelvisRotation = 0.f;
+
+	// ------------------------------
+	// THORAX & HEAD
+	// ------------------------------
+	thoraxTranslation = 0.f;
+	headTranslation = 0.f;
+
+	// ------------------------------
+	// EYES
+	// ------------------------------
+	leftEyeTranslation = 0.f;
+	rightEyeTranslation = 0.f;
+
+	// ------------------------------
+	// ARMS (Left)
+	// ------------------------------
+	leftClavicleTranslation = 0.f;
+	leftClavicleRotation = 0.f;
+
+	leftShoulderTranslation = 0.f;
+	leftShoulderRotation = 0.f;
+
+	leftForearmTranslation = 0.f;
+	leftForearmRotation = 0.f;
+
+	// ------------------------------
+	// ARMS (Right)
+	// ------------------------------
+	rightClavicleTranslation = 0.f;
+	rightClavicleRotation = 0.f;
+
+	rightShoulderTranslation = 0.f;
+	rightShoulderRotation = 0.f;
+
+	rightForearmTranslation = 0.f;
+	rightForearmRotation = 0.f;
+
+	// ------------------------------
+	// LEGS (Left)
+	// ------------------------------
+	leftHipTranslation = 0.f;
+	leftHipRotation = 0.f;
+
+	leftThighTranslation = 0.f;
+	leftThighRotation = 0.f;
+
+	leftTibiaTranslation = 0.f;
+	leftTibiaRotation = 0.f;
+
+	// ------------------------------
+	// LEGS (Right)
+	// ------------------------------
+	rightHipTranslation = 0.f;
+	rightHipRotation = 0.f;
+
+	rightThighTranslation = 0.f;
+	rightThighRotation = 0.f;
+
+	rightTibiaTranslation = 0.f;
+	rightTibiaRotation = 0.f;
 }
 
 void SceneLight::RenderMesh(Mesh* mesh, bool enableLight)
@@ -321,5 +878,40 @@ void SceneLight::HandleKeyPress()
 	{
 		// Toggle light on or off
 		enableLight = !enableLight;
+	}
+
+	if (Application::IsKeyPressed('Z'))
+	{
+		idleActive = true;
+	}
+
+	if (Application::IsKeyPressed('Z')) {
+		currentAnim = ANIM_IDLE;
+		animPlaying = true;
+	}
+
+	if (Application::IsKeyPressed('X')) {
+		currentAnim = ANIM_WAVE;
+		animTime = 0.f;
+		animPlaying = true;
+	}
+
+	if (Application::IsKeyPressed('C')) {
+		currentAnim = ANIM_ATTACK;
+		animTime = 0.f;
+		animPlaying = true;
+	}
+
+	if (Application::IsKeyPressed('V')) {
+		currentAnim = ANIM_SOMERSAULT;
+		animTime = 0.f;
+		animPlaying = true;
+	}
+
+	if (Application::IsKeyPressed('R')) {
+		currentAnim = ANIM_NONE;
+		animTime = 0.f;
+		animPlaying = false;
+		ResetAllTransforms();   // You should implement resetting your variables
 	}
 }
