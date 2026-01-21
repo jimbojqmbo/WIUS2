@@ -68,7 +68,7 @@ public:
 	virtual void Exit();
 
 private:
-	void HandleKeyPress();
+	void HandleKeyPress(double dt);
 	void RenderMesh(Mesh* mesh, bool enableLight);
 
 	unsigned m_vertexArrayID;
@@ -77,8 +77,8 @@ private:
 	unsigned m_programID;
 	unsigned m_parameters[U_TOTAL];
 
-	AltAzCamera camera;
-	//FPCamera camera;
+	//AltAzCamera camera;
+	FPCamera camera;
 	int projType = 1; // fix to 0 for orthographic, 1 for projection
 
 	MatrixStack modelStack, viewStack, projectionStack;
@@ -96,6 +96,7 @@ private:
 	void RenderText(Mesh* mesh, std::string text, glm::vec3 color);
 	void RenderTextOnScreen(Mesh* mesh, std::string text, glm::vec3 color, float size, float x, float y);
 
+	glm::vec3 change;
 };
 
 #endif

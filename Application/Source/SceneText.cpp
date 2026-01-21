@@ -74,14 +74,14 @@ void SceneText::Init()
 
 
 	// Initialise camera properties
-	camera.Init(45.f, 45.f, 10.f);
+	//camera.Init(45.f, 45.f, 10.f);
 
-	/*
+	
 	camera.Init(
-		glm::vec3(4, 3, 3),
+		glm::vec3(4, 0, 0),
 		glm::vec3(0, 0, 0),
 		glm::vec3(0, 1, 0)
-	);*/
+	);
 
 	// Init VBO here
 	for (int i = 0; i < NUM_GEOMETRY; ++i)
@@ -92,23 +92,25 @@ void SceneText::Init()
 	meshList[GEO_AXES] = MeshBuilder::GenerateAxes("Axes", 10000.f, 10000.f, 10000.f);
 	meshList[GEO_SPHERE] = MeshBuilder::GenerateSphere("Sun", glm::vec3(1.f, 1.f, 1.f), 1.f, 16, 16);
 	//meshList[GEO_CUBE] = MeshBuilder::GenerateCube("Arm", glm::vec3(0.5f, 0.5f, 0.5f), 1.f);
+
 	meshList[GEO_LEFT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	//meshList[GEO_LEFT]->textureID = LoadTGA("Images//left.tga");
-	meshList[GEO_LEFT]->textureID = LoadTGA("Images//peter.tga");
+	meshList[GEO_LEFT]->textureID = LoadTGA("Images//left.tga");
+
 	meshList[GEO_RIGHT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	//meshList[GEO_RIGHT]->textureID = LoadTGA("Images//right.tga");
-	meshList[GEO_RIGHT]->textureID = LoadTGA("Images//zulmobile.tga");
+	meshList[GEO_RIGHT]->textureID = LoadTGA("Images//right.tga");
+
 	meshList[GEO_BACK] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	//meshList[GEO_BACK]->textureID = LoadTGA("Images//back.tga");
-	meshList[GEO_BACK]->textureID = LoadTGA("Images//goldenfreddy.tga");
+	meshList[GEO_BACK]->textureID = LoadTGA("Images//back.tga");
+
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
 	meshList[GEO_FRONT]->textureID = LoadTGA("Images//front.tga");
+
 	meshList[GEO_TOP] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	//meshList[GEO_TOP]->textureID = LoadTGA("Images//top.tga");
-	meshList[GEO_TOP]->textureID = LoadTGA("Images//foxy.tga");
+	meshList[GEO_TOP]->textureID = LoadTGA("Images//top.tga");
+
 	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	//meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//bottom.tga");
-	meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//maxverstappen.tga");
+	meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//black.tga");
+
 	//meshList[GEO_QUAD]->textureID = LoadTGA("Images//NYP.tga");
 
 	meshList[GEO_ZUL] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
@@ -217,7 +219,7 @@ void SceneText::HandleMouseInput() {
 
 void SceneText::Update(double dt)
 {
-	HandleKeyPress();
+	HandleKeyPress(dt);
 
 	if (KeyboardController::GetInstance()->IsKeyDown('I'))
 		light[0].position.z -= static_cast<float>(dt) * 5.f;
@@ -243,14 +245,14 @@ void SceneText::RenderSkybox()
 	modelStack.PushMatrix();
 	modelStack.Translate(0.f, 0.f, -250.f);
 	modelStack.Scale(5.f, 5.f, 5.f);
-	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+	modelStack.Rotate(-90.f, 0.f, 0.f, 1.f);
 	RenderMesh(meshList[GEO_FRONT], false);
 	modelStack.PopMatrix();
 	
 	// Back face (rotate 180 degrees around Y)
 	modelStack.PushMatrix();
 	modelStack.Translate(0.f, 0.f, 250.f);
-	modelStack.Rotate(180.f, 1.f, 1.f, 0.f);
+	modelStack.Rotate(-180.f, 1.f, 1.f, 0.f);
 	modelStack.Scale(5.f, 5.f, 5.f);
 	RenderMesh(meshList[GEO_BACK], false);
 	modelStack.PopMatrix();
@@ -259,7 +261,7 @@ void SceneText::RenderSkybox()
 	modelStack.PushMatrix();
 	modelStack.Translate(-250.f, 0.f, 0.f);
 	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
-	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+	modelStack.Rotate(-90.f, 0.f, 0.f, 1.f);
 	modelStack.Scale(5.f, 5.f, 5.f);
 	RenderMesh(meshList[GEO_LEFT], false);
 	modelStack.PopMatrix();
@@ -268,7 +270,7 @@ void SceneText::RenderSkybox()
 	modelStack.PushMatrix();
 	modelStack.Translate(250.f, 0.f, 0.f);
 	modelStack.Rotate(-90.f, 0.f, 1.f, 0.f);
-	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+	modelStack.Rotate(-90.f, 0.f, 0.f, 1.f);
 	modelStack.Scale(5.f, 5.f, 5.f);
 	RenderMesh(meshList[GEO_RIGHT], false);
 	modelStack.PopMatrix();
@@ -574,7 +576,7 @@ void SceneText::Exit()
 	glDeleteProgram(m_programID);
 }
 
-void SceneText::HandleKeyPress()
+void SceneText::HandleKeyPress(double dt)
 {
 	if (KeyboardController::GetInstance()->IsKeyPressed(0x31))
 	{
@@ -628,6 +630,46 @@ void SceneText::HandleKeyPress()
 		}
 
 		glUniform1i(m_parameters[U_LIGHT0_TYPE], light[0].type);
+	}
+
+	// Movement speed (units per second)
+	const float moveSpeed = 5.0f;
+	
+	// Calculate forward and right vectors based on camera orientation
+	glm::vec3 forward = glm::normalize(camera.target - camera.position);
+	glm::vec3 right = glm::normalize(glm::cross(forward, camera.up));
+
+	// Use IsKeyDown for continuous movement while holding the key
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_W))
+	{
+		// Move forward
+		float movement = moveSpeed * static_cast<float>(dt);
+		camera.position += forward * movement;
+		camera.target += forward * movement;
+	}
+
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_S))
+	{
+		// Move backward
+		float movement = moveSpeed * static_cast<float>(dt);
+		camera.position -= forward * movement;
+		camera.target -= forward * movement;
+	}
+
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_A))
+	{
+		// Move left (strafe)
+		float movement = moveSpeed * static_cast<float>(dt);
+		camera.position -= right * movement;
+		camera.target -= right * movement;
+	}
+
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_D))
+	{
+		// Move right (strafe)
+		float movement = moveSpeed * static_cast<float>(dt);
+		camera.position += right * movement;
+		camera.target += right * movement;
 	}
 
 }
