@@ -218,42 +218,51 @@ void SceneText::RenderSkybox()
 {
 	// Front face (no rotation needed if quad faces -Z by default)
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 0.f, -50.f);
+	modelStack.Translate(0.f, 0.f, -250.f);
+	modelStack.Scale(5.f, 5.f, 5.f);
+	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
 	RenderMesh(meshList[GEO_FRONT], false);
 	modelStack.PopMatrix();
-
+	
 	// Back face (rotate 180 degrees around Y)
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 0.f, 50.f);
-	modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+	modelStack.Translate(0.f, 0.f, 250.f);
+	modelStack.Rotate(180.f, 1.f, 1.f, 0.f);
+	modelStack.Scale(5.f, 5.f, 5.f);
 	RenderMesh(meshList[GEO_BACK], false);
 	modelStack.PopMatrix();
-
+	
 	// Left face (rotate 90 degrees around Y)
 	modelStack.PushMatrix();
-	modelStack.Translate(-50.f, 0.f, 0.f);
+	modelStack.Translate(-250.f, 0.f, 0.f);
 	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+	modelStack.Scale(5.f, 5.f, 5.f);
 	RenderMesh(meshList[GEO_LEFT], false);
 	modelStack.PopMatrix();
-
+	
 	// Right face (rotate -90 degrees around Y)
 	modelStack.PushMatrix();
-	modelStack.Translate(50.f, 0.f, 0.f);
+	modelStack.Translate(250.f, 0.f, 0.f);
 	modelStack.Rotate(-90.f, 0.f, 1.f, 0.f);
+	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+	modelStack.Scale(5.f, 5.f, 5.f);
 	RenderMesh(meshList[GEO_RIGHT], false);
 	modelStack.PopMatrix();
-
+	
 	// Top face (rotate -90 degrees around X)
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 50.f, 0.f);
+	modelStack.Translate(0.f, 250.f, 0.f);
 	modelStack.Rotate(90.f, 1.f, 0.f, 0.f);
+	modelStack.Rotate(180.f, 0.f, 0.f, 1.f);
+	modelStack.Scale(5.f, 5.f, 5.f);
 	RenderMesh(meshList[GEO_TOP], false);
 	modelStack.PopMatrix();
-
+	
 	// Bottom face (rotate 90 degrees around X)
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, -25.f, 0.f);
-	modelStack.Scale(25.f, 25.f, 25.f); // CHANGE TO 10
+	modelStack.Translate(0.f, -250.f, 0.f);
+	modelStack.Scale(5.f, 5.f, 5.f); // CHANGE TO 10
 	modelStack.Rotate(-90.f, 1.f, 0.f, 0.f);
 	RenderMesh(meshList[GEO_BOTTOM], false);
 	modelStack.PopMatrix();
@@ -329,6 +338,58 @@ void SceneText::RenderText(Mesh* mesh, std::string text, glm::vec3 color)
 }
 
 
+void SceneText::RenderTextOnScreen(Mesh* mesh, std::string
+	text, glm::vec3 color, float size, float x, float y)
+{
+	if (!mesh || mesh->textureID <= 0) //Proper error check
+		return;
+	// Enable blending
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_DEPTH_TEST);
+
+	glm::mat4 ortho = glm::ortho(0.f, 800.f, 0.f, 600.f, - 100.f, 100.f); // dimension of screen UI
+	projectionStack.PushMatrix();
+	projectionStack.LoadMatrix(ortho);
+
+	viewStack.PushMatrix();
+	viewStack.LoadIdentity(); //No need camera for ortho mode
+	modelStack.PushMatrix();
+	modelStack.LoadIdentity(); //Reset modelStack
+	modelStack.Translate(x, y, 0);
+	modelStack.Scale(size, size, size);
+
+	glUniform1i(m_parameters[U_TEXT_ENABLED], 1);
+	glUniform3fv(m_parameters[U_TEXT_COLOR], 1, &color.r);
+	glUniform1i(m_parameters[U_LIGHTENABLED], 0);
+	glUniform1i(m_parameters[U_COLOR_TEXTURE_ENABLED], 1);
+
+	glActiveTexture(GL_TEXTURE0);
+
+	glBindTexture(GL_TEXTURE_2D, mesh->textureID);
+	glUniform1i(m_parameters[U_COLOR_TEXTURE], 0);
+
+	for (unsigned i = 0; i < text.length(); ++i)
+	{
+		glm::mat4 characterSpacing = glm::translate(glm::mat4(1.f), glm::vec3(0.5f + i * 1.0f, 0.5f, 0));
+		glm::mat4 MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top() * characterSpacing;
+		glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, glm::value_ptr(MVP));
+		mesh->Render((unsigned)text[i] * 6, 6);
+	}
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glUniform1i(m_parameters[U_TEXT_ENABLED], 0);
+
+	projectionStack.PopMatrix();
+	viewStack.PopMatrix();
+	modelStack.PopMatrix();
+
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+}
+
+
 void SceneText::Render()
 {
 	// Clear color buffer every frame
@@ -391,6 +452,7 @@ void SceneText::Render()
 
 	RenderSkybox();
 	RenderMeshOnScreen(meshList[GEO_GUI], 50, 50, 10, 10);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Hello Screen", glm::vec3(0, 1, 0), 40, 0, 0);
 	modelStack.PopMatrix();
 }
 
