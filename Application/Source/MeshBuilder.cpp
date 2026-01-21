@@ -627,3 +627,56 @@ Mesh* MeshBuilder::GenerateOBJMTL(const std::string& meshName,
 	mesh->mode = Mesh::DRAW_TRIANGLES;
 	return mesh;
 }
+
+
+Mesh* MeshBuilder::GenerateText(const std::string& meshName, unsigned numRow, unsigned numCol)
+{
+	Vertex v;
+	std::vector<Vertex> vertex_buffer_data;
+	std::vector<unsigned> index_buffer_data;
+
+	float width = 1.f / numCol;
+	float height = 1.f / numRow;
+	unsigned offset = 0;
+
+	for (unsigned row = 0; row < numRow; ++row)
+	{
+		for (unsigned col = 0; col < numCol; ++col)
+		{
+			// Go to Step 6 for the implementation
+			v.pos = glm::vec3(0.5f, 0.5f, 0.f);
+			v.normal = glm::vec3(0, 0, 1);
+			v.texCoord = glm::vec2(width * (col + 1), height * (numRow - row));
+			vertex_buffer_data.push_back(v);
+			v.pos = glm::vec3(-0.5f, 0.5f, 0.f);
+			v.normal = glm::vec3(0, 0, 1);
+			v.texCoord = glm::vec2(width * (col + 0), height * (numRow - row));
+			vertex_buffer_data.push_back(v);
+			v.pos = glm::vec3(-0.5f, -0.5f, 0.f);
+			v.normal = glm::vec3(0, 0, 1);
+			v.texCoord = glm::vec2(width * (col + 0), height * (numRow - 1 - row));
+			vertex_buffer_data.push_back(v);
+			v.pos = glm::vec3(0.5f, -0.5f, 0.f);
+			v.normal = glm::vec3(0, 0, 1);
+			v.texCoord = glm::vec2(width * (col + 1), height * (numRow - 1 - row));
+			vertex_buffer_data.push_back(v);
+			index_buffer_data.push_back(0 + offset);
+			index_buffer_data.push_back(1 + offset);
+			index_buffer_data.push_back(2 + offset);
+			index_buffer_data.push_back(0 + offset);
+			index_buffer_data.push_back(2 + offset);
+			index_buffer_data.push_back(3 + offset);
+			offset += 4;
+		}
+	}
+
+	Mesh* mesh = new Mesh(meshName);
+	glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexBuffer);
+	glBufferData(GL_ARRAY_BUFFER, vertex_buffer_data.size() * sizeof(Vertex), &vertex_buffer_data[0], GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->indexBuffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_buffer_data.size() * sizeof(GLuint), &index_buffer_data[0], GL_STATIC_DRAW);
+
+	mesh->mode = Mesh::DRAW_TRIANGLES;
+	mesh->indexSize = index_buffer_data.size();
+	return mesh;
+}

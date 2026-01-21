@@ -41,6 +41,8 @@ public:
 	static unsigned locationKd;
 	static unsigned locationKs;
 	static unsigned locationNs;
+
+	void Render(unsigned offset, unsigned count);
 };
 
 #endif
