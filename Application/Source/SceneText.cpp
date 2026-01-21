@@ -76,6 +76,13 @@ void SceneText::Init()
 	// Initialise camera properties
 	camera.Init(45.f, 45.f, 10.f);
 
+	/*
+	camera.Init(
+		glm::vec3(4, 3, 3),
+		glm::vec3(0, 0, 0),
+		glm::vec3(0, 1, 0)
+	);*/
+
 	// Init VBO here
 	for (int i = 0; i < NUM_GEOMETRY; ++i)
 	{
@@ -86,25 +93,41 @@ void SceneText::Init()
 	meshList[GEO_SPHERE] = MeshBuilder::GenerateSphere("Sun", glm::vec3(1.f, 1.f, 1.f), 1.f, 16, 16);
 	//meshList[GEO_CUBE] = MeshBuilder::GenerateCube("Arm", glm::vec3(0.5f, 0.5f, 0.5f), 1.f);
 	meshList[GEO_LEFT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_LEFT]->textureID = LoadTGA("Images//left.tga");
+	//meshList[GEO_LEFT]->textureID = LoadTGA("Images//left.tga");
+	meshList[GEO_LEFT]->textureID = LoadTGA("Images//peter.tga");
 	meshList[GEO_RIGHT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_RIGHT]->textureID = LoadTGA("Images//right.tga");
+	//meshList[GEO_RIGHT]->textureID = LoadTGA("Images//right.tga");
+	meshList[GEO_RIGHT]->textureID = LoadTGA("Images//zulmobile.tga");
 	meshList[GEO_BACK] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_BACK]->textureID = LoadTGA("Images//back.tga");
+	//meshList[GEO_BACK]->textureID = LoadTGA("Images//back.tga");
+	meshList[GEO_BACK]->textureID = LoadTGA("Images//goldenfreddy.tga");
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
 	meshList[GEO_FRONT]->textureID = LoadTGA("Images//front.tga");
 	meshList[GEO_TOP] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_TOP]->textureID = LoadTGA("Images//top.tga");
+	//meshList[GEO_TOP]->textureID = LoadTGA("Images//top.tga");
+	meshList[GEO_TOP]->textureID = LoadTGA("Images//foxy.tga");
 	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//bottom.tga");
+	//meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//bottom.tga");
+	meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//maxverstappen.tga");
 	//meshList[GEO_QUAD]->textureID = LoadTGA("Images//NYP.tga");
 
-	meshList[GEO_GUI] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	meshList[GEO_GUI]->textureID = LoadTGA("Images//color.tga");
+	meshList[GEO_ZUL] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
+	meshList[GEO_ZUL]->textureID = LoadTGA("Images//zulmobile.tga");
+
+	meshList[GEO_PETER] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
+	meshList[GEO_PETER]->textureID = LoadTGA("Images//peter.tga");
+
+	//meshList[GEO_GUI] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	//meshList[GEO_GUI]->textureID = LoadTGA("Images//color.tga");
 
 	// 16 x 16 is the number of columns and rows for the text
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Images//calibri.tga");
+
+	meshList[GEO_GUI] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[GEO_GUI]->textureID = LoadTGA("Images//zulmobile.tga");
+
+	meshList[GEO_BUGATTI] = MeshBuilder::GenerateOBJMTL("bugatti", "Models//bugatti.obj", "Models//bugatti.mtl");
 
 	//meshList[GEO_SPHERE_BLUE] = MeshBuilder::GenerateSphere("Earth", Color(0.4f, 0.2f, 0.8f), 1.f, 12, 12);
 	//meshList[GEO_SPHERE_GREY] = MeshBuilder::GenerateSphere("Moon", Color(0.5f, 0.5f, 0.5f), 1.f, 4, 4);
@@ -287,7 +310,7 @@ void SceneText::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, fl
 	modelStack.Translate(x, y, 0);
 
 	// To do: Use modelStack to scale the GUI
-	modelStack.Scale(25, 25, 1);
+	modelStack.Scale(100, 100, 1);
 
 	RenderMesh(mesh, false); //UI should not have light
 
@@ -447,12 +470,55 @@ void SceneText::Render()
 	meshList[GEO_QUAD]->material.kShininess = 5.0f;
 	RenderMesh(meshList[GEO_QUAD], true);*/
 
+	/*
+	// Apply scale, translate, rotate
+	modelStack.Translate(0.f, 0.f, 0.f);
+	modelStack.Scale(1.f, 1.f, 1.f);
+	meshList[GEO_BUGATTI]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
+	meshList[GEO_BUGATTI]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+	meshList[GEO_BUGATTI]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+	meshList[GEO_BUGATTI]->material.kShininess = 5.0f;
+
+	RenderMesh(meshList[GEO_BUGATTI], true);
+	*/
+
 	//scale, translate, rotate
 	RenderText(meshList[GEO_TEXT], "Hello World", glm::vec3(0, 1, 0));
 
 	RenderSkybox();
 	RenderMeshOnScreen(meshList[GEO_GUI], 50, 50, 10, 10);
-	RenderTextOnScreen(meshList[GEO_TEXT], "Hello Screen", glm::vec3(0, 1, 0), 40, 0, 0);
+	RenderTextOnScreen(meshList[GEO_TEXT], "zulmobile", glm::vec3(0, 1, 0), 40, 0, 0);
+	modelStack.PopMatrix();
+
+	/*
+	modelStack.PushMatrix();
+	modelStack.Translate(0.f, 0.f, 0.f);
+	modelStack.Scale(1.f, 1.f, 1.f);
+	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+	meshList[GEO_ZUL]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
+	meshList[GEO_ZUL]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+	meshList[GEO_ZUL]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+	meshList[GEO_ZUL]->material.kShininess = 5.0f;
+	RenderMesh(meshList[GEO_ZUL], true);
+	modelStack.PopMatrix();
+	*/
+
+	modelStack.PushMatrix();
+	modelStack.Translate(0.f, 0.f, 0.f);
+	modelStack.Scale(1.f, 1.f, 1.f);
+	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+	meshList[GEO_PETER]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
+	meshList[GEO_PETER]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+	meshList[GEO_PETER]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+	meshList[GEO_PETER]->material.kShininess = 5.0f;
+	RenderMesh(meshList[GEO_PETER], true);
+	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	modelStack.Translate(7.f, 0.f, 0.f);
+	RenderText(meshList[GEO_TEXT], "< peter", glm::vec3(0, 1, 0));
 	modelStack.PopMatrix();
 }
 
@@ -547,7 +613,7 @@ void SceneText::HandleKeyPress()
 		else
 			light[0].power = 0.1f;
 		glUniform1f(m_parameters[U_LIGHT0_POWER], light[0].power);
-	}
+	};
 
 	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_TAB))
 	{

@@ -6,6 +6,7 @@
 #include "AltAzCamera.h"
 #include "MatrixStack.h"
 #include "Light.h"
+#include "FPCamera.h"
 
 class SceneText : public Scene
 {
@@ -23,6 +24,9 @@ public:
 		GEO_BACK,
 		GEO_GUI,
 		GEO_TEXT,
+		GEO_BUGATTI,
+		GEO_ZUL,
+		GEO_PETER,
 		NUM_GEOMETRY,
 	};
 
@@ -74,6 +78,7 @@ private:
 	unsigned m_parameters[U_TOTAL];
 
 	AltAzCamera camera;
+	//FPCamera camera;
 	int projType = 1; // fix to 0 for orthographic, 1 for projection
 
 	MatrixStack modelStack, viewStack, projectionStack;
