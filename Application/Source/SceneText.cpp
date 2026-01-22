@@ -45,6 +45,7 @@ void SceneText::Init()
 	glBindVertexArray(m_vertexArrayID);
 
 	// Load the shader programs
+	m_programID = LoadShaders("Shader//Texture.vertexshader", "Shader//Texture.fragmentshader");
 	m_programID = LoadShaders("Shader//Texture.vertexshader", "Shader//Text.fragmentshader");
 	glUseProgram(m_programID);
 
@@ -72,6 +73,7 @@ void SceneText::Init()
 	m_parameters[U_LIGHTENABLED] = glGetUniformLocation(m_programID, "lightEnabled");
 	m_parameters[U_NUMLIGHTS] = glGetUniformLocation(m_programID, "numLights");
 
+	Mesh::SetMaterialLoc(m_parameters[U_MATERIAL_AMBIENT], m_parameters[U_MATERIAL_DIFFUSE], m_parameters[U_MATERIAL_SPECULAR], m_parameters[U_MATERIAL_SHININESS]);
 
 	// Initialise camera properties
 	//camera.Init(45.f, 45.f, 10.f);
@@ -128,6 +130,12 @@ void SceneText::Init()
 
 	meshList[GEO_GUI] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_GUI]->textureID = LoadTGA("Images//zulmobile.tga");
+
+	meshList[GEO_EYEBALL] = MeshBuilder::GenerateOBJMTL("eyeballmtl", "Models//eyeball.obj", "Models//eyeball.mtl");
+	meshList[GEO_EYEBALL]->textureID = LoadTGA("Images//Eye_D.tga");
+
+	meshList[GEO_TOWER] = MeshBuilder::GenerateOBJMTL("tower", "Models//wooden watch tower2.obj", "Models//wooden watch tower2.mtl");
+	meshList[GEO_TOWER]->textureID = LoadTGA("Images//Wood_Tower_Col.tga");
 
 	meshList[GEO_BUGATTI] = MeshBuilder::GenerateOBJMTL("bugatti", "Models//bugatti.obj", "Models//bugatti.mtl");
 
@@ -230,51 +238,51 @@ void SceneText::RenderSkybox()
 {
 	// Front face (no rotation needed if quad faces -Z by default)
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 0.f, -250.f);
-	modelStack.Scale(5.f, 5.f, 5.f);
+	modelStack.Translate(0.f, 0.f, -750.f);
+	modelStack.Scale(15.f, 15.f, 15.f);
 	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
 	RenderMesh(meshList[GEO_FRONT], false);
 	modelStack.PopMatrix();
 	
 	// Back face (rotate 180 degrees around Y)
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 0.f, 250.f);
+	modelStack.Translate(0.f, 0.f, 750.f);
 	modelStack.Rotate(-180.f, 1.f, 1.f, 0.f);
-	modelStack.Scale(5.f, 5.f, 5.f);
+	modelStack.Scale(15.f, 15.f, 15.f);
 	RenderMesh(meshList[GEO_BACK], false);
 	modelStack.PopMatrix();
 	
 	// Left face (rotate 90 degrees around Y)
 	modelStack.PushMatrix();
-	modelStack.Translate(-250.f, 0.f, 0.f);
+	modelStack.Translate(-750.f, 0.f, 0.f);
 	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
 	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
-	modelStack.Scale(5.f, 5.f, 5.f);
+	modelStack.Scale(15.f, 15.f, 15.f);
 	RenderMesh(meshList[GEO_LEFT], false);
 	modelStack.PopMatrix();
 	
 	// Right face (rotate -90 degrees around Y)
 	modelStack.PushMatrix();
-	modelStack.Translate(250.f, 0.f, 0.f);
+	modelStack.Translate(750.f, 0.f, 0.f);
 	modelStack.Rotate(-90.f, 0.f, 1.f, 0.f);
 	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
-	modelStack.Scale(5.f, 5.f, 5.f);
+	modelStack.Scale(15.f, 15.f, 15.f);
 	RenderMesh(meshList[GEO_RIGHT], false);
 	modelStack.PopMatrix();
 	
 	// Top face (rotate -90 degrees around X)
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 250.f, 0.f);
+	modelStack.Translate(0.f, 750.f, 0.f);
 	modelStack.Rotate(90.f, 1.f, 0.f, 0.f);
 	modelStack.Rotate(180.f, 0.f, 0.f, 1.f);
-	modelStack.Scale(5.f, 5.f, 5.f);
+	modelStack.Scale(15.f, 15.f, 15.f);
 	RenderMesh(meshList[GEO_TOP], false);
 	modelStack.PopMatrix();
 	
 	// Bottom face (rotate 90 degrees around X)
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, -250.f, 0.f);
-	modelStack.Scale(5.f, 5.f, 5.f); // CHANGE TO 10
+	modelStack.Translate(0.f, -750.f, 0.f);
+	modelStack.Scale(15.f, 15.f, 15.f); // CHANGE TO 10
 	modelStack.Rotate(-90.f, 1.f, 0.f, 0.f);
 	RenderMesh(meshList[GEO_BOTTOM], false);
 	modelStack.PopMatrix();
@@ -437,65 +445,39 @@ void SceneText::Render()
 		glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
 	}
 
-	modelStack.PushMatrix();
 	// Render objects
-	RenderMesh(meshList[GEO_AXES], false);
+	//RenderMesh(meshList[GEO_AXES], false);
 
-	// Render light
-	modelStack.Translate(light[0].position.x, light[0].position.y, light[0].position.z);
+	// Render light sphere - isolated transformations
+	modelStack.PushMatrix();
+	modelStack.Translate(0.f, 750.f, 0.f);
 	modelStack.Scale(0.1f, 0.1f, 0.1f);
 	meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
 	meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
 	meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 	meshList[GEO_SPHERE]->material.kShininess = 5.0f;
 	RenderMesh(meshList[GEO_SPHERE], true);
-	
+	modelStack.PopMatrix();
 
-	/*modelStack.Translate(0.f, 0.f, 0.f);
-	modelStack.Scale(3.f, 3.f, 3.f);
-	meshList[GEO_QUAD]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList[GEO_QUAD]->material.kDiffuse = glm::vec3(0.9f, 0.9f, 0.9f);
-	meshList[GEO_QUAD]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-	meshList[GEO_QUAD]->material.kShininess = 5.0f;
-	RenderMesh(meshList[GEO_QUAD], true);*/
+	// EYEBALL TEST - isolated transformations
+	modelStack.PushMatrix();
+	modelStack.Translate(0.f, 100.f, -150.f);
+	modelStack.Scale(20.f, 20.f, 20.f);
+	modelStack.Rotate(25.f, 1.f, 0.f, 0.f);
+	meshList[GEO_EYEBALL]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
+	meshList[GEO_EYEBALL]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+	meshList[GEO_EYEBALL]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+	meshList[GEO_EYEBALL]->material.kShininess = 5.0f;
+	RenderMesh(meshList[GEO_EYEBALL], true);
+	modelStack.PopMatrix();
 
-	/*
-	// Apply scale, translate, rotate
-	modelStack.Translate(0.f, 0.f, 0.f);
-	modelStack.Scale(1.f, 1.f, 1.f);
-	meshList[GEO_BUGATTI]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
-	meshList[GEO_BUGATTI]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-	meshList[GEO_BUGATTI]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-	meshList[GEO_BUGATTI]->material.kShininess = 5.0f;
-
-	RenderMesh(meshList[GEO_BUGATTI], true);
-	*/
-
-	//scale, translate, rotate
-	RenderText(meshList[GEO_TEXT], "Hello World", glm::vec3(0, 1, 0));
-
+	// Skybox - now renders at world origin without accumulated transforms
 	RenderSkybox();
-	RenderMeshOnScreen(meshList[GEO_GUI], 50, 50, 10, 10);
-	RenderTextOnScreen(meshList[GEO_TEXT], "zulmobile", glm::vec3(0, 1, 0), 40, 0, 0);
-	modelStack.PopMatrix();
 
-	/*
+	// Peter quad
 	modelStack.PushMatrix();
 	modelStack.Translate(0.f, 0.f, 0.f);
-	modelStack.Scale(1.f, 1.f, 1.f);
-	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
-	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
-	meshList[GEO_ZUL]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
-	meshList[GEO_ZUL]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-	meshList[GEO_ZUL]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-	meshList[GEO_ZUL]->material.kShininess = 5.0f;
-	RenderMesh(meshList[GEO_ZUL], true);
-	modelStack.PopMatrix();
-	*/
-
-	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 0.f, 0.f);
-	modelStack.Scale(1.f, 1.f, 1.f);
+	modelStack.Scale(9.f, 1.f, 9.f);
 	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
 	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
 	meshList[GEO_PETER]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
@@ -505,10 +487,34 @@ void SceneText::Render()
 	RenderMesh(meshList[GEO_PETER], true);
 	modelStack.PopMatrix();
 
+	/*
+	// Peter label
 	modelStack.PushMatrix();
 	modelStack.Translate(7.f, 0.f, 0.f);
 	RenderText(meshList[GEO_TEXT], "< peter", glm::vec3(0, 1, 0));
 	modelStack.PopMatrix();
+	*/
+
+	// Text in world space
+	modelStack.PushMatrix();
+	modelStack.Translate(25.f, 10.f, 0.f);
+	RenderText(meshList[GEO_TEXT], "Hello World", glm::vec3(0, 1, 0));
+	modelStack.PopMatrix();
+
+	// Tower
+	modelStack.PushMatrix();
+	modelStack.Translate(-10.f, 1.f, 0.f);
+	modelStack.Scale(5.f, 5.f, 5.f);
+	meshList[GEO_TOWER]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
+	meshList[GEO_TOWER]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+	meshList[GEO_TOWER]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+	meshList[GEO_TOWER]->material.kShininess = 5.0f;
+	RenderMesh(meshList[GEO_TOWER], true);
+	modelStack.PopMatrix();
+
+	// UI elements (already isolated in RenderMeshOnScreen)
+	RenderMeshOnScreen(meshList[GEO_GUI], 50, 50, 10, 10);
+	RenderTextOnScreen(meshList[GEO_TEXT], "zulmobile", glm::vec3(0, 1, 0), 40, 0, 0);
 }
 
 
