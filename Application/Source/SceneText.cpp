@@ -96,22 +96,28 @@ void SceneText::Init()
 	//meshList[GEO_CUBE] = MeshBuilder::GenerateCube("Arm", glm::vec3(0.5f, 0.5f, 0.5f), 1.f);
 
 	meshList[GEO_LEFT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_LEFT]->textureID = LoadTGA("Images//saharaleft.tga");
+	//meshList[GEO_LEFT]->textureID = LoadTGA("Images//saharaleft.tga");
+	meshList[GEO_LEFT]->textureID = LoadTGA("Images//left.tga");
 
 	meshList[GEO_RIGHT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_RIGHT]->textureID = LoadTGA("Images//sahararight2.tga");
+	//meshList[GEO_RIGHT]->textureID = LoadTGA("Images//sahararight2.tga");
+	meshList[GEO_RIGHT]->textureID = LoadTGA("Images//right.tga");
 
 	meshList[GEO_BACK] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_BACK]->textureID = LoadTGA("Images//saharaback.tga");
+	//meshList[GEO_BACK]->textureID = LoadTGA("Images//saharaback.tga");
+	meshList[GEO_BACK]->textureID = LoadTGA("Images//back.tga");
 
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_FRONT]->textureID = LoadTGA("Images//saharafront.tga");
+	//meshList[GEO_FRONT]->textureID = LoadTGA("Images//saharafront.tga");
+	meshList[GEO_FRONT]->textureID = LoadTGA("Images//front.tga");
 
 	meshList[GEO_TOP] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_TOP]->textureID = LoadTGA("Images//saharatop.tga");
+	//meshList[GEO_TOP]->textureID = LoadTGA("Images//saharatop.tga");
+	meshList[GEO_TOP]->textureID = LoadTGA("Images//top.tga");
 
 	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//saharabottom.tga");
+	//meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//saharabottom.tga");
+	meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//bottom.tga");
 
 	//meshList[GEO_QUAD]->textureID = LoadTGA("Images//NYP.tga");
 
@@ -238,51 +244,51 @@ void SceneText::RenderSkybox()
 {
 	// Front face (no rotation needed if quad faces -Z by default)
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 0.f, -750.f);
-	modelStack.Scale(15.f, 15.f, 15.f);
+	modelStack.Translate(0.f, 0.f, -500.f);
+	modelStack.Scale(10.f, 10.f, 10.f);
 	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
 	RenderMesh(meshList[GEO_FRONT], false);
 	modelStack.PopMatrix();
 	
 	// Back face (rotate 180 degrees around Y)
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 0.f, 750.f);
+	modelStack.Translate(0.f, 0.f, 500.f);
 	modelStack.Rotate(-180.f, 1.f, 1.f, 0.f);
-	modelStack.Scale(15.f, 15.f, 15.f);
+	modelStack.Scale(10.f, 10.f, 10.f);
 	RenderMesh(meshList[GEO_BACK], false);
 	modelStack.PopMatrix();
 	
 	// Left face (rotate 90 degrees around Y)
 	modelStack.PushMatrix();
-	modelStack.Translate(-750.f, 0.f, 0.f);
+	modelStack.Translate(-500.f, 0.f, 0.f);
 	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
 	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
-	modelStack.Scale(15.f, 15.f, 15.f);
+	modelStack.Scale(10.f, 10.f, 10.f);
 	RenderMesh(meshList[GEO_LEFT], false);
 	modelStack.PopMatrix();
 	
 	// Right face (rotate -90 degrees around Y)
 	modelStack.PushMatrix();
-	modelStack.Translate(750.f, 0.f, 0.f);
+	modelStack.Translate(500.f, 0.f, 0.f);
 	modelStack.Rotate(-90.f, 0.f, 1.f, 0.f);
 	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
-	modelStack.Scale(15.f, 15.f, 15.f);
+	modelStack.Scale(10.f, 10.f, 10.f);
 	RenderMesh(meshList[GEO_RIGHT], false);
 	modelStack.PopMatrix();
 	
 	// Top face (rotate -90 degrees around X)
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 750.f, 0.f);
+	modelStack.Translate(0.f, 500.f, 0.f);
 	modelStack.Rotate(90.f, 1.f, 0.f, 0.f);
 	modelStack.Rotate(180.f, 0.f, 0.f, 1.f);
-	modelStack.Scale(15.f, 15.f, 15.f);
+	modelStack.Scale(10.f, 10.f, 10.f);
 	RenderMesh(meshList[GEO_TOP], false);
 	modelStack.PopMatrix();
 	
 	// Bottom face (rotate 90 degrees around X)
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, -750.f, 0.f);
-	modelStack.Scale(15.f, 15.f, 15.f); // CHANGE TO 10
+	modelStack.Translate(0.f, -500.f, 0.f);
+	modelStack.Scale(10.f, 10.f, 10.f); // CHANGE TO 10
 	modelStack.Rotate(-90.f, 1.f, 0.f, 0.f);
 	RenderMesh(meshList[GEO_BOTTOM], false);
 	modelStack.PopMatrix();
@@ -665,4 +671,19 @@ void SceneText::HandleKeyPress(double dt)
 		camera.target += right * movement;
 	}
 
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_E))
+	{
+		// Move upwards
+		float movement = moveSpeed * static_cast<float>(dt);
+		camera.position += camera.up * movement;
+		camera.target += camera.up * movement;
+	}
+
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_Q))
+	{
+		// Move upwards
+		float movement = moveSpeed * static_cast<float>(dt);
+		camera.position -= camera.up * movement;
+		camera.target -= camera.up * movement;
+	}
 }
