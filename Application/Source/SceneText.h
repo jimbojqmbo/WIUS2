@@ -97,6 +97,12 @@ private:
 	void RenderTextOnScreen(Mesh* mesh, std::string text, glm::vec3 color, float size, float x, float y);
 
 	glm::vec3 change;
+
+	// Mouse control
+	float mouseSensitivity = 0.1f;
+	bool firstMouse = true;
+	double lastMouseX = 400.0;  // Center of 800x600 window
+	double lastMouseY = 300.0;
 };
 
 #endif

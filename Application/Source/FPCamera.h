@@ -13,6 +13,10 @@ public:
     glm::vec3 target;
     glm::vec3 up;
 
+    // Add azimuth and altitude for mouse look support
+    float azimuth = 0.0f;
+    float altitude = 0.0f;
+
     FPCamera();
     ~FPCamera();
 

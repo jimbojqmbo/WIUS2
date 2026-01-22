@@ -94,22 +94,22 @@ void SceneText::Init()
 	//meshList[GEO_CUBE] = MeshBuilder::GenerateCube("Arm", glm::vec3(0.5f, 0.5f, 0.5f), 1.f);
 
 	meshList[GEO_LEFT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_LEFT]->textureID = LoadTGA("Images//left.tga");
+	meshList[GEO_LEFT]->textureID = LoadTGA("Images//saharaleft.tga");
 
 	meshList[GEO_RIGHT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_RIGHT]->textureID = LoadTGA("Images//right.tga");
+	meshList[GEO_RIGHT]->textureID = LoadTGA("Images//sahararight2.tga");
 
 	meshList[GEO_BACK] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_BACK]->textureID = LoadTGA("Images//back.tga");
+	meshList[GEO_BACK]->textureID = LoadTGA("Images//saharaback.tga");
 
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_FRONT]->textureID = LoadTGA("Images//front.tga");
+	meshList[GEO_FRONT]->textureID = LoadTGA("Images//saharafront.tga");
 
 	meshList[GEO_TOP] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_TOP]->textureID = LoadTGA("Images//top.tga");
+	meshList[GEO_TOP]->textureID = LoadTGA("Images//saharatop.tga");
 
 	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//black.tga");
+	meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//saharabottom.tga");
 
 	//meshList[GEO_QUAD]->textureID = LoadTGA("Images//NYP.tga");
 
@@ -169,52 +169,39 @@ void SceneText::Init()
 }
 
 void SceneText::HandleMouseInput() {
-	static bool isLeftUp = false;
-	static bool isRightUp = false;
-	// Process Left button
-	if (!isLeftUp && MouseController::GetInstance() -> IsButtonDown(GLFW_MOUSE_BUTTON_LEFT))
-	{
-		isLeftUp = true;
-		std::cout << "LBUTTON DOWN" << std::endl;
-	}
-	else if (isLeftUp && MouseController::GetInstance() -> IsButtonUp(GLFW_MOUSE_BUTTON_LEFT))
-	{
-		isLeftUp = false;
-		std::cout << "LBUTTON UP" << std::endl;
-	}
-	// Continue to do for right button
-	if (!isRightUp && MouseController::GetInstance()->IsButtonDown(GLFW_MOUSE_BUTTON_RIGHT))
-	{
-		isRightUp = true;
-		std::cout << "RBUTTON DOWN" << std::endl;
-	}
-	else if (isRightUp && MouseController::GetInstance()->IsButtonUp(GLFW_MOUSE_BUTTON_RIGHT))
-	{
-		isRightUp = false;
-		std::cout << "RBUTTON UP" << std::endl;
+	double mouseX = MouseController::GetInstance()->GetMousePositionX();
+	double mouseY = MouseController::GetInstance()->GetMousePositionY();
+
+	// Skip first frame to avoid large delta
+	if (firstMouse) {
+		lastMouseX = mouseX;
+		lastMouseY = mouseY;
+		firstMouse = false;
+		return;
 	}
 
-	if (!isLeftUp && MouseController::GetInstance() -> IsButtonDown(GLFW_MOUSE_BUTTON_LEFT))
-	{
-		isLeftUp = true;
-		std::cout << "LBUTTON DOWN" << std::endl;
+	// Calculate mouse movement delta
+	double deltaX = mouseX - lastMouseX;
+	double deltaY = lastMouseY - mouseY;  // Reversed: y-coordinates go from bottom to top
 
-		// Step 3
-		// transform into UI space
-		double x = MouseController::GetInstance() -> GetMousePositionX();
-		double y = 600 - MouseController::GetInstance() -> GetMousePositionY();
+	lastMouseX = mouseX;
+	lastMouseY = mouseY;
 
-		// Check if mouse click position is within the GUI box
-		// Change the boundaries as necessary
-		if (x > 0 && x < 100 && y > 0 && y < 100) {
-			std::cout << "GUI IS CLICKED" << std::endl;
-		}
-		// End of step 3
-	}
+	// Apply sensitivity
+	deltaX *= mouseSensitivity;
+	deltaY *= mouseSensitivity;
 
-	if (MouseController::GetInstance()->IsButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
-		std::cout << "LMU PRESSED" << std::endl;
-	}
+	// Update camera rotation based on mouse movement
+	// This depends on your AltAzCamera implementation
+	// Typical approach:
+	camera.azimuth += static_cast<float>(deltaX);
+	camera.altitude += static_cast<float>(deltaY);
+	
+	// Clamp altitude to prevent flipping
+	if (camera.altitude > 89.0f)
+		camera.altitude = 89.0f;
+	if (camera.altitude < -89.0f)
+		camera.altitude = -89.0f;
 }
 
 void SceneText::Update(double dt)
@@ -245,7 +232,7 @@ void SceneText::RenderSkybox()
 	modelStack.PushMatrix();
 	modelStack.Translate(0.f, 0.f, -250.f);
 	modelStack.Scale(5.f, 5.f, 5.f);
-	modelStack.Rotate(-90.f, 0.f, 0.f, 1.f);
+	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
 	RenderMesh(meshList[GEO_FRONT], false);
 	modelStack.PopMatrix();
 	
@@ -261,7 +248,7 @@ void SceneText::RenderSkybox()
 	modelStack.PushMatrix();
 	modelStack.Translate(-250.f, 0.f, 0.f);
 	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
-	modelStack.Rotate(-90.f, 0.f, 0.f, 1.f);
+	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
 	modelStack.Scale(5.f, 5.f, 5.f);
 	RenderMesh(meshList[GEO_LEFT], false);
 	modelStack.PopMatrix();
@@ -270,7 +257,7 @@ void SceneText::RenderSkybox()
 	modelStack.PushMatrix();
 	modelStack.Translate(250.f, 0.f, 0.f);
 	modelStack.Rotate(-90.f, 0.f, 1.f, 0.f);
-	modelStack.Rotate(-90.f, 0.f, 0.f, 1.f);
+	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
 	modelStack.Scale(5.f, 5.f, 5.f);
 	RenderMesh(meshList[GEO_RIGHT], false);
 	modelStack.PopMatrix();

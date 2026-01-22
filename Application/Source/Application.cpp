@@ -1,4 +1,3 @@
-
 #include "Application.h"
 
 //Include GLEW
@@ -98,7 +97,7 @@ void Application::Init()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //We don't want the old OpenGL
 
 	//Create a window and create its OpenGL context
-	m_window = glfwCreateWindow(1280, 720, "DX1111 OPENGL FRAMEWORK", NULL, NULL);
+	m_window = glfwCreateWindow(1920, 1080, "DX1111 OPENGL FRAMEWORK", NULL, NULL);
 
 	//If the window couldn't be created
 	if (!m_window)
@@ -122,10 +121,8 @@ void Application::Init()
 	glfwSetMouseButtonCallback(m_window, mousebtn_callback);
 	//Sets the mouse scroll callback
 	glfwSetScrollCallback(m_window, mousescroll_callback);
-	if (enablePointer == false)
-		glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	else if (showPointer == false)
-		glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+	// Hide and capture the cursor for FPS-style camera control
+	glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	//Sets the resize callback to handle window resizing
 	glfwSetWindowSizeCallback(m_window, resize_callback);
