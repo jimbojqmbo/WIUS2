@@ -5,6 +5,7 @@ layout(location = 0) in vec3 vertexPosition_modelspace;
 layout(location = 1) in vec3 vertexColor;
 layout(location = 2) in vec3 vertexNormal_modelspace;
 layout(location = 3) in vec2 vertexTexCoord;
+layout(location = 4) in vec3 instancePosition;
 
 // Output data ; will be interpolated for each fragment.
 out vec3 vertexPosition_cameraspace;
@@ -19,6 +20,11 @@ uniform mat4 MV_inverse_transpose;
 uniform bool lightEnabled;
 
 void main(){
+	// Apply instance offset
+    vec4 worldPosition = vec4(vertexPosition_modelspace + instancePosition, 1.0);
+    
+    gl_Position = MVP * worldPosition;
+    
 	// Output position of the vertex, in clip space : MVP * position
 	gl_Position =  MVP * vec4(vertexPosition_modelspace, 1);
 	

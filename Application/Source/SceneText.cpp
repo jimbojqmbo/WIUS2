@@ -78,12 +78,20 @@ void SceneText::Init()
 	// Initialise camera properties
 	//camera.Init(45.f, 45.f, 10.f);
 
-	
 	camera.Init(
-		glm::vec3(4, 0, 0),
-		glm::vec3(0, 0, 0),
-		glm::vec3(0, 1, 0)
+		glm::vec3(4.0f, 3.0f, 0.0f), // position: Y = 1.0f
+		glm::vec3(0.0f, 1.0f, 0.0f), // target:  Y = 1.0f (same height -> no pitch)
+		glm::vec3(0.0f, 1.0f, 0.0f)  // world up
 	);
+
+	// enforce minimum Y at launch
+	if (camera.position.y < 3.0f) {
+		camera.position.y = 3.0f;
+		// keep the camera looking at the same relative height (adjust target to avoid looking too far down)
+		if (camera.target.y < 3.0f) camera.target.y = 3.0f;
+		// re-initialize so FPCamera::Init() recomputes its internal vectors (Refresh)
+		camera.Init(camera.position, camera.target, camera.up);
+	}
 
 	// Init VBO here
 	for (int i = 0; i < NUM_GEOMETRY; ++i)
@@ -126,6 +134,9 @@ void SceneText::Init()
 
 	meshList[GEO_PETER] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
 	meshList[GEO_PETER]->textureID = LoadTGA("Images//peter.tga");
+
+	meshList[GEO_COBBLESTONE] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
+	meshList[GEO_COBBLESTONE]->textureID = LoadTGA("Images//cobblestone.tga");
 
 	//meshList[GEO_GUI] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	//meshList[GEO_GUI]->textureID = LoadTGA("Images//color.tga");
@@ -216,6 +227,21 @@ void SceneText::HandleMouseInput() {
 		camera.altitude = 89.0f;
 	if (camera.altitude < -89.0f)
 		camera.altitude = -89.0f;
+
+	// convert spherical az/alt to direction and update camera.target
+	float az = glm::radians(camera.azimuth);
+	float alt = glm::radians(camera.altitude);
+
+	// spherical -> cartesian (y is up)
+	glm::vec3 dir;
+	dir.x = cosf(alt) * cosf(az);
+	dir.y = sinf(alt);
+	dir.z = cosf(alt) * sinf(az);
+
+	camera.target = camera.position + glm::normalize(dir);
+
+	// Re-init so FPCamera::Refresh() recalculates 'up' and other derived vectors
+	camera.Init(camera.position, camera.target, glm::vec3(0.0f, 3.0f, 0.0f));
 }
 
 void SceneText::Update(double dt)
@@ -236,6 +262,14 @@ void SceneText::Update(double dt)
 		light[0].position.y += static_cast<float>(dt) * 5.f;
 
 	camera.Update(dt);
+	// Prevent camera from going below ground after camera updates
+	if (camera.position.y < 3.0f) {
+		camera.position.y = 3.0f;
+		if (camera.target.y < 3.0f)
+			camera.target.y = 3.0f;
+		camera.Init(camera.position, camera.target, camera.up);
+	}
+
 	HandleMouseInput();
 
 }
@@ -480,17 +514,17 @@ void SceneText::Render()
 	// Skybox - now renders at world origin without accumulated transforms
 	RenderSkybox();
 
-	// Peter quad
+	// cobblestone image
 	modelStack.PushMatrix();
 	modelStack.Translate(0.f, 0.f, 0.f);
-	modelStack.Scale(9.f, 1.f, 9.f);
+	modelStack.Scale(5.f, 1.f, 5.f);
 	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
 	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
-	meshList[GEO_PETER]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
-	meshList[GEO_PETER]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-	meshList[GEO_PETER]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-	meshList[GEO_PETER]->material.kShininess = 5.0f;
-	RenderMesh(meshList[GEO_PETER], true);
+	meshList[GEO_COBBLESTONE]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
+	meshList[GEO_COBBLESTONE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+	meshList[GEO_COBBLESTONE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+	meshList[GEO_COBBLESTONE]->material.kShininess = 5.0f;
+	RenderMesh(meshList[GEO_COBBLESTONE], true);
 	modelStack.PopMatrix();
 
 	/*
@@ -504,12 +538,13 @@ void SceneText::Render()
 	// Text in world space
 	modelStack.PushMatrix();
 	modelStack.Translate(25.f, 10.f, 0.f);
-	RenderText(meshList[GEO_TEXT], "Hello World", glm::vec3(0, 1, 0));
+	modelStack.Rotate(-90.f, 0.f, 1.f, 0.f);
+	RenderText(meshList[GEO_TEXT], "shen me zai shang mian", glm::vec3(0, 1, 0));
 	modelStack.PopMatrix();
 
 	// Tower
 	modelStack.PushMatrix();
-	modelStack.Translate(-10.f, 1.f, 0.f);
+	modelStack.Translate(-10.f, -3.f, 0.f);
 	modelStack.Scale(5.f, 5.f, 5.f);
 	meshList[GEO_TOWER]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
 	meshList[GEO_TOWER]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
@@ -520,7 +555,7 @@ void SceneText::Render()
 
 	// UI elements (already isolated in RenderMeshOnScreen)
 	RenderMeshOnScreen(meshList[GEO_GUI], 50, 50, 10, 10);
-	RenderTextOnScreen(meshList[GEO_TEXT], "zulmobile", glm::vec3(0, 1, 0), 40, 0, 0);
+	RenderTextOnScreen(meshList[GEO_TEXT], "shen me zai shang mian", glm::vec3(0, 1, 0), 40, 0, 0);
 }
 
 
@@ -685,5 +720,22 @@ void SceneText::HandleKeyPress(double dt)
 		float movement = moveSpeed * static_cast<float>(dt);
 		camera.position -= camera.up * movement;
 		camera.target -= camera.up * movement;
+	}
+
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_SPACE))
+	{
+		// jump
+		float movement = moveSpeed * static_cast<float>(dt);
+		camera.position.y += movement;
+		camera.target.y += movement;
+	}
+
+	// Clamp camera height so it never goes below ground (y = 3.0f)
+	if (camera.position.y < 3.0f) {
+		camera.position.y = 3.0f;
+		if (camera.target.y < 3.0f)
+			camera.target.y = 3.0f;
+		// Re-init to refresh internal vectors after adjustment
+		camera.Init(camera.position, camera.target, camera.up);
 	}
 }

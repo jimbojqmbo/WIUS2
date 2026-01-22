@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "Material.h"
+#include <GL/glew.h>
 
 /******************************************************************************/
 /*!
@@ -21,8 +22,13 @@ public:
 		DRAW_LINES,
 		DRAW_MODE_LAST,
 	};
-	Mesh(const std::string &meshName);
+
+	GLuint instanceBuffer;
+	unsigned instanceCount;
+
+	Mesh(const std::string& meshName);
 	~Mesh();
+
 	void Render();
 
 	const std::string name;

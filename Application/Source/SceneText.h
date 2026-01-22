@@ -28,11 +28,15 @@ public:
 		GEO_ZUL,
 		GEO_PETER,
 
+		GEO_COBBLESTONE,
+
 		GEO_MODEL1,
 		GEO_MODEL_MTL1,
 		GEO_MODEL_MTL2,
 
 		GEO_TOWER,
+
+		GEO_REAVER,
 
 		GEO_EYEBALL,
 		GEO_EYEBALL_MTL,
@@ -80,6 +84,10 @@ public:
 private:
 	void HandleKeyPress(double dt);
 	void RenderMesh(Mesh* mesh, bool enableLight);
+
+	// Collision helpers for GEO_COBBLESTONE
+	void UpdateCobblestoneAABB(); // compute world-space AABB for the cobblestone quad
+	bool IsPointInsideAABB(const glm::vec3& point, const glm::vec3& min, const glm::vec3& max) const;
 
 	unsigned m_vertexArrayID;
 	Mesh* meshList[NUM_GEOMETRY];
