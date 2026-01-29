@@ -14,6 +14,13 @@ public:
 	void Exit();
 	static bool IsKeyPressed(unsigned short key);
 
+	enum SCENE_NUM
+	{
+		SCENE_TEXT = 0,
+		SCENE_GUI,
+		TOTAL_SCENE
+	};
+
 private:
 
 	//Declare a window object
@@ -21,6 +28,9 @@ private:
 
 	bool enablePointer = true;
 	bool showPointer = true;
+
+	SCENE_NUM sceneNum;
+	bool isEnterUp = false;
 };
 
 #endif

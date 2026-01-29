@@ -1,4 +1,5 @@
 #include "SceneText.h"
+#include "Mesh.h"
 #include "GL\glew.h"
 
 // GLM Headers
@@ -34,8 +35,8 @@ void SceneText::Init()
 	//Enable depth buffer and depth testing
 	glEnable(GL_DEPTH_TEST);
 
-	//Enable back face culling
-	glEnable(GL_CULL_FACE);
+	//Enable back face culling (change back to glEnable to allow)
+	glDisable(GL_CULL_FACE);
 
 	//Default to fill mode
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -104,28 +105,29 @@ void SceneText::Init()
 	//meshList[GEO_CUBE] = MeshBuilder::GenerateCube("Arm", glm::vec3(0.5f, 0.5f, 0.5f), 1.f);
 
 	meshList[GEO_LEFT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	//meshList[GEO_LEFT]->textureID = LoadTGA("Images//saharaleft.tga");
-	meshList[GEO_LEFT]->textureID = LoadTGA("Images//left.tga");
+	meshList[GEO_LEFT]->textureID = LoadTGA("Images//blackblack.tga");
+	//meshList[GEO_LEFT]->textureID = LoadTGA("Images//left.tga");
 
 	meshList[GEO_RIGHT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	//meshList[GEO_RIGHT]->textureID = LoadTGA("Images//sahararight2.tga");
-	meshList[GEO_RIGHT]->textureID = LoadTGA("Images//right.tga");
+	meshList[GEO_RIGHT]->textureID = LoadTGA("Images//blackblack.tga");
+	//meshList[GEO_RIGHT]->textureID = LoadTGA("Images//right.tga");
 
 	meshList[GEO_BACK] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	//meshList[GEO_BACK]->textureID = LoadTGA("Images//saharaback.tga");
-	meshList[GEO_BACK]->textureID = LoadTGA("Images//back.tga");
+	meshList[GEO_BACK]->textureID = LoadTGA("Images//blackblack.tga");
+	//meshList[GEO_BACK]->textureID = LoadTGA("Images//back.tga");
 
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	//meshList[GEO_FRONT]->textureID = LoadTGA("Images//saharafront.tga");
-	meshList[GEO_FRONT]->textureID = LoadTGA("Images//front.tga");
+	meshList[GEO_FRONT]->textureID = LoadTGA("Images//blackblack.tga");
+	//meshList[GEO_FRONT]->textureID = LoadTGA("Images//front.tga");
 
 	meshList[GEO_TOP] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
 	//meshList[GEO_TOP]->textureID = LoadTGA("Images//saharatop.tga");
-	meshList[GEO_TOP]->textureID = LoadTGA("Images//top.tga");
+	//meshList[GEO_TOP]->textureID = LoadTGA("Images//top.tga");
+	meshList[GEO_TOP]->textureID = LoadTGA("Images//bigblackmoon.tga");
 
 	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	//meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//saharabottom.tga");
-	meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//bottom.tga");
+	meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//blackblack.tga");
+	//meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//bottom.tga");
 
 	//meshList[GEO_QUAD]->textureID = LoadTGA("Images//NYP.tga");
 
@@ -137,6 +139,9 @@ void SceneText::Init()
 
 	meshList[GEO_COBBLESTONE] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
 	meshList[GEO_COBBLESTONE]->textureID = LoadTGA("Images//cobblestone.tga");
+
+	meshList[GEO_GRASS] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
+	meshList[GEO_GRASS]->textureID = LoadTGA("Images//grass.tga");
 
 	//meshList[GEO_GUI] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	//meshList[GEO_GUI]->textureID = LoadTGA("Images//color.tga");
@@ -154,7 +159,19 @@ void SceneText::Init()
 	meshList[GEO_TOWER] = MeshBuilder::GenerateOBJMTL("tower", "Models//wooden watch tower2.obj", "Models//wooden watch tower2.mtl");
 	meshList[GEO_TOWER]->textureID = LoadTGA("Images//Wood_Tower_Col.tga");
 
-	meshList[GEO_BUGATTI] = MeshBuilder::GenerateOBJMTL("bugatti", "Models//bugatti.obj", "Models//bugatti.mtl");
+	meshList[GEO_REALGRASS] = MeshBuilder::GenerateOBJMTL("tower", "Models//veryrealgrass.obj", "Models//veryrealgrass.mtl");
+	meshList[GEO_REALGRASS]->textureID = LoadTGA("Images//veryrealgrass.tga");
+
+	meshList[GEO_PINETREE] = MeshBuilder::GenerateOBJMTL("tower", "Models//pine_tree.obj", "Models//pine_tree.mtl");
+	meshList[GEO_PINETREE]->textureID = LoadTGA("Images//tree trank//Leavs_baseColor with tree2.tga");
+
+	meshList[GEO_PINETREEleaves] = MeshBuilder::GenerateOBJMTL("tower", "Models//pine_tree.obj", "Models//pine_tree.mtl");
+	meshList[GEO_PINETREEleaves]->textureID = LoadTGA("Images//tree trank//Leavs_baseColor copy.tga");
+
+	meshList[GEO_PEWPEW] = MeshBuilder::GenerateOBJMTL("tower", "Models//low-poly_geissele_urg-i_14.5.obj", "Models//low-poly_geissele_urg-i_14.5.mtl");
+
+	//meshList[GEO_TREETREE] = MeshBuilder::GenerateOBJMTL("tree", "Models//trashtree.obj", "Models//trashtree.mtl");
+	//meshList[GEO_TREETREE]->textureID = LoadTGA("Images//treetexture.tga");
 
 	//meshList[GEO_SPHERE_BLUE] = MeshBuilder::GenerateSphere("Earth", Color(0.4f, 0.2f, 0.8f), 1.f, 12, 12);
 	//meshList[GEO_SPHERE_GREY] = MeshBuilder::GenerateSphere("Moon", Color(0.5f, 0.5f, 0.5f), 1.f, 4, 4);
@@ -431,7 +448,7 @@ void SceneText::RenderTextOnScreen(Mesh* mesh, std::string
 
 	for (unsigned i = 0; i < text.length(); ++i)
 	{
-		glm::mat4 characterSpacing = glm::translate(glm::mat4(1.f), glm::vec3(0.5f + i * 1.0f, 0.5f, 0));
+		glm::mat4 characterSpacing = glm::translate(glm::mat4(1.f), glm::vec3(0.5f + i * 0.6f, 0.4f, 0));
 		glm::mat4 MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top() * characterSpacing;
 		glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, glm::value_ptr(MVP));
 		mesh->Render((unsigned)text[i] * 6, 6);
@@ -514,17 +531,52 @@ void SceneText::Render()
 	// Skybox - now renders at world origin without accumulated transforms
 	RenderSkybox();
 
-	// cobblestone image
+	// grass
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 0.f, 0.f);
-	modelStack.Scale(5.f, 1.f, 5.f);
-	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
-	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
-	meshList[GEO_COBBLESTONE]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
-	meshList[GEO_COBBLESTONE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-	meshList[GEO_COBBLESTONE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-	meshList[GEO_COBBLESTONE]->material.kShininess = 5.0f;
-	RenderMesh(meshList[GEO_COBBLESTONE], true);
+	{
+		// grass on da front/back
+		modelStack.PushMatrix();
+		modelStack.Translate(0.f, 0.f, 0.f);
+		modelStack.Scale(5.f, 1.f, 5.f);
+		modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+		modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+		RenderMesh(meshList[GEO_GRASS], true);
+		modelStack.PopMatrix();
+		{
+			// grass on da front/back
+			modelStack.PushMatrix();
+			modelStack.Translate(50.f, 0.f, 0.f);
+			modelStack.Scale(5.f, 1.f, 5.f);
+			modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+			modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+			RenderMesh(meshList[GEO_GRASS], true);
+			modelStack.PopMatrix();
+			{
+				// grass on da left/right
+				modelStack.PushMatrix();
+				modelStack.Translate(0.f, 0.f, -50.f);
+				modelStack.Scale(5.f, 1.f, 5.f);
+				modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+				modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+				RenderMesh(meshList[GEO_GRASS], true);
+				modelStack.PopMatrix();
+				{
+					// grass on da left/right
+					modelStack.PushMatrix();
+					modelStack.Translate(0.f, 0.f, 50.f);
+					modelStack.Scale(5.f, 1.f, 5.f);
+					modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+					modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+					RenderMesh(meshList[GEO_GRASS], true);
+					modelStack.PopMatrix();
+				}
+			}
+		}
+		meshList[GEO_GRASS]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
+		//meshList[GEO_GRASS]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+		//meshList[GEO_GRASS]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+		//meshList[GEO_GRASS]->material.kShininess = 5.0f;
+	}
 	modelStack.PopMatrix();
 
 	/*
@@ -553,9 +605,45 @@ void SceneText::Render()
 	RenderMesh(meshList[GEO_TOWER], true);
 	modelStack.PopMatrix();
 
+	// grass 3D
+	modelStack.PushMatrix();
+	modelStack.Translate(-10.f, 1.f, 0.f);
+	modelStack.Scale(1.f, 1.f, 1.f);
+	meshList[GEO_PEWPEW]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
+	meshList[GEO_PEWPEW]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+	meshList[GEO_PEWPEW]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+	meshList[GEO_PEWPEW]->material.kShininess = 5.0f;
+	RenderMesh(meshList[GEO_PEWPEW], true);
+	modelStack.PopMatrix();
+
+	// tree
+	modelStack.PushMatrix();
+	modelStack.Translate(0.f, -5.f, 25.f);
+	modelStack.Scale(0.2f, 0.2f, 0.2f);
+	meshList[GEO_PINETREE]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
+	meshList[GEO_PINETREE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+	meshList[GEO_PINETREE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+	meshList[GEO_PINETREE]->material.kShininess = 5.0f;
+	RenderMesh(meshList[GEO_PINETREE], true);
+	modelStack.PopMatrix();
+
+	/*
+	// Tower
+	modelStack.PushMatrix();
+	modelStack.Translate(10.f, -3.f, 0.f);
+	modelStack.Scale(5.f, 5.f, 5.f);
+	meshList[GEO_TREETREE]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
+	meshList[GEO_TREETREE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+	meshList[GEO_TREETREE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+	meshList[GEO_TREETREE]->material.kShininess = 5.0f;
+	RenderMesh(meshList[GEO_TREETREE], true);
+	modelStack.PopMatrix();
+	*/
+
 	// UI elements (already isolated in RenderMeshOnScreen)
 	RenderMeshOnScreen(meshList[GEO_GUI], 50, 50, 10, 10);
-	RenderTextOnScreen(meshList[GEO_TEXT], "shen me zai shang mian", glm::vec3(0, 1, 0), 40, 0, 0);
+
+	RenderTextOnScreen(meshList[GEO_TEXT], "work", glm::vec3(1, 1, 1), 40, 0, 0);
 }
 
 
@@ -649,7 +737,7 @@ void SceneText::HandleKeyPress(double dt)
 		else
 			light[0].power = 0.1f;
 		glUniform1f(m_parameters[U_LIGHT0_POWER], light[0].power);
-	};
+	}
 
 	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_TAB))
 	{
@@ -664,7 +752,7 @@ void SceneText::HandleKeyPress(double dt)
 		}
 
 		glUniform1i(m_parameters[U_LIGHT0_TYPE], light[0].type);
-	}
+	};
 
 	// Movement speed (units per second)
 	const float moveSpeed = 5.0f;

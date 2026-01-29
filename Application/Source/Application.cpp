@@ -24,7 +24,7 @@
 #include "SceneText.h"
 
 GLFWwindow* m_window;
-const unsigned char FPS = 60; // FPS of this game
+const unsigned char FPS = 144; // FPS of this game
 const unsigned int frameTime = 1000 / FPS; // time for each frame
 
 //Define an error callback
@@ -97,7 +97,7 @@ void Application::Init()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //We don't want the old OpenGL
 
 	//Create a window and create its OpenGL context
-	m_window = glfwCreateWindow(1920, 1080, "DX1111 OPENGL FRAMEWORK", NULL, NULL);
+	m_window = glfwCreateWindow(1280, 720, "DX1111 OPENGL FRAMEWORK", NULL, NULL);
 
 	//If the window couldn't be created
 	if (!m_window)
@@ -137,15 +137,44 @@ void Application::Init()
 		fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
 		//return -1;
 	}
+
+	sceneNum = SCENE_TEXT;
 }
 
 void Application::Run()
 {
 	//Main Loop
-	Scene *scene = new SceneText();
+	//Scene *scene = new SceneText();
+	//scene->Init();
+
+	Scene* scene1 = new SceneText(); // You decide which scene you want to load
+		Scene* scene2 = new SceneGUI();
+	Scene* scene = scene1;
 	scene->Init();
 
+	if (!isEnterUp && KeyboardController::GetInstance() -> IsKeyDown(GLFW_KEY_ENTER)) {
+		if (sceneNum == SCENE_TEXT) {
+			scene1->Exit(); // Ensure you exit previous screen and remove the previous shader
+				scene2->Init(); // Initialise the next screen
+			scene = scene2;
+			sceneNum = SCENE_GUI;
+		}
+		else if (sceneNum == SCENE_GUI) {
+			scene2->Exit();
+			scene1->Init();
+			scene = scene1;
+			sceneNum = SCENE_TEXT;
+		}
+		isEnterUp = true;
+	}
+	else if (isEnterUp &&
+		KeyboardController::GetInstance() -> IsKeyUp(GLFW_KEY_ENTER))
+	{
+		isEnterUp = false;
+	}
+
 	m_timer.startTimer();    // Start timer to calculate how long it takes to render this frame
+
 	while (!glfwWindowShouldClose(m_window) && !IsKeyPressed(VK_ESCAPE))
 	{
 		scene->Update(m_timer.getElapsedTime());
@@ -165,8 +194,15 @@ void Application::Run()
         m_timer.waitUntil(frameTime);       // Frame rate limiter. Limits each frame to a specified time in ms.   
 
 	} //Check if the ESC key had been pressed or if the window had been closed
+	
+
+	scene->Update(m_timer.getElapsedTime());
+	scene->Render();
+
 	scene->Exit();
-	delete scene;
+
+	delete scene1;
+	delete scene2;
 }
 
 void Application::Exit()
