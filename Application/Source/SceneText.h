@@ -39,6 +39,8 @@ public:
 		GEO_PINETREE,
 		GEO_PINETREEleaves,
 
+		GEO_FIELDSTREAKS,
+
 		GEO_BUILDING,
 		GEO_TREE,
 
