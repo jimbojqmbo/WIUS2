@@ -106,33 +106,39 @@ void SceneText::Init()
 
 	meshList[GEO_LEFT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
 	//meshList[GEO_LEFT]->textureID = LoadTGA("Images//blackblack.tga");
-	meshList[GEO_LEFT]->textureID = LoadTGA("Images//whitesky//whiteskyleft.tga");
+	//meshList[GEO_LEFT]->textureID = LoadTGA("Images//whitesky//whiteskyleft.tga");
+	meshList[GEO_LEFT]->textureID = LoadTGA("Images//redleft copy.tga");
 	//meshList[GEO_LEFT]->textureID = LoadTGA("Images//left.tga");
 
 	meshList[GEO_RIGHT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
 	//meshList[GEO_RIGHT]->textureID = LoadTGA("Images//blackblack.tga");
-	meshList[GEO_RIGHT]->textureID = LoadTGA("Images//whitesky//whiteskyright.tga");
+	//meshList[GEO_RIGHT]->textureID = LoadTGA("Images//whitesky//whiteskyright.tga");
+	meshList[GEO_RIGHT]->textureID = LoadTGA("Images//redright copy.tga");
 	//meshList[GEO_RIGHT]->textureID = LoadTGA("Images//right.tga");
 
 	meshList[GEO_BACK] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
 	//meshList[GEO_BACK]->textureID = LoadTGA("Images//blackblack.tga");
-	meshList[GEO_BACK]->textureID = LoadTGA("Images//whitesky//whiteskyback.tga");
+	//meshList[GEO_BACK]->textureID = LoadTGA("Images//whitesky//whiteskyback.tga");
+	meshList[GEO_BACK]->textureID = LoadTGA("Images//redback copy.tga");
 	//meshList[GEO_BACK]->textureID = LoadTGA("Images//back.tga");
 
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
 	//meshList[GEO_FRONT]->textureID = LoadTGA("Images//blackblack.tga");
-	meshList[GEO_FRONT]->textureID = LoadTGA("Images//whitesky//whiteskyfront.tga");
+	//meshList[GEO_FRONT]->textureID = LoadTGA("Images//whitesky//whiteskyfront.tga");
+	meshList[GEO_FRONT]->textureID = LoadTGA("Images//redfront copy.tga");
 	//meshList[GEO_FRONT]->textureID = LoadTGA("Images//front.tga");
 
 	meshList[GEO_TOP] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
 	//meshList[GEO_TOP]->textureID = LoadTGA("Images//saharatop.tga");
 	//meshList[GEO_TOP]->textureID = LoadTGA("Images//top.tga");
-	meshList[GEO_TOP]->textureID = LoadTGA("Images//whitesky//whiteskytop.tga");
+	//meshList[GEO_TOP]->textureID = LoadTGA("Images//whitesky//whiteskytop.tga");
+	meshList[GEO_TOP]->textureID = LoadTGA("Images//redtop copy.tga");
 	//meshList[GEO_TOP]->textureID = LoadTGA("Images//bigblackmoon.tga");
 
 	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
 	//meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//blackblack.tga");
-	meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//whitesky//whiteskybottom.tga");
+	//meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//whitesky//whiteskybottom.tga");
+	meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//redbottom copy.tga");
 	//meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//bottom.tga");
 
 	//meshList[GEO_QUAD]->textureID = LoadTGA("Images//NYP.tga");
@@ -179,8 +185,11 @@ void SceneText::Init()
 
 	meshList[GEO_PEWPEW] = MeshBuilder::GenerateOBJMTL("tower", "Models//low-poly_geissele_urg-i_14.5.obj", "Models//low-poly_geissele_urg-i_14.5.mtl");
 
-	meshList[GEO_MODEL_MTL2] = MeshBuilder::GenerateOBJMTL("model3", "Models//cottage_obj.obj", "Models//cottage_obj.mtl");
-	meshList[GEO_MODEL_MTL2]->textureID = LoadTGA("Images//cottage_diffuse.tga");
+	meshList[GEO_ABANDONEDHOUSE] = MeshBuilder::GenerateOBJMTL("abandonedhse", "Models//abandoned_house.obj", "Models//abandoned_house.mtl");
+	meshList[GEO_ABANDONEDHOUSE]->textureID = LoadTGA("Images//abandonedhouseBaseColor.tga");
+
+	meshList[GEO_ABANDONEDHOUSE2] = MeshBuilder::GenerateOBJMTL("abandonedhse", "Models//abandonedwoodhouse.obj", "Models//abandonedwoodhouse.mtl");
+	meshList[GEO_ABANDONEDHOUSE2]->textureID = LoadTGA("Images//woodabandonedhouse copy.tga");
 
 	//meshList[GEO_TREETREE] = MeshBuilder::GenerateOBJMTL("tree", "Models//trashtree.obj", "Models//trashtree.mtl");
 	//meshList[GEO_TREETREE]->textureID = LoadTGA("Images//treetexture.tga");
@@ -196,8 +205,8 @@ void SceneText::Init()
 
 	light[0].position = glm::vec3(0, 5, 0);
 	light[0].color = glm::vec3(1, 1, 1);
-	light[0].type = Light::LIGHT_POINT;
-	light[0].power = 1;
+	light[0].type = Light::LIGHT_DIRECTIONAL;
+	light[0].power = 0.3;
 	light[0].kC = 1.f;
 	light[0].kL = 0.01f;
 	light[0].kQ = 0.001f;
@@ -574,11 +583,22 @@ void SceneText::Render()
 	modelStack.Translate(5.f, 0.f, 55.f);
 	modelStack.Scale(1.f, 1.f, 1.f);
 	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
-	meshList[GEO_MODEL_MTL2]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
-	meshList[GEO_MODEL_MTL2]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-	meshList[GEO_MODEL_MTL2]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-	meshList[GEO_MODEL_MTL2]->material.kShininess = 5.0f;
-	RenderMesh(meshList[GEO_MODEL_MTL2], true);
+	//meshList[GEO_MODEL_MTL2]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
+	//meshList[GEO_MODEL_MTL2]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+	//meshList[GEO_MODEL_MTL2]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+	//meshList[GEO_MODEL_MTL2]->material.kShininess = 5.0f;
+	RenderMesh(meshList[GEO_ABANDONEDHOUSE], true);
+	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	modelStack.Translate(25.f, 0.f, 55.f);
+	modelStack.Scale(1.f, 1.f, 1.f);
+	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+	//meshList[GEO_MODEL_MTL2]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
+	//meshList[GEO_MODEL_MTL2]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+	//meshList[GEO_MODEL_MTL2]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+	//meshList[GEO_MODEL_MTL2]->material.kShininess = 5.0f;
+	RenderMesh(meshList[GEO_ABANDONEDHOUSE2], true);
 	modelStack.PopMatrix();
 
 	/*
@@ -589,12 +609,6 @@ void SceneText::Render()
 	modelStack.PopMatrix();
 	*/
 
-	// Text in world space
-	modelStack.PushMatrix();
-	modelStack.Translate(25.f, 10.f, 0.f);
-	modelStack.Rotate(-90.f, 0.f, 1.f, 0.f);
-	RenderText(meshList[GEO_TEXT], "shen me zai shang mian", glm::vec3(0, 1, 0));
-	modelStack.PopMatrix();
 
 	// Tower
 	modelStack.PushMatrix();
@@ -622,9 +636,9 @@ void SceneText::Render()
 	modelStack.PushMatrix();
 	{
 		// spacing chosen to match the previous manual placement (50 units)
-		const float start = -50.f;
-		const float end = 50.f;
-		const float step = 20.f;
+		const float start = -250.f;
+		const float end = 250.f;
+		const float step = 25.f;
 		for (float x = start; x <= end; x += step)
 		{
 			for (float z = start; z <= end; z += step)
@@ -662,6 +676,13 @@ void SceneText::Render()
 	RenderMeshOnScreen(meshList[GEO_GUI], 50, 50, 10, 10);
 
 	RenderTextOnScreen(meshList[GEO_TEXT], "work", glm::vec3(1, 1, 1), 40, 0, 0);
+
+	// Text in world space
+	modelStack.PushMatrix();
+	modelStack.Translate(25.f, 10.f, 0.f);
+	modelStack.Rotate(-90.f, 0.f, 1.f, 0.f);
+	RenderText(meshList[GEO_TEXT], "shen me zai shang mian", glm::vec3(0, 1, 0));
+	modelStack.PopMatrix();
 }
 
 
