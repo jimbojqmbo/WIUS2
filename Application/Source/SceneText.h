@@ -8,6 +8,13 @@
 #include "Light.h"
 #include "FPCamera.h"
 
+struct CollisionData
+{
+	glm::vec3 collisionNormal;
+	float penetration;
+	glm::vec3 contactPoint;
+};
+
 class SceneText : public Scene
 {
 public:
@@ -24,25 +31,13 @@ public:
 		GEO_BACK,
 		GEO_GUI,
 		GEO_TEXT,
-		GEO_BUGATTI,
 		GEO_ZUL,
-		GEO_PETER,
 
 		GEO_PEWPEW,
 
-		GEO_COBBLESTONE,
 		GEO_GRASS,
-		GEO_REALGRASS,
-		GEO_GRASSMODEL,
 
-		GEO_TREETREE,
 		GEO_PINETREE,
-		GEO_PINETREEleaves,
-
-		GEO_FIELDSTREAKS,
-
-		GEO_BUILDING,
-		GEO_TREE,
 
 		GEO_MODEL1,
 		GEO_MODEL_MTL1,
@@ -50,8 +45,6 @@ public:
 		GEO_ABANDONEDHOUSE2,
 
 		GEO_TOWER,
-
-		GEO_REAVER,
 
 		GEO_EYEBALL,
 		GEO_EYEBALL_MTL,
@@ -100,9 +93,21 @@ private:
 	void HandleKeyPress(double dt);
 	void RenderMesh(Mesh* mesh, bool enableLight);
 
+	// Tree collision helper (AABB grid matches Render() layout)
+	void HandleTreeCollisions();
+	static constexpr float kTreeHalfWidth = 0.5f;   // world-space half-width for a tree (after scale)
+	static constexpr float kTreeHalfHeight = 1.0f;  // world-space half-height for a tree (after scale)
+	static constexpr float kTreeStart = -250.f;
+	static constexpr float kTreeEnd = 250.f;
+	static constexpr float kTreeStep = 21.f;
+
 	// Collision helpers for GEO_COBBLESTONE
 	void UpdateCobblestoneAABB(); // compute world-space AABB for the cobblestone quad
 	bool IsPointInsideAABB(const glm::vec3& point, const glm::vec3& min, const glm::vec3& max) const;
+
+	// AABB overlap helper (uses 2D X/Y extents). Returns true and fills cd if overlap exists.
+	static bool OverlapAABB2AABB(const glm::vec3& pos1, float w1, float h1,
+		const glm::vec3& pos2, float w2, float h2, CollisionData& cd);
 
 	unsigned m_vertexArrayID;
 	Mesh* meshList[NUM_GEOMETRY];

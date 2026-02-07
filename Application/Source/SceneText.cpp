@@ -27,6 +27,45 @@ SceneText::~SceneText()
 {
 }
 
+// AABB overlap implementation adapted to use glm::vec3 and the local CollisionData.
+bool SceneText::OverlapAABB2AABB(const glm::vec3& pos1, float w1, float h1,
+	const glm::vec3& pos2, float w2, float h2, CollisionData& cd)
+{
+	// compute axis-aligned mins/maxs in X/Y (z stays zero for 2D overlap)
+	glm::vec3 min1 = pos1 - glm::vec3(w1, h1, 0.f);
+	glm::vec3 max1 = pos1 + glm::vec3(w1, h1, 0.f);
+	glm::vec3 min2 = pos2 - glm::vec3(w2, h2, 0.f);
+	glm::vec3 max2 = pos2 + glm::vec3(w2, h2, 0.f);
+
+	// quick rejection test
+	if (max1.x < min2.x || min1.x > max2.x || max1.y < min2.y || min1.y > max2.y)
+		return false;
+
+	// compute overlap on each axis
+	float overlapX = (std::min)(max1.x, max2.x) - (std::max)(min1.x, min2.x);
+	float overlapY = (std::min)(max1.y, max2.y) - (std::max)(min1.y, min2.y);
+
+	// choose smallest penetration axis
+	if (overlapX < overlapY)
+	{
+		// normal points from box1 -> box2 along x
+		cd.collisionNormal = (pos1.x < pos2.x) ? glm::vec3(-1.f, 0.f, 0.f) : glm::vec3(1.f, 0.f, 0.f);
+		cd.penetration = overlapX;
+	}
+	else
+	{
+		cd.collisionNormal = (pos1.y < pos2.y) ? glm::vec3(0.f, -1.f, 0.f) : glm::vec3(0.f, 1.f, 0.f);
+		cd.penetration = overlapY;
+	}
+
+	// approximate contact point (center of overlap region)
+	cd.contactPoint.x = ((std::max)(min1.x, min2.x) + (std::min)(max1.x, max2.x)) * 0.5f;
+	cd.contactPoint.y = ((std::max)(min1.y, min2.y) + (std::min)(max1.y, max2.y)) * 0.5f;
+	cd.contactPoint.z = 0.f;
+
+	return true;
+}
+
 void SceneText::Init()
 {
 	// Set background color to dark blue
@@ -146,12 +185,6 @@ void SceneText::Init()
 	meshList[GEO_ZUL] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
 	meshList[GEO_ZUL]->textureID = LoadTGA("Images//zulmobile.tga");
 
-	meshList[GEO_PETER] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
-	meshList[GEO_PETER]->textureID = LoadTGA("Images//peter.tga");
-
-	meshList[GEO_COBBLESTONE] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
-	meshList[GEO_COBBLESTONE]->textureID = LoadTGA("Images//cobblestone.tga");
-
 	meshList[GEO_GRASS] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
 	meshList[GEO_GRASS]->textureID = LoadTGA("Images//coast_sand_rocks_02 copy.tga");
 
@@ -171,19 +204,10 @@ void SceneText::Init()
 	meshList[GEO_TOWER] = MeshBuilder::GenerateOBJMTL("tower", "Models//wooden watch tower2.obj", "Models//wooden watch tower2.mtl");
 	meshList[GEO_TOWER]->textureID = LoadTGA("Images//Wood_Tower_Col.tga");
 
-	meshList[GEO_REALGRASS] = MeshBuilder::GenerateOBJMTL("tower", "Models//veryrealgrass.obj", "Models//veryrealgrass.mtl");
-	meshList[GEO_REALGRASS]->textureID = LoadTGA("Images//veryrealgrass.tga");
-
 	meshList[GEO_PINETREE] = MeshBuilder::GenerateOBJMTL("tower", "Models//DeadTree_LoPoly.obj", "Models//DeadTree_LoPoly.mtl");
 	meshList[GEO_PINETREE]->textureID = LoadTGA("Images//DeadTree_LoPoly_DeadTree_Diffuse copy.tga");
 
-	//meshList[GEO_FIELDSTREAKS] = MeshBuilder::GenerateOBJMTL("tower", "Models//grass_vegitation_mix.obj", "Models//grass_vegitation_mix.mtl");
-	//meshList[GEO_FIELDSTREAKS]->textureID = LoadTGA("Images//383085165_baseColor copyd.tga");
-
-	meshList[GEO_PINETREEleaves] = MeshBuilder::GenerateOBJMTL("tower", "Models//pine_tree.obj", "Models//pine_tree.mtl");
-	meshList[GEO_PINETREEleaves]->textureID = LoadTGA("Images//tree trank//Leavs_baseColor copy.tga");
-
-	meshList[GEO_PEWPEW] = MeshBuilder::GenerateOBJMTL("tower", "Models//low-poly_geissele_urg-i_14.5.obj", "Models//low-poly_geissele_urg-i_14.5.mtl");
+	//meshList[GEO_PEWPEW] = MeshBuilder::GenerateOBJMTL("tower", "Models//low-poly_geissele_urg-i_14.5.obj", "Models//low-poly_geissele_urg-i_14.5.mtl");
 
 	meshList[GEO_ABANDONEDHOUSE] = MeshBuilder::GenerateOBJMTL("abandonedhse", "Models//abandoned_house.obj", "Models//abandoned_house.mtl");
 	meshList[GEO_ABANDONEDHOUSE]->textureID = LoadTGA("Images//abandonedhouseBaseColor.tga");
@@ -191,26 +215,20 @@ void SceneText::Init()
 	meshList[GEO_ABANDONEDHOUSE2] = MeshBuilder::GenerateOBJMTL("abandonedhse", "Models//abandonedwoodhouse.obj", "Models//abandonedwoodhouse.mtl");
 	meshList[GEO_ABANDONEDHOUSE2]->textureID = LoadTGA("Images//woodabandonedhouse copy.tga");
 
-	//meshList[GEO_TREETREE] = MeshBuilder::GenerateOBJMTL("tree", "Models//trashtree.obj", "Models//trashtree.mtl");
-	//meshList[GEO_TREETREE]->textureID = LoadTGA("Images//treetexture.tga");
-
-	//meshList[GEO_SPHERE_BLUE] = MeshBuilder::GenerateSphere("Earth", Color(0.4f, 0.2f, 0.8f), 1.f, 12, 12);
-	//meshList[GEO_SPHERE_GREY] = MeshBuilder::GenerateSphere("Moon", Color(0.5f, 0.5f, 0.5f), 1.f, 4, 4);
-
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
 
 
 	glUniform1i(m_parameters[U_NUMLIGHTS], NUM_LIGHTS);
 
-	light[0].position = glm::vec3(0, 5, 0);
-	light[0].color = glm::vec3(1, 1, 1);
+	light[0].position = glm::vec3(0, 200, 0);
+	light[0].color = glm::vec3(1, 0, 0);
 	light[0].type = Light::LIGHT_DIRECTIONAL;
 	light[0].power = 0.3;
 	light[0].kC = 1.f;
 	light[0].kL = 0.01f;
 	light[0].kQ = 0.001f;
-	light[0].cosCutoff = 45.f;
+	light[0].cosCutoff = 4.f;
 	light[0].cosInner = 30.f;
 	light[0].exponent = 3.f;
 	light[0].spotDirection = glm::vec3(0.f, 1.f, 0.f);
@@ -282,6 +300,87 @@ void SceneText::HandleMouseInput() {
 	camera.Init(camera.position, camera.target, glm::vec3(0.0f, 3.0f, 0.0f));
 }
 
+// Sweep the same grid used in Render() and resolve camera <-> tree AABB overlaps (XZ-plane).
+void SceneText::HandleTreeCollisions()
+{
+    // base radii (tune these to match your camera/player and tree footprint)
+    const float camRadiusBase = 0.35f;   // half-width approximated for the camera/player
+    const float treeRadiusBase = 0.6f;   // approximate tree footprint (after model scale)
+    const float extraRange = 3.f;       // <-- increase this to enlarge collision range
+
+    const float camRadius = camRadiusBase + extraRange;
+    const float treeRadius = treeRadiusBase + extraRange;
+    const float combinedRadius = camRadius + treeRadius;
+    const float combinedRadiusSq = combinedRadius * combinedRadius;
+
+    // Narrow search to a neighborhood around camera for performance
+    const float searchRadius = combinedRadius + kTreeStep * 2.0f; // check a couple of rings
+    const float minX = camera.position.x - searchRadius;
+    const float maxX = camera.position.x + searchRadius;
+    const float minZ = camera.position.z - searchRadius;
+    const float maxZ = camera.position.z + searchRadius;
+
+    // Convert world range to grid indices (kTreeStart..kTreeEnd step kTreeStep)
+    int ixStart = static_cast<int>(std::floor((minX - kTreeStart) / kTreeStep));
+    int ixEnd   = static_cast<int>(std::ceil ((maxX - kTreeStart) / kTreeStep));
+    int izStart = static_cast<int>(std::floor((minZ - kTreeStart) / kTreeStep));
+    int izEnd   = static_cast<int>(std::ceil ((maxZ - kTreeStart) / kTreeStep));
+
+    // clamp indices to grid bounds
+    auto clampIndex = [](int i, float start, float end, float step) -> int {
+        const int minIdx = 0;
+        const int maxIdx = static_cast<int>(std::floor((end - start) / step));
+		return (std::max)(minIdx, (std::min)(i, maxIdx));
+    };
+    ixStart = clampIndex(ixStart, kTreeStart, kTreeEnd, kTreeStep);
+    ixEnd   = clampIndex(ixEnd,   kTreeStart, kTreeEnd, kTreeStep);
+    izStart = clampIndex(izStart, kTreeStart, kTreeEnd, kTreeStep);
+    izEnd   = clampIndex(izEnd,   kTreeStart, kTreeEnd, kTreeStep);
+
+    for (int ix = ixStart; ix <= ixEnd; ++ix)
+    {
+        float x = kTreeStart + ix * kTreeStep;
+        for (int iz = izStart; iz <= izEnd; ++iz)
+        {
+            float z = kTreeStart + iz * kTreeStep;
+            glm::vec3 treePos = glm::vec3(x, -1.0f, z); // tree placement used in Render()
+
+            // XZ vector from tree to camera
+            float dx = camera.position.x - treePos.x;
+            float dz = camera.position.z - treePos.z;
+            float distSq = dx * dx + dz * dz;
+
+            if (distSq < combinedRadiusSq && distSq > 1e-6f)
+            {
+                float dist = std::sqrt(distSq);
+                float penetration = combinedRadius - dist;
+
+                // push camera away along the XZ direction
+                glm::vec3 push;
+                push.x = (dx / dist) * penetration;
+                push.y = 0.0f;
+                push.z = (dz / dist) * penetration;
+
+                camera.position += push;
+                camera.target += push;
+                camera.Init(camera.position, camera.target, camera.up);
+
+                // Optionally stop after first resolution to avoid stacking responses:
+                // return;
+            }
+            else if (distSq <= 1e-6f)
+            {
+                // camera exactly at tree center: choose arbitrary push direction
+                glm::vec3 push = glm::vec3(combinedRadius, 0.0f, 0.0f);
+                camera.position += push;
+                camera.target += push;
+                camera.Init(camera.position, camera.target, camera.up);
+                // return;
+            }
+        }
+    }
+}
+
 void SceneText::Update(double dt)
 {
 	HandleKeyPress(dt);
@@ -300,6 +399,9 @@ void SceneText::Update(double dt)
 		light[0].position.y += static_cast<float>(dt) * 5.f;
 
 	camera.Update(dt);
+
+	HandleTreeCollisions();
+
 	// Prevent camera from going below ground after camera updates
 	if (camera.position.y < 3.0f) {
 		camera.position.y = 3.0f;
@@ -529,7 +631,7 @@ void SceneText::Render()
 
 	// Render light sphere - isolated transformations
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 750.f, 0.f);
+	modelStack.Translate(0.f, 25.f, 0.f);
 	modelStack.Scale(0.1f, 0.1f, 0.1f);
 	meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
 	meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
@@ -576,6 +678,7 @@ void SceneText::Render()
 		}
 		// keep the ambient material tweak from original code
 		meshList[GEO_GRASS]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
+		meshList[GEO_GRASS]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
 	}
 	modelStack.PopMatrix();
 
@@ -583,10 +686,10 @@ void SceneText::Render()
 	modelStack.Translate(5.f, 0.f, 55.f);
 	modelStack.Scale(1.f, 1.f, 1.f);
 	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
-	//meshList[GEO_MODEL_MTL2]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
-	//meshList[GEO_MODEL_MTL2]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-	//meshList[GEO_MODEL_MTL2]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-	//meshList[GEO_MODEL_MTL2]->material.kShininess = 5.0f;
+	meshList[GEO_ABANDONEDHOUSE]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
+	meshList[GEO_ABANDONEDHOUSE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+	meshList[GEO_ABANDONEDHOUSE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+	meshList[GEO_ABANDONEDHOUSE]->material.kShininess = 5.0f;
 	RenderMesh(meshList[GEO_ABANDONEDHOUSE], true);
 	modelStack.PopMatrix();
 
@@ -594,10 +697,10 @@ void SceneText::Render()
 	modelStack.Translate(25.f, 0.f, 55.f);
 	modelStack.Scale(1.f, 1.f, 1.f);
 	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
-	//meshList[GEO_MODEL_MTL2]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
-	//meshList[GEO_MODEL_MTL2]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-	//meshList[GEO_MODEL_MTL2]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-	//meshList[GEO_MODEL_MTL2]->material.kShininess = 5.0f;
+	meshList[GEO_ABANDONEDHOUSE2]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
+	meshList[GEO_ABANDONEDHOUSE2]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+	meshList[GEO_ABANDONEDHOUSE2]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+	meshList[GEO_ABANDONEDHOUSE2]->material.kShininess = 5.0f;
 	RenderMesh(meshList[GEO_ABANDONEDHOUSE2], true);
 	modelStack.PopMatrix();
 
@@ -621,6 +724,7 @@ void SceneText::Render()
 	RenderMesh(meshList[GEO_TOWER], true);
 	modelStack.PopMatrix();
 
+	/*
 	// grass 3D
 	modelStack.PushMatrix();
 	modelStack.Translate(-10.f, 1.f, 0.f);
@@ -631,32 +735,33 @@ void SceneText::Render()
 	meshList[GEO_PEWPEW]->material.kShininess = 5.0f;
 	RenderMesh(meshList[GEO_PEWPEW], true);
 	modelStack.PopMatrix();
+	*/
 
 	// tree
 	modelStack.PushMatrix();
 	{
-		// spacing chosen to match the previous manual placement (50 units)
 		const float start = -250.f;
 		const float end = 250.f;
-		const float step = 25.f;
+		const float step = 21.f;
 		for (float x = start; x <= end; x += step)
 		{
 			for (float z = start; z <= end; z += step)
 			{
 				modelStack.PushMatrix();
-				modelStack.Translate(x, 0.f, z);
+				modelStack.Translate(x, -1.f, z);
 				modelStack.Scale(0.5f, 0.5f, 0.5f);
 				RenderMesh(meshList[GEO_PINETREE], true);
 				modelStack.PopMatrix();
 			}
 		}
+
+		// material updates (if desired)
 		meshList[GEO_PINETREE]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
 		meshList[GEO_PINETREE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
 		meshList[GEO_PINETREE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
 		meshList[GEO_PINETREE]->material.kShininess = 5.0f;
-		RenderMesh(meshList[GEO_PINETREE], true);
-		modelStack.PopMatrix();
 	}
+	modelStack.PopMatrix();
 
 
 	/*
@@ -675,7 +780,7 @@ void SceneText::Render()
 	// UI elements (already isolated in RenderMeshOnScreen)
 	RenderMeshOnScreen(meshList[GEO_GUI], 50, 50, 10, 10);
 
-	RenderTextOnScreen(meshList[GEO_TEXT], "work", glm::vec3(1, 1, 1), 40, 0, 0);
+	RenderTextOnScreen(meshList[GEO_TEXT], "work in progress", glm::vec3(1, 1, 1), 25 /*size*/, 100 /*horizontal pos*/, 10 /*vertical pos*/);
 
 	// Text in world space
 	modelStack.PushMatrix();
@@ -833,35 +938,19 @@ void SceneText::HandleKeyPress(double dt)
 		camera.target += right * movement;
 	}
 
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_E))
-	{
-		// Move upwards
-		float movement = moveSpeed * static_cast<float>(dt);
-		camera.position += camera.up * movement;
-		camera.target += camera.up * movement;
-	}
-
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_Q))
-	{
-		// Move upwards
-		float movement = moveSpeed * static_cast<float>(dt);
-		camera.position -= camera.up * movement;
-		camera.target -= camera.up * movement;
-	}
-
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_SPACE))
-	{
-		// jump
-		float movement = moveSpeed * static_cast<float>(dt);
-		camera.position.y += movement;
-		camera.target.y += movement;
-	}
-
 	// Clamp camera height so it never goes below ground (y = 3.0f)
 	if (camera.position.y < 3.0f) {
 		camera.position.y = 3.0f;
 		if (camera.target.y < 3.0f)
 			camera.target.y = 3.0f;
+		// Re-init to refresh internal vectors after adjustment
+		camera.Init(camera.position, camera.target, camera.up);
+	}
+
+	if (camera.position.y > 3.1f) {
+		camera.position.y = 3.1f;
+		if (camera.target.y > 3.1f)
+			camera.target.y = 3.1f;
 		// Re-init to refresh internal vectors after adjustment
 		camera.Init(camera.position, camera.target, camera.up);
 	}
