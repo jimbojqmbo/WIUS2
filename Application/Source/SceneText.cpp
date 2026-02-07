@@ -125,10 +125,10 @@ void SceneText::Init()
 	);
 
 	// enforce minimum Y at launch
-	if (camera.position.y < 3.0f) {
-		camera.position.y = 3.0f;
+	if (camera.position.y < 3.3f) {
+		camera.position.y = 3.3f;
 		// keep the camera looking at the same relative height (adjust target to avoid looking too far down)
-		if (camera.target.y < 3.0f) camera.target.y = 3.0f;
+		if (camera.target.y < 3.3f) camera.target.y = 3.3f;
 		// re-initialize so FPCamera::Init() recomputes its internal vectors (Refresh)
 		camera.Init(camera.position, camera.target, camera.up);
 	}
@@ -181,6 +181,9 @@ void SceneText::Init()
 	//meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//bottom.tga");
 
 	//meshList[GEO_QUAD]->textureID = LoadTGA("Images//NYP.tga");
+	meshList[GEO_QUAD] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
+
+	meshList[GEO_CYLINDER] = MeshBuilder::GenerateCylinder("Cylinder", glm::vec3(1.f, 1.f, 1.f), 36, 1.f, 2.f);
 
 	meshList[GEO_ZUL] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
 	meshList[GEO_ZUL]->textureID = LoadTGA("Images//zulmobile.tga");
@@ -221,9 +224,9 @@ void SceneText::Init()
 
 	glUniform1i(m_parameters[U_NUMLIGHTS], NUM_LIGHTS);
 
-	light[0].position = glm::vec3(0, 200, 0);
+	light[0].position = glm::vec3(camera.position.x, camera.position.y, camera.position.z);
 	light[0].color = glm::vec3(1, 0, 0);
-	light[0].type = Light::LIGHT_DIRECTIONAL;
+	light[0].type = Light::LIGHT_POINT;
 	light[0].power = 0.3;
 	light[0].kC = 1.f;
 	light[0].kL = 0.01f;
@@ -247,6 +250,19 @@ void SceneText::Init()
 
 	m_parameters[U_TEXT_ENABLED] = glGetUniformLocation(m_programID, "textEnabled");
 	m_parameters[U_TEXT_COLOR] = glGetUniformLocation(m_programID, "textColor");
+
+	// Fog uniforms (locations)
+	m_parameters[U_FOG_ENABLED] = glGetUniformLocation(m_programID, "fogEnabled");
+	m_parameters[U_FOG_START] = glGetUniformLocation(m_programID, "fogStart");
+	m_parameters[U_FOG_END] = glGetUniformLocation(m_programID, "fogEnd");
+	m_parameters[U_FOG_COLOR] = glGetUniformLocation(m_programID, "fogColor");
+
+	// Set default fog values
+	glUniform1i(m_parameters[U_FOG_ENABLED], fogEnabled ? 1 : 0);
+	glUniform1f(m_parameters[U_FOG_START], fogStart);
+	glUniform1f(m_parameters[U_FOG_END], fogEnd);
+	glUniform3fv(m_parameters[U_FOG_COLOR], 1, &fogColor.r);
+
 }
 
 void SceneText::HandleMouseInput() {
@@ -409,6 +425,8 @@ void SceneText::Update(double dt)
 			camera.target.y = 3.0f;
 		camera.Init(camera.position, camera.target, camera.up);
 	}
+
+	light[0].position = glm::vec3(camera.position.x, camera.position.y, camera.position.z);
 
 	HandleMouseInput();
 
@@ -607,6 +625,12 @@ void SceneText::Render()
 	// Load identity matrix into the model stack
 	modelStack.LoadIdentity();
 
+	// Update fog uniforms each frame (camera may move)
+	glUniform1i(m_parameters[U_FOG_ENABLED], fogEnabled ? 1 : 0);
+	glUniform1f(m_parameters[U_FOG_START], fogStart);
+	glUniform1f(m_parameters[U_FOG_END], fogEnd);
+	glUniform3fv(m_parameters[U_FOG_COLOR], 1, &fogColor.r);
+
 	if (light[0].type == Light::LIGHT_DIRECTIONAL)
 	{
 		glm::vec3 lightDir(light[0].position.x, light[0].position.y, light[0].position.z);
@@ -631,7 +655,7 @@ void SceneText::Render()
 
 	// Render light sphere - isolated transformations
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 25.f, 0.f);
+	modelStack.Translate(camera.position.x, 15.f, camera.position.z);
 	modelStack.Scale(0.1f, 0.1f, 0.1f);
 	meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
 	meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
@@ -678,7 +702,6 @@ void SceneText::Render()
 		}
 		// keep the ambient material tweak from original code
 		meshList[GEO_GRASS]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
-		meshList[GEO_GRASS]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
 	}
 	modelStack.PopMatrix();
 
@@ -702,6 +725,16 @@ void SceneText::Render()
 	meshList[GEO_ABANDONEDHOUSE2]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
 	meshList[GEO_ABANDONEDHOUSE2]->material.kShininess = 5.0f;
 	RenderMesh(meshList[GEO_ABANDONEDHOUSE2], true);
+	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	modelStack.Translate(5.f, 3.f, 38.f);
+	modelStack.Scale(0.5f, 0.5f, 0.5f);
+	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+	modelStack.Rotate(180.f, 1.f, 0.f, 0.f);
+	meshList[GEO_ZUL]->material.kDiffuse = glm::vec3(1.f, 0.f, 0.f);
+	meshList[GEO_ZUL]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	RenderMesh(meshList[GEO_ZUL], true);
 	modelStack.PopMatrix();
 
 	/*
@@ -776,6 +809,56 @@ void SceneText::Render()
 	RenderMesh(meshList[GEO_TREETREE], true);
 	modelStack.PopMatrix();
 	*/
+
+	if (showDark)
+	{
+		// how far in front of the camera
+		const float distanceInFront = 35.0f;
+
+		// camera forward vector
+		glm::vec3 forward = glm::normalize(camera.target - camera.position);
+
+		// desired world position for the quad
+		glm::vec3 quadPos = camera.position + forward * distanceInFront;
+
+		// default quad normal (your code treats quads as facing -Z by default)
+		const glm::vec3 defaultNormal = glm::vec3(0.0f, 0.0f, -1.0f);
+
+		// compute rotation to align defaultNormal -> forward
+		glm::vec3 axis = glm::cross(defaultNormal, forward);
+		float dotp = glm::clamp(glm::dot(defaultNormal, forward), -1.0f, 1.0f);
+		float angleRad = std::acos(dotp); // angle between the vectors (radians)
+		float angleDeg = glm::degrees(angleRad);
+
+		modelStack.PushMatrix();
+		{
+			// translate to position in front of camera
+			modelStack.Translate(quadPos.x, quadPos.y, quadPos.z);
+
+			// apply rotation if needed
+			const float eps = 1e-6f;
+			if (glm::length(axis) > eps && angleDeg > 0.0001f)
+			{
+				axis = glm::normalize(axis);
+				modelStack.Rotate(angleDeg, axis.x, axis.y, axis.z);
+			}
+			else if (dotp < -0.9999f)
+			{
+				// vectors are opposite; rotate 180 degrees around world up
+				modelStack.Rotate(180.0f, 0.0f, 1.0f, 0.0f);
+			}
+
+			// scale the quad as you want
+			modelStack.Scale(100.f, 100.f, 100.f);
+
+			// set material if needed
+			meshList[GEO_QUAD]->material.kAmbient = glm::vec3(0.f, 0.f, 0.f);
+
+			// render (enable lighting if you want)
+			RenderMesh(meshList[GEO_QUAD], true);
+		}
+		modelStack.PopMatrix();
+	}
 
 	// UI elements (already isolated in RenderMeshOnScreen)
 	RenderMeshOnScreen(meshList[GEO_GUI], 50, 50, 10, 10);
@@ -898,6 +981,12 @@ void SceneText::HandleKeyPress(double dt)
 		glUniform1i(m_parameters[U_LIGHT0_TYPE], light[0].type);
 	};
 
+	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_G))
+	{
+		// unload quad
+		showDark = !showDark;
+	}
+
 	// Movement speed (units per second)
 	const float moveSpeed = 5.0f;
 
@@ -939,19 +1028,20 @@ void SceneText::HandleKeyPress(double dt)
 	}
 
 	// Clamp camera height so it never goes below ground (y = 3.0f)
-	if (camera.position.y < 3.0f) {
-		camera.position.y = 3.0f;
-		if (camera.target.y < 3.0f)
-			camera.target.y = 3.0f;
+	if (camera.position.y < 3.2f) {
+		camera.position.y = 3.2f;
+		if (camera.target.y < 3.2f)
+			camera.target.y = 3.2f;
 		// Re-init to refresh internal vectors after adjustment
 		camera.Init(camera.position, camera.target, camera.up);
 	}
 
-	if (camera.position.y > 3.1f) {
-		camera.position.y = 3.1f;
-		if (camera.target.y > 3.1f)
-			camera.target.y = 3.1f;
+	if (camera.position.y > 3.3f) {
+		camera.position.y = 3.3f;
+		if (camera.target.y > 3.3f)
+			camera.target.y = 3.3f;
 		// Re-init to refresh internal vectors after adjustment
 		camera.Init(camera.position, camera.target, camera.up);
 	}
+	
 }

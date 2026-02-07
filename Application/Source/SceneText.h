@@ -30,6 +30,7 @@ public:
 		GEO_FRONT,
 		GEO_BACK,
 		GEO_GUI,
+		GEO_CYLINDER,
 		GEO_TEXT,
 		GEO_ZUL,
 
@@ -78,6 +79,13 @@ public:
 		U_LIGHTENABLED,
 		U_TEXT_ENABLED,
 		U_TEXT_COLOR,
+
+		// Fog uniforms
+		U_FOG_ENABLED,
+		U_FOG_START,
+		U_FOG_END,
+		U_FOG_COLOR,
+
 		U_TOTAL,
 	};
 
@@ -141,6 +149,14 @@ private:
 	bool firstMouse = true;
 	double lastMouseX = 400.0;  // Center of 800x600 window
 	double lastMouseY = 300.0;
+
+	// Fog control
+	bool fogEnabled = true;
+	float fogStart = 5.0f;
+	float fogEnd = 10.0f;
+	glm::vec3 fogColor = glm::vec3(0.0f, 0.0f, 0.0f); // fade to black by default
+
+	bool showDark = true; 
 };
 
 #endif

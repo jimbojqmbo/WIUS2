@@ -60,8 +60,16 @@ uniform int numLights;
 uniform bool colorTextureEnabled;
 uniform sampler2D colorTexture;
 
+// Fog uniforms
+uniform bool fogEnabled;
+uniform float fogStart; // distance at which fog begins
+uniform float fogEnd;   // distance at which fog is fully opaque
+uniform vec3 fogColor;  // color to blend to
+
 void main()
 {
+    vec4 baseColor;
+
     if(lightEnabled)
     {
         vec3 materialColor;
@@ -91,13 +99,31 @@ void main()
             result += material.kSpecular * spec * lights[i].color * lights[i].power * att;
         }
 
-        FragColor = vec4(result, 1.0);
+        baseColor = vec4(result, 1.0);
     }
     else
     {
         if(colorTextureEnabled)
-            FragColor = texture(colorTexture, texCoord);
+            baseColor = texture(colorTexture, texCoord);
         else
-            FragColor = vec4(fragmentColor, 1.0);
+            baseColor = vec4(fragmentColor, 1.0);
+    }
+
+    // Apply fog based on camera-space distance
+    if (fogEnabled)
+    {
+        float dist = length(vertexPosition_cameraspace);
+        // smooth factor from 0 (no fog) to 1 (full fog)
+        float f = 0.0;
+        if (fogEnd > fogStart)
+            f = smoothstep(fogStart, fogEnd, dist);
+        else
+            f = (dist >= fogEnd) ? 1.0 : 0.0;
+
+        FragColor = mix(baseColor, vec4(fogColor, baseColor.a), f);
+    }
+    else
+    {
+        FragColor = baseColor;
     }
 }
