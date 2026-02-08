@@ -33,6 +33,7 @@ public:
 		GEO_CYLINDER,
 		GEO_TEXT,
 		GEO_ZUL,
+		GEO_SHADOW,
 
 		GEO_PEWPEW,
 

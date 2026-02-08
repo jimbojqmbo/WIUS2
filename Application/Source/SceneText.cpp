@@ -218,6 +218,8 @@ void SceneText::Init()
 	meshList[GEO_ABANDONEDHOUSE2] = MeshBuilder::GenerateOBJMTL("abandonedhse", "Models//abandonedwoodhouse.obj", "Models//abandonedwoodhouse.mtl");
 	meshList[GEO_ABANDONEDHOUSE2]->textureID = LoadTGA("Images//woodabandonedhouse copy.tga");
 
+	meshList[GEO_SHADOW] = MeshBuilder::GenerateOBJMTL("shadow", "Models//shadowretry.obj", "Models//shadowretry.mtl");
+
 	meshList[GEO_FLASHLIGHT] = MeshBuilder::GenerateOBJMTL("flashlight", "Models//low_poly_flashlight.obj", "Models//low_poly_flashlight.mtl");
 
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
@@ -778,16 +780,18 @@ void SceneText::Render()
 	meshList[GEO_ABANDONEDHOUSE2]->material.kShininess = 5.0f;
 	RenderMesh(meshList[GEO_ABANDONEDHOUSE2], true);
 	modelStack.PopMatrix();
-
+	
+	
 	modelStack.PushMatrix();
-	modelStack.Translate(5.f, 3.f, 38.f);
+	modelStack.Translate(5.f, 1.f, 38.f);
 	modelStack.Scale(0.5f, 0.5f, 0.5f);
-	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
-	modelStack.Rotate(180.f, 1.f, 0.f, 0.f);
-	meshList[GEO_ZUL]->material.kDiffuse = glm::vec3(1.f, 0.f, 0.f);
-	meshList[GEO_ZUL]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	RenderMesh(meshList[GEO_ZUL], true);
+	meshList[GEO_SHADOW]->material.kAmbient = glm::vec3(0.f);
+	meshList[GEO_SHADOW]->material.kDiffuse = glm::vec3(1.f, 0.f, 0.f);
+	meshList[GEO_SHADOW]->material.kSpecular = glm::vec3(0.f);
+	meshList[GEO_SHADOW]->material.kShininess = 5.0f;
+	RenderMesh(meshList[GEO_SHADOW], false);
 	modelStack.PopMatrix();
+	
 
 	/*
 	// Peter label
