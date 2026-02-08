@@ -17,6 +17,10 @@ public:
     float azimuth = 0.0f;
     float altitude = 0.0f;
 
+    // Add yaw and pitch for compatibility with RenderFlashlight
+    float yaw = 0.0f;
+    float pitch = 0.0f;
+
     FPCamera();
     ~FPCamera();
 

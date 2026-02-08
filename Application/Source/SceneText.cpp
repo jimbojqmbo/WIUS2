@@ -218,6 +218,8 @@ void SceneText::Init()
 	meshList[GEO_ABANDONEDHOUSE2] = MeshBuilder::GenerateOBJMTL("abandonedhse", "Models//abandonedwoodhouse.obj", "Models//abandonedwoodhouse.mtl");
 	meshList[GEO_ABANDONEDHOUSE2]->textureID = LoadTGA("Images//woodabandonedhouse copy.tga");
 
+	meshList[GEO_FLASHLIGHT] = MeshBuilder::GenerateOBJMTL("flashlight", "Models//low_poly_flashlight.obj", "Models//low_poly_flashlight.mtl");
+
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
 
@@ -225,9 +227,9 @@ void SceneText::Init()
 	glUniform1i(m_parameters[U_NUMLIGHTS], NUM_LIGHTS);
 
 	light[0].position = glm::vec3(camera.position.x, camera.position.y, camera.position.z);
-	light[0].color = glm::vec3(1, 0, 0);
+	light[0].color = glm::vec3(1, 1, 0.5);
 	light[0].type = Light::LIGHT_POINT;
-	light[0].power = 0.3;
+	light[0].power = 0;
 	light[0].kC = 1.f;
 	light[0].kL = 0.01f;
 	light[0].kQ = 0.001f;
@@ -608,6 +610,56 @@ void SceneText::RenderTextOnScreen(Mesh* mesh, std::string
 	glDisable(GL_BLEND);
 }
 
+void SceneText::RenderFlashlight()
+{
+	glm::vec3 forward = glm::normalize(camera.target - camera.position);
+	glm::vec3 right = glm::normalize(glm::cross(forward, camera.up));
+	glm::vec3 up = glm::normalize(glm::cross(right, forward));
+
+	modelStack.PushMatrix();
+
+	if (!flashlightOn)
+	{
+		// World-space flashlight (original behaviour)
+		modelStack.Translate(15.f, 2.f, 38.f);
+	}
+	else
+	{
+		const float forwardOffset = 0.6f;
+		const float rightOffset = 0.25f;
+		const float upOffset = -0.25f;
+
+		glm::vec3 holdOffset = forward * forwardOffset + right * rightOffset + up * upOffset;
+		glm::vec3 worldPos = camera.position + holdOffset;
+
+		// Render the handheld flashlight mesh oriented to the camera
+		float yaw = glm::degrees(atan2f(forward.x, forward.z));
+		float pitch = glm::degrees(asinf(forward.y));
+
+		modelStack.PushMatrix();
+		modelStack.Translate(worldPos.x, worldPos.y, worldPos.z);
+		modelStack.Rotate(yaw, 0.f, 1.f, 0.f);
+		modelStack.Rotate(-pitch, 1.f, 0.f, 0.f);
+		modelStack.Rotate(180.f, 1.f, 0.f, 0.f);
+		modelStack.Scale(0.2f, 0.2f, 0.2f); // adjust as needed
+		meshList[GEO_FLASHLIGHT]->material.kAmbient = glm::vec3(0.3f);
+		meshList[GEO_FLASHLIGHT]->material.kDiffuse = glm::vec3(0.6f);
+		meshList[GEO_FLASHLIGHT]->material.kSpecular = glm::vec3(0.8f);
+		meshList[GEO_FLASHLIGHT]->material.kShininess = 5.0f;
+		RenderMesh(meshList[GEO_FLASHLIGHT], true);
+		modelStack.PopMatrix();
+	}
+
+	modelStack.Scale(1.f, 1.f, 1.f);
+
+	meshList[GEO_FLASHLIGHT]->material.kAmbient = glm::vec3(0.3f);
+	meshList[GEO_FLASHLIGHT]->material.kDiffuse = glm::vec3(0.6f);
+	meshList[GEO_FLASHLIGHT]->material.kSpecular = glm::vec3(0.8f);
+	meshList[GEO_FLASHLIGHT]->material.kShininess = 5.0f;
+
+	RenderMesh(meshList[GEO_FLASHLIGHT], true);
+	modelStack.PopMatrix();
+}
 
 void SceneText::Render()
 {
@@ -758,7 +810,6 @@ void SceneText::Render()
 	modelStack.PopMatrix();
 
 	/*
-	// grass 3D
 	modelStack.PushMatrix();
 	modelStack.Translate(-10.f, 1.f, 0.f);
 	modelStack.Scale(1.f, 1.f, 1.f);
@@ -812,67 +863,137 @@ void SceneText::Render()
 
 	if (showDark)
 	{
-		// how far in front of the camera
-		const float distanceInFront = 35.0f;
-
-		// camera forward vector
-		glm::vec3 forward = glm::normalize(camera.target - camera.position);
-
-		// desired world position for the quad
-		glm::vec3 quadPos = camera.position + forward * distanceInFront;
-
-		// default quad normal (your code treats quads as facing -Z by default)
-		const glm::vec3 defaultNormal = glm::vec3(0.0f, 0.0f, -1.0f);
-
-		// compute rotation to align defaultNormal -> forward
-		glm::vec3 axis = glm::cross(defaultNormal, forward);
-		float dotp = glm::clamp(glm::dot(defaultNormal, forward), -1.0f, 1.0f);
-		float angleRad = std::acos(dotp); // angle between the vectors (radians)
-		float angleDeg = glm::degrees(angleRad);
-
-		modelStack.PushMatrix();
+		if (!flashlightOn)
 		{
-			// translate to position in front of camera
-			modelStack.Translate(quadPos.x, quadPos.y, quadPos.z);
+			// how far in front of the camera
+			const float distanceInFront = 15.0f;
 
-			// apply rotation if needed
-			const float eps = 1e-6f;
-			if (glm::length(axis) > eps && angleDeg > 0.0001f)
+			// camera forward vector
+			glm::vec3 forward = glm::normalize(camera.target - camera.position);
+
+			// desired world position for the quad
+			glm::vec3 quadPos = camera.position + forward * distanceInFront;
+
+			// default quad normal (your code treats quads as facing -Z by default)
+			const glm::vec3 defaultNormal = glm::vec3(0.0f, 0.0f, -1.0f);
+
+			// compute rotation to align defaultNormal -> forward
+			glm::vec3 axis = glm::cross(defaultNormal, forward);
+			float dotp = glm::clamp(glm::dot(defaultNormal, forward), -1.0f, 1.0f);
+			float angleRad = std::acos(dotp); // angle between the vectors (radians)
+			float angleDeg = glm::degrees(angleRad);
+
+			modelStack.PushMatrix();
 			{
-				axis = glm::normalize(axis);
-				modelStack.Rotate(angleDeg, axis.x, axis.y, axis.z);
+				// translate to position in front of camera
+				modelStack.Translate(quadPos.x, quadPos.y, quadPos.z);
+
+				// apply rotation if needed
+				const float eps = 1e-6f;
+				if (glm::length(axis) > eps && angleDeg > 0.0001f)
+				{
+					axis = glm::normalize(axis);
+					modelStack.Rotate(angleDeg, axis.x, axis.y, axis.z);
+				}
+				else if (dotp < -0.9999f)
+				{
+					// vectors are opposite; rotate 180 degrees around world up
+					modelStack.Rotate(180.0f, 0.0f, 1.0f, 0.0f);
+				}
+
+				// scale the quad as you want
+				modelStack.Scale(100.f, 100.f, 100.f);
+
+				// set material if needed
+				meshList[GEO_QUAD]->material.kAmbient = glm::vec3(0.f, 0.f, 0.f);
+
+				// render (enable lighting if you want)
+				RenderMesh(meshList[GEO_QUAD], true);
 			}
-			else if (dotp < -0.9999f)
-			{
-				// vectors are opposite; rotate 180 degrees around world up
-				modelStack.Rotate(180.0f, 0.0f, 1.0f, 0.0f);
-			}
-
-			// scale the quad as you want
-			modelStack.Scale(100.f, 100.f, 100.f);
-
-			// set material if needed
-			meshList[GEO_QUAD]->material.kAmbient = glm::vec3(0.f, 0.f, 0.f);
-
-			// render (enable lighting if you want)
-			RenderMesh(meshList[GEO_QUAD], true);
+			modelStack.PopMatrix();
 		}
-		modelStack.PopMatrix();
+
+		if (flashlightOn)
+		{
+			// how far in front of the camera
+			const float distanceInFront = 35.0f;
+
+			// camera forward vector
+			glm::vec3 forward = glm::normalize(camera.target - camera.position);
+
+			// desired world position for the quad
+			glm::vec3 quadPos = camera.position + forward * distanceInFront;
+
+			// default quad normal (your code treats quads as facing -Z by default)
+			const glm::vec3 defaultNormal = glm::vec3(0.0f, 0.0f, -1.0f);
+
+			// compute rotation to align defaultNormal -> forward
+			glm::vec3 axis = glm::cross(defaultNormal, forward);
+			float dotp = glm::clamp(glm::dot(defaultNormal, forward), -1.0f, 1.0f);
+			float angleRad = std::acos(dotp); // angle between the vectors (radians)
+			float angleDeg = glm::degrees(angleRad);
+
+			modelStack.PushMatrix();
+			{
+				// translate to position in front of camera
+				modelStack.Translate(quadPos.x, quadPos.y, quadPos.z);
+
+				// apply rotation if needed
+				const float eps = 1e-6f;
+				if (glm::length(axis) > eps && angleDeg > 0.0001f)
+				{
+					axis = glm::normalize(axis);
+					modelStack.Rotate(angleDeg, axis.x, axis.y, axis.z);
+				}
+				else if (dotp < -0.9999f)
+				{
+					// vectors are opposite; rotate 180 degrees around world up
+					modelStack.Rotate(180.0f, 0.0f, 1.0f, 0.0f);
+				}
+
+				// scale the quad as you want
+				modelStack.Scale(100.f, 100.f, 100.f);
+
+				// set material if needed
+				meshList[GEO_QUAD]->material.kAmbient = glm::vec3(0.f, 0.f, 0.f);
+
+				// render (enable lighting if you want)
+				RenderMesh(meshList[GEO_QUAD], true);
+			}
+			modelStack.PopMatrix();
+		}
 	}
 
+	RenderFlashlight();
+
 	// UI elements (already isolated in RenderMeshOnScreen)
-	RenderMeshOnScreen(meshList[GEO_GUI], 50, 50, 10, 10);
+	//RenderMeshOnScreen(meshList[GEO_GUI], 50, 50, 10, 10);
 
-	RenderTextOnScreen(meshList[GEO_TEXT], "work in progress", glm::vec3(1, 1, 1), 25 /*size*/, 100 /*horizontal pos*/, 10 /*vertical pos*/);
+	RenderTextOnScreen(meshList[GEO_TEXT], "work in progress", glm::vec3(1, 1, 1), 25 /*size*/, 150 /*horizontal pos*/, 10 /*vertical pos*/);
 
-	// Text in world space
-	modelStack.PushMatrix();
-	modelStack.Translate(25.f, 10.f, 0.f);
-	modelStack.Rotate(-90.f, 0.f, 1.f, 0.f);
-	RenderText(meshList[GEO_TEXT], "shen me zai shang mian", glm::vec3(0, 1, 0));
-	modelStack.PopMatrix();
+	{
+		// Text in world space
+		modelStack.PushMatrix();
+		modelStack.Translate(25.f, 10.f, 0.f);
+		modelStack.Rotate(-90.f, 0.f, 1.f, 0.f);
+		RenderText(meshList[GEO_TEXT], "shen me zai shang mian", glm::vec3(0, 1, 0));
+		modelStack.PopMatrix();
+
+		// Text in world space
+		modelStack.PushMatrix();
+		modelStack.Translate(13.f, 3.f, 38.f);
+		modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+		RenderText(meshList[GEO_TEXT], "<-- light placeholder", glm::vec3(1, 1, 1));
+		modelStack.PopMatrix();
+
+		// Text in world space
+		modelStack.PushMatrix();
+		modelStack.Translate(13.f, 5.f, 38.f);
+		modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+		RenderText(meshList[GEO_TEXT], "press e to brighten shit", glm::vec3(1, 1, 1));
+		modelStack.PopMatrix();
+	}
 }
-
 
 void SceneText::RenderMesh(Mesh* mesh, bool enableLight)
 {
@@ -1042,6 +1163,32 @@ void SceneText::HandleKeyPress(double dt)
 			camera.target.y = 3.3f;
 		// Re-init to refresh internal vectors after adjustment
 		camera.Init(camera.position, camera.target, camera.up);
+	}
+
+		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_E))
+	{
+		const glm::vec3 minPos(10.0f, 1.0f, 35.0f);
+		const glm::vec3 maxPos(20.0f, 4.0f, 41.0f);
+
+		auto isInsideBox = [](const glm::vec3& p, const glm::vec3& mn, const glm::vec3& mx) {
+			return (p.x >= mn.x && p.x <= mx.x) &&
+				(p.y >= mn.y && p.y <= mx.y) &&
+				(p.z >= mn.z && p.z <= mx.z);
+			};
+
+		if (isInsideBox(camera.position, minPos, maxPos))
+		{
+
+			flashlightOn = true;
+
+			if (light[0].power <= 0.3f)
+				light[0].power = 0.3f;
+			else
+				light[0].power = 0.0f;
+
+			// upload the changed power to the shader
+			glUniform1f(m_parameters[U_LIGHT0_POWER], light[0].power);
+		}
 	}
 	
 }

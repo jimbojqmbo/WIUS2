@@ -47,6 +47,8 @@ public:
 
 		GEO_TOWER,
 
+		GEO_FLASHLIGHT,
+
 		GEO_EYEBALL,
 		GEO_EYEBALL_MTL,
 
@@ -134,6 +136,7 @@ private:
 	bool enableLight;
 
 	void RenderSkybox();
+	void RenderFlashlight();
 
 	void RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey);
 
@@ -157,6 +160,8 @@ private:
 	glm::vec3 fogColor = glm::vec3(0.0f, 0.0f, 0.0f); // fade to black by default
 
 	bool showDark = true; 
+	bool flashlightOn = false;
+	glm::vec3 flashlightWorldPos = glm::vec3(15.f, 2.f, 38.f);
 };
 
 #endif
