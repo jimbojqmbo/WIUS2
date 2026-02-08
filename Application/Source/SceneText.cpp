@@ -783,8 +783,9 @@ void SceneText::Render()
 	
 	
 	modelStack.PushMatrix();
-	modelStack.Translate(5.f, 1.f, 38.f);
+	modelStack.Translate(-10.f, 1.f, 38.f);
 	modelStack.Scale(0.5f, 0.5f, 0.5f);
+	modelStack.Rotate(90.f, 0.f, -1.f, 0.f);
 	meshList[GEO_SHADOW]->material.kAmbient = glm::vec3(0.f);
 	meshList[GEO_SHADOW]->material.kDiffuse = glm::vec3(1.f, 0.f, 0.f);
 	meshList[GEO_SHADOW]->material.kSpecular = glm::vec3(0.f);
