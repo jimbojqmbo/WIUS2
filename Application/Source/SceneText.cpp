@@ -1391,7 +1391,7 @@ void SceneText::Render()
 			RenderTextOnScreen(meshList[GEO_TEXT], "- Follow the path indicators and run", glm::vec3(1, 1, 0.5), 20, 15, 530);
 
 			if (ChasetextTimer > 3.0f) {
-				RenderTextOnScreen(meshList[GEO_TEXT], "What the fuck is that bro", glm::vec3(1, 1, 1), 25, 200, 10);
+				RenderTextOnScreen(meshList[GEO_TEXT], "What in the world is that", glm::vec3(1, 1, 1), 25, 200, 10);
 			}
 			else if (ChasetextTimer > 0.0f) {
 				RenderTextOnScreen(meshList[GEO_TEXT], "oh hell nah im dipping", glm::vec3(1, 1, 1), 25, 200, 10);
