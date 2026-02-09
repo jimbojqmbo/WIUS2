@@ -37,6 +37,8 @@ public:
 
 		GEO_NOTE,
 
+		GEO_SPARKLING_STAR,
+
 		GEO_PEWPEW,
 
 		GEO_GRASS,
@@ -168,6 +170,9 @@ private:
 	bool flashlightOn = false;
 	glm::vec3 flashlightWorldPos = glm::vec3(15.f, 2.f, 38.f);
 
+	bool flashlightObjective = true;
+	bool runObjective = false;
+
 	// In your header file
 	bool cutsceneActivation = false;
 	bool isShadowSpawned = false;
@@ -176,6 +181,32 @@ private:
 	float shadowRiseSpeed = 4.0f; // Units per second
 
 	float moveSpeed = 5.0f;
+
+	// Add these to the SceneText class (e.g., in the private or public section)
+	float bobTime = 0.0f;       // Accumulates time for bobbing oscillation
+	float bobSpeed = 25.0f;      // Speed of bobbing (higher = faster)
+	float bobAmount = 0.1f;     // Amplitude of bobbing (vertical offset in units)
+
+	// Add these to the SceneText class (e.g., in the private section)
+	bool shadowFollowStarted = false;  // Flag to track if following has begun
+	float shadowFollowTimer = 0.5f;   // Timer for the delay before following starts
+
+	// Add these to the SceneText class (e.g., in the private section)
+	glm::vec3 shadowCurrentPos;     // Current position of the shadow for lerping
+	float shadowLerpSpeed = 0.01f; // Speed of pursuit (0.0f = no movement, 1.0f = instant; lower = slower/laggy pursuit)
+
+	// Add these to the SceneText class (e.g., in the private section)
+	bool shadowStillActive = false;  // Flag for stillness period
+	float shadowStillTimer = 0.0f;  // Timer for stillness duration
+
+	bool isPlayerDead = false;
+
+	bool isEndActivated = false;
+
+	bool startOfGame = true;
+	float StarttextTimer = 6.0f;
+	float ChasetextTimer = 6.0f;
+	float flashlighttextTimer = 5.0f;
 };
 
 #endif

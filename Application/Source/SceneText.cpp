@@ -85,7 +85,7 @@ void SceneText::Init()
 	glBindVertexArray(m_vertexArrayID);
 
 	// Load the shader programs
-	m_programID = LoadShaders("Shader//Texture.vertexshader", "Shader//Texture.fragmentshader");
+	//m_programID = LoadShaders("Shader//Texture.vertexshader", "Shader//Texture.fragmentshader");
 	m_programID = LoadShaders("Shader//Texture.vertexshader", "Shader//Text.fragmentshader");
 	glUseProgram(m_programID);
 
@@ -228,6 +228,8 @@ void SceneText::Init()
 	meshList[GEO_OBJECTIVE_TEXT] = MeshBuilder::GenerateQuad("objectivetext", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_OBJECTIVE_TEXT]->textureID = LoadTGA("Images//objectivetexttest.tga");
 
+	meshList[GEO_SPARKLING_STAR] = MeshBuilder::GenerateOBJMTL("sparklingstar", "Models//sparkling_star.obj", "Models//sparkling_star.mtl");
+
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
 
@@ -276,9 +278,22 @@ void SceneText::Init()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	isPlayerDead = false;
+
 }
 
 void SceneText::HandleMouseInput() {
+
+	if (isPlayerDead) {
+		return;  // Skip mouse input when dead
+	}
+
+	// Skip mouse input if stillness is active
+	if (isShadowSpawned && shadowStillTimer < 1.0f)
+	{
+		return;
+	}
+
 	double mouseX = MouseController::GetInstance()->GetMousePositionX();
 	double mouseY = MouseController::GetInstance()->GetMousePositionY();
 
@@ -439,7 +454,21 @@ void SceneText::Update(double dt)
 		camera.Init(camera.position, camera.target, camera.up);
 	}
 
+	if (startOfGame)
+	{
+		if (StarttextTimer > 0) {
+			StarttextTimer -= static_cast<float>(dt); // Subtract the time passed since the last frame
+		}
+	}
+
 	light[0].position = glm::vec3(camera.position.x, camera.position.y, camera.position.z);
+
+	if (flashlightOn)
+	{
+		if (flashlighttextTimer > 0) {
+			flashlighttextTimer -= static_cast<float>(dt); // Subtract the time passed since the last frame
+		}
+	}
 
 	// Shadow rise cutscene
 	{
@@ -461,14 +490,53 @@ void SceneText::Update(double dt)
 
 		if (isShadowSpawned)
 		{
+			if (ChasetextTimer > 0) {
+				ChasetextTimer -= static_cast<float>(dt); // Subtract the time passed since the last frame
+			}
+
+			// Start stillness timer on activation
+			if (!shadowStillActive)
+			{
+				shadowStillActive = true;
+				shadowStillTimer = 0.0f;
+			}
+			shadowStillTimer += static_cast<float>(dt);
+
 			if (shadowY < shadowTargetY)
 			{
 				shadowY += (float)(shadowRiseSpeed * dt);
-
-				// Ensure we don't overshot the target
+				// Ensure we don't overshoot the target
 				if (shadowY > shadowTargetY) shadowY = shadowTargetY;
+			}
 
-				moveSpeed = 15.f;
+			// Set moveSpeed: 0 during stillness, 15.f after
+			moveSpeed = (shadowStillTimer < 1.0f) ? 0.0f : 15.0f;
+
+			// Start the follow delay timer when shadow is spawned
+			if (!shadowFollowStarted)
+			{
+				shadowFollowStarted = true;
+				shadowFollowTimer = 0.0f;
+				// Initialize shadow position to the fixed starting point
+				shadowCurrentPos = glm::vec3(90.0f, shadowY, 37.0f);
+			}
+
+			shadowFollowTimer += static_cast<float>(dt);
+
+			{
+				// Calculate 3D distance between camera and shadow position
+				glm::vec3 shadowPos(shadowCurrentPos.x, shadowY, shadowCurrentPos.z);
+				float dist = glm::distance(camera.position, shadowPos);
+
+				// Debug: Log distance every frame (remove or comment out after testing)
+				std::cout << "Distance to shadow: " << dist << std::endl;
+
+				// Trigger death if within 0.5 units (adjust threshold as needed for balance)
+				if (dist < 3.f) {
+					isPlayerDead = true;
+					// Debug: Only log when actually touching
+					std::cout << "touched shadow" << std::endl;
+				}
 			}
 		}
 	}
@@ -704,6 +772,9 @@ void SceneText::RenderFlashlight()
 	modelStack.PopMatrix();
 }
 
+// Update the lerp speed (in the class or Init)
+float shadowLerpSpeed = 0.2f;  // Increased from 0.05f for faster pursuit
+
 void SceneText::Render()
 {
 	// Clear color buffer every frame
@@ -800,28 +871,25 @@ void SceneText::Render()
 	}
 	modelStack.PopMatrix();
 
+	// house
 	modelStack.PushMatrix();
-	modelStack.Translate(5.f, 0.f, 55.f);
-	modelStack.Scale(1.f, 1.f, 1.f);
-	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
-	meshList[GEO_ABANDONEDHOUSE]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
-	meshList[GEO_ABANDONEDHOUSE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-	meshList[GEO_ABANDONEDHOUSE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-	meshList[GEO_ABANDONEDHOUSE]->material.kShininess = 5.0f;
-	RenderMesh(meshList[GEO_ABANDONEDHOUSE], true);
-	modelStack.PopMatrix();
+	{
+		// spacing chosen to match the previous manual placement (50 units)
+		const float start = -200.f;
+		const float end = 200.f;
+		const float step = 25.f;
+		for (float x = start; x <= end; x += step)
+		{
+			modelStack.PushMatrix();
+			modelStack.Translate(x, 0.f, 55.f);
+			modelStack.Scale(1.f, 1.f, 1.f);
+			modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+			RenderMesh(meshList[GEO_ABANDONEDHOUSE], true);
+			modelStack.PopMatrix();
 
-	modelStack.PushMatrix();
-	modelStack.Translate(25.f, 0.f, 55.f);
-	modelStack.Scale(1.f, 1.f, 1.f);
-	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
-	meshList[GEO_ABANDONEDHOUSE2]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
-	meshList[GEO_ABANDONEDHOUSE2]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-	meshList[GEO_ABANDONEDHOUSE2]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-	meshList[GEO_ABANDONEDHOUSE2]->material.kShininess = 5.0f;
-	RenderMesh(meshList[GEO_ABANDONEDHOUSE2], true);
-	modelStack.PopMatrix();
-	
+		}
+		meshList[GEO_ABANDONEDHOUSE]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
+	}
 
 	/*
 	// Peter label
@@ -831,17 +899,48 @@ void SceneText::Render()
 	modelStack.PopMatrix();
 	*/
 
+	if (!isPlayerDead)
+	{
+		if (!isEndActivated)
+		{
+			modelStack.PushMatrix();
+			modelStack.Translate(-200.f, 0.5f, -154.f);
+			modelStack.Scale(25.f, 200.f, 25.f);
+			meshList[GEO_SPARKLING_STAR]->material.kAmbient = glm::vec3(1.f, 1.f, 0.5f);
+			meshList[GEO_SPARKLING_STAR]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+			meshList[GEO_SPARKLING_STAR]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+			meshList[GEO_SPARKLING_STAR]->material.kShininess = 5.0f;
+			RenderMesh(meshList[GEO_SPARKLING_STAR], true);
+			modelStack.PopMatrix();
+		}
 
-	// Tower
-	modelStack.PushMatrix();
-	modelStack.Translate(-10.f, -3.f, 0.f);
-	modelStack.Scale(5.f, 5.f, 5.f);
-	meshList[GEO_TOWER]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
-	meshList[GEO_TOWER]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-	meshList[GEO_TOWER]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-	meshList[GEO_TOWER]->material.kShininess = 5.0f;
-	RenderMesh(meshList[GEO_TOWER], true);
-	modelStack.PopMatrix();
+		const glm::vec3 EndminPos(-215.f, 1.0f, -165.0f);
+		const glm::vec3 EndmaxPos(-195.f, 4.0f, -145.0f);
+
+		auto inEndActivationZone = [](const glm::vec3& p, const glm::vec3& mn, const glm::vec3& mx) {
+			return (p.x >= mn.x && p.x <= mx.x) &&
+				(p.y >= mn.y && p.y <= mx.y) &&
+				(p.z >= mn.z && p.z <= mx.z);
+			};
+
+		if (inEndActivationZone(camera.position, EndminPos, EndmaxPos))
+		{
+			isEndActivated = true;
+		}
+
+		if (isEndActivated)
+		{
+			modelStack.PushMatrix();
+			modelStack.Translate(-200.f, 0.5f, -154.f);
+			modelStack.Scale(25.f, 200.f, 25.f);
+			meshList[GEO_SPARKLING_STAR]->material.kAmbient = glm::vec3(0.f, 1.f, 0.f);
+			meshList[GEO_SPARKLING_STAR]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+			meshList[GEO_SPARKLING_STAR]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+			meshList[GEO_SPARKLING_STAR]->material.kShininess = 5.0f;
+			RenderMesh(meshList[GEO_SPARKLING_STAR], true);
+			modelStack.PopMatrix();
+		}
+	}
 
 	/*
 	modelStack.PushMatrix();
@@ -976,6 +1075,14 @@ void SceneText::Render()
 				RenderMesh(meshList[GEO_QUAD], true);
 			}
 			modelStack.PopMatrix();
+
+			// flashlight text
+			modelStack.PushMatrix();
+			modelStack.Translate(-10.f, 2.5f, 40.f);
+			modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+			modelStack.Scale(0.5f, 0.5f, 0.5f);
+			RenderText(meshList[GEO_TEXT], "E to pick up", glm::vec3(1, 1, 1));
+			modelStack.PopMatrix();
 		}
 
 		if (flashlightOn)
@@ -1034,14 +1141,21 @@ void SceneText::Render()
 	// UI elements (already isolated in RenderMeshOnScreen)
 	//RenderMeshOnScreen(meshList[GEO_GUI], 50, 50, 10, 10);
 
-	RenderTextOnScreen(meshList[GEO_TEXT], "work in progress", glm::vec3(1, 1, 1), 25 /*size*/, 150 /*horizontal pos*/, 10 /*vertical pos*/);
 	RenderTextOnScreen(meshList[GEO_TEXT], "Objective:", glm::vec3(1, 1, 1), 20, 15, 560);
-	RenderTextOnScreen(meshList[GEO_TEXT], "- Find a way out", glm::vec3(1, 1, 1), 20, 15, 530);
+	RenderTextOnScreen(meshList[GEO_TEXT], "- Find a way out", glm::vec3(1, 1, 1), 20, 15, 500);
+
+	if (flashlightObjective)
+	{
+		RenderTextOnScreen(meshList[GEO_TEXT], "- Follow the notes to find the flashlight", glm::vec3(1, 1, 0.5), 20, 15, 530);
+	}
 
 	if (flashlightOn)
 	{
+		flashlightObjective = false;
+
 		if (!isShadowSpawned)
 		{
+
 		// direct player to cutscene (the one that appears only after flash is picked up)
 		modelStack.PushMatrix();
 		modelStack.Translate(-5.f, 1.f, 40.f);
@@ -1083,11 +1197,156 @@ void SceneText::Render()
 		modelStack.PopMatrix();
 
 		
-		RenderTextOnScreen(meshList[GEO_TEXT], "- Follow the path indicators", glm::vec3(1, 1, 0.5), 20, 15, 510);
+		RenderTextOnScreen(meshList[GEO_TEXT], "- Follow the path indicators", glm::vec3(1, 1, 0.5), 20, 15, 530);
 		}
 
 		if (isShadowSpawned)
 		{
+			// TOWARDS END
+			modelStack.PushMatrix();
+			modelStack.Translate(-150.f, 4.f, -160.f);
+			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+			modelStack.Scale(2.f, 2.f, 2.f);
+			RenderText(meshList[GEO_TEXT], "> > >", glm::vec3(1, 1, 1));
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(-170.f, 4.f, -160.f);
+			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+			modelStack.Scale(2.f, 2.f, 2.f);
+			RenderText(meshList[GEO_TEXT], "> > >", glm::vec3(1, 1, 1));
+			modelStack.PopMatrix();
+
+			// TOWARDS SIDE
+			modelStack.PushMatrix();
+			modelStack.Translate(-165.f, 4.f, 37.f);
+			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+			modelStack.Rotate(90.f, 0.f, -1.f, 0.f);
+			modelStack.Scale(2.f, 2.f, 2.f);
+			RenderText(meshList[GEO_TEXT], "> > >", glm::vec3(1, 1, 1));
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(-165.f, 4.f, 20.f);
+			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+			modelStack.Rotate(90.f, 0.f, -1.f, 0.f);
+			modelStack.Scale(2.f, 2.f, 2.f);
+			RenderText(meshList[GEO_TEXT], "> > >", glm::vec3(1, 1, 1));
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(-165.f, 4.f, -1.f);
+			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+			modelStack.Rotate(90.f, 0.f, -1.f, 0.f);
+			modelStack.Scale(2.f, 2.f, 2.f);
+			RenderText(meshList[GEO_TEXT], "> > >", glm::vec3(1, 1, 1));
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(-165.f, 4.f, -21.f);
+			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+			modelStack.Rotate(90.f, 0.f, -1.f, 0.f);
+			modelStack.Scale(2.f, 2.f, 2.f);
+			RenderText(meshList[GEO_TEXT], "> > >", glm::vec3(1, 1, 1));
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(-165.f, 4.f, -42.f);
+			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+			modelStack.Rotate(90.f, 0.f, -1.f, 0.f);
+			modelStack.Scale(2.f, 2.f, 2.f);
+			RenderText(meshList[GEO_TEXT], "> > >", glm::vec3(1, 1, 1));
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(-165.f, 4.f, -62.f);
+			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+			modelStack.Rotate(90.f, 0.f, -1.f, 0.f);
+			modelStack.Scale(2.f, 2.f, 2.f);
+			RenderText(meshList[GEO_TEXT], "> > >", glm::vec3(1, 1, 1));
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(-165.f, 4.f, -82.f);
+			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+			modelStack.Rotate(90.f, 0.f, -1.f, 0.f);
+			modelStack.Scale(2.f, 2.f, 2.f);
+			RenderText(meshList[GEO_TEXT], "> > >", glm::vec3(1, 1, 1));
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(-165.f, 4.f, -103.f);
+			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+			modelStack.Rotate(90.f, 0.f, -1.f, 0.f);
+			modelStack.Scale(2.f, 2.f, 2.f);
+			RenderText(meshList[GEO_TEXT], "> > >", glm::vec3(1, 1, 1));
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(-165.f, 4.f, -123.f);
+			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+			modelStack.Rotate(90.f, 0.f, -1.f, 0.f);
+			modelStack.Scale(2.f, 2.f, 2.f);
+			RenderText(meshList[GEO_TEXT], "> > >", glm::vec3(1, 1, 1));
+			modelStack.PopMatrix();
+
+			// TOWARDS BACK
+			// direct player
+			modelStack.PushMatrix();
+			modelStack.Translate(-152.f, 4.f, 40.f);
+			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+			modelStack.Scale(2.f, 2.f, 2.f);
+			RenderText(meshList[GEO_TEXT], "> > >", glm::vec3(1, 1, 1));
+			modelStack.PopMatrix();
+
+			// direct player
+			modelStack.PushMatrix();
+			modelStack.Translate(-130.f, 4.f, 40.f);
+			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+			modelStack.Scale(2.f, 2.f, 2.f);
+			RenderText(meshList[GEO_TEXT], "> > >", glm::vec3(1, 1, 1));
+			modelStack.PopMatrix();
+
+			// direct player
+			modelStack.PushMatrix();
+			modelStack.Translate(-118.f, 4.f, 40.f);
+			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+			modelStack.Scale(2.f, 2.f, 2.f);
+			RenderText(meshList[GEO_TEXT], "> > >", glm::vec3(1, 1, 1));
+			modelStack.PopMatrix();
+
+			// direct player
+			modelStack.PushMatrix();
+			modelStack.Translate(-96.f, 4.f, 40.f);
+			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+			modelStack.Scale(2.f, 2.f, 2.f);
+			RenderText(meshList[GEO_TEXT], "> > >", glm::vec3(1, 1, 1));
+			modelStack.PopMatrix();
+
+			// direct player
+			modelStack.PushMatrix();
+			modelStack.Translate(-74.f, 4.f, 40.f);
+			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+			modelStack.Scale(2.f, 2.f, 2.f);
+			RenderText(meshList[GEO_TEXT], "> > >", glm::vec3(1, 1, 1));
+			modelStack.PopMatrix();
+
+			// direct player
+			modelStack.PushMatrix();
+			modelStack.Translate(-52.f, 4.f, 40.f);
+			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+			modelStack.Scale(2.f, 2.f, 2.f);
+			RenderText(meshList[GEO_TEXT], "> > >", glm::vec3(1, 1, 1));
+			modelStack.PopMatrix();
+
+			// direct player
+			modelStack.PushMatrix();
+			modelStack.Translate(-30.f, 4.f, 40.f);
+			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+			modelStack.Scale(2.f, 2.f, 2.f);
+			RenderText(meshList[GEO_TEXT], "> > >", glm::vec3(1, 1, 1));
+			modelStack.PopMatrix();
+
 			// direct player
 			modelStack.PushMatrix();
 			modelStack.Translate(-8.f, 4.f, 40.f);
@@ -1129,7 +1388,18 @@ void SceneText::Render()
 			modelStack.PopMatrix();
 
 
-			RenderTextOnScreen(meshList[GEO_TEXT], "- Follow the path indicators", glm::vec3(1, 1, 0.5), 20, 15, 510);
+			RenderTextOnScreen(meshList[GEO_TEXT], "- Follow the path indicators and run", glm::vec3(1, 1, 0.5), 20, 15, 530);
+
+			if (ChasetextTimer > 3.0f) {
+				RenderTextOnScreen(meshList[GEO_TEXT], "What the fuck is that bro", glm::vec3(1, 1, 1), 25, 200, 10);
+			}
+			else if (ChasetextTimer > 0.0f) {
+				RenderTextOnScreen(meshList[GEO_TEXT], "oh hell nah im dipping", glm::vec3(1, 1, 1), 25, 200, 10);
+			}
+		}
+
+		if (flashlighttextTimer > 4.0f) {
+			RenderTextOnScreen(meshList[GEO_TEXT], "You picked up a flashlight!", glm::vec3(1, 1, 0.5), 25, 200, 50);
 		}
 	}
 
@@ -1145,11 +1415,37 @@ void SceneText::Render()
 	{
 		if (isShadowSpawned)
 		{
+			runObjective = true;
+
 			modelStack.PushMatrix();
-			// Use shadowY here instead of 1.f
-			modelStack.Translate(90.f, shadowY, 37.f);
+
+			// Update shadow position based on timer
+			if (shadowFollowTimer < 1.0f)
+			{
+				shadowCurrentPos = glm::vec3(90.0f, shadowY, 37.0f);
+			}
+			else
+			{
+				glm::vec3 targetPos = camera.position + glm::vec3(-5.0f, 0.0f, 0.0f);
+				shadowCurrentPos.x = glm::mix(shadowCurrentPos.x, targetPos.x, shadowLerpSpeed);
+				shadowCurrentPos.z = glm::mix(shadowCurrentPos.z, targetPos.z, shadowLerpSpeed);
+			}
+
+			// Translate first to position the shadow
+			modelStack.Translate(shadowCurrentPos.x, shadowY, shadowCurrentPos.z);
+
+			// Calculate direction from shadow to camera
+			glm::vec3 direction = glm::normalize(camera.position - shadowCurrentPos);
+
+			// Compute yaw angle to face the camera (around y-axis)
+			float yaw = glm::degrees(atan2(direction.x, direction.z));
+
+			// Rotate after translate to orient it at the position
+			// DEBUG: Temporarily comment out to test position following (uncomment below if needed)
+			modelStack.Rotate(yaw, 0.f, 1.f, 0.f);
+			// If position follows, try offsets: modelStack.Rotate(yaw + 90.f, 0.f, 1.f, 0.f); or modelStack.Rotate(yaw + 180.f, 0.f, 1.f, 0.f);
+
 			modelStack.Scale(0.5f, 0.5f, 0.5f);
-			modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
 			meshList[GEO_SHADOW]->material.kAmbient = glm::vec3(0.f);
 			meshList[GEO_SHADOW]->material.kDiffuse = glm::vec3(1.f, 0.f, 0.f);
 			meshList[GEO_SHADOW]->material.kSpecular = glm::vec3(0.f);
@@ -1158,7 +1454,40 @@ void SceneText::Render()
 			RenderMesh(meshList[GEO_SHADOW], false);
 			modelStack.PopMatrix();
 
-			RenderTextOnScreen(meshList[GEO_TEXT], "RUN", glm::vec3(1, 0, 0), 75, 325, 450);
+			if (isPlayerDead) {
+
+				runObjective = false;
+
+				// TODO: Render your death screen here
+				RenderTextOnScreen(meshList[GEO_TEXT], "YOU DIED", glm::vec3(1, 0, 0), 75, 245, 300);
+				RenderTextOnScreen(meshList[GEO_TEXT], "Press ESC to exit", glm::vec3(1, 1, 0), 30, 225, 250);
+			}
+		}
+	}
+
+	if (isEndActivated)
+	{
+
+		runObjective = false;
+
+		RenderTextOnScreen(meshList[GEO_TEXT], "YOU ESCAPED!", glm::vec3(1, 1, 0.3), 75, 190, 300);
+		RenderTextOnScreen(meshList[GEO_TEXT], "Press ESC to exit", glm::vec3(1, 1, 0), 30, 225, 250);
+	}
+
+	if (runObjective)
+	{
+		RenderTextOnScreen(meshList[GEO_TEXT], "RUN", glm::vec3(1, 0, 0), 75, 325, 450);
+	}
+
+	if (startOfGame)
+	{
+		if (StarttextTimer > 3.0f) {
+			// Show the first line for 2 seconds (from 5.0 down to 3.0)
+			RenderTextOnScreen(meshList[GEO_TEXT], "This forest smells weird...", glm::vec3(1, 1, 1), 25, 200, 10);
+		}
+		else if (StarttextTimer > 0.0f) {
+			// Show the second line for the remaining 3 seconds (from 3.0 down to 0)
+			RenderTextOnScreen(meshList[GEO_TEXT], "...and sounds weird too.", glm::vec3(1, 1, 1), 25, 200, 10);
 		}
 	}
 }
@@ -1216,6 +1545,15 @@ void SceneText::Exit()
 
 void SceneText::HandleKeyPress(double dt)
 {
+	if (isPlayerDead) {
+		return;  // Skip all input handling when dead
+	}
+
+	if (isEndActivated)
+	{
+		return;
+	}
+
 	if (KeyboardController::GetInstance()->IsKeyPressed(0x31))
 	{
 		// Key press to enable culling
@@ -1276,6 +1614,13 @@ void SceneText::HandleKeyPress(double dt)
 		showDark = !showDark;
 	}
 
+	// Skip movement if stillness is active
+	if (isShadowSpawned && shadowStillTimer < 1.0f)
+	{
+		// Still processing other keys (e.g., lighting toggles), but no movement
+		return;
+	}
+
 	// Calculate forward and right vectors based on camera orientation
 	glm::vec3 forward = glm::normalize(camera.target - camera.position);
 	glm::vec3 right = glm::normalize(glm::cross(forward, camera.up));
@@ -1313,17 +1658,43 @@ void SceneText::HandleKeyPress(double dt)
 		camera.target += right * movement;
 	}
 
-	// Clamp camera height so it never goes below ground (y = 3.0f)
-	if (camera.position.y < 3.2f) {
-		camera.position.y = 3.2f;
-		if (camera.target.y < 3.2f)
-			camera.target.y = 3.2f;
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT_SHIFT))
+	{
+		// sprint at 10.f
+		float movement = (1.5 * moveSpeed) * static_cast<float>(dt);
+		camera.position += forward * movement;
+		camera.target += forward * movement;
 	}
 
-	if (camera.position.y > 3.3f) {
-		camera.position.y = 3.3f;
-		if (camera.target.y > 3.3f)
-			camera.target.y = 3.3f;
+	// Check if the player is currently moving (used for bobbing)
+	bool isMoving = KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_W) ||
+		KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_S) ||
+		KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_A) ||
+		KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_D);
+
+	// Apply camera bobbing if shadow is spawned and player is moving
+	if (isShadowSpawned && isMoving)
+	{
+		bobTime += static_cast<float>(dt) * bobSpeed;  // Accumulate bobbing time
+		float bobOffset = glm::sin(bobTime) * bobAmount;  // Calculate vertical offset
+		camera.position.y += bobOffset;
+		camera.target.y += bobOffset;
+	}
+
+	// Adjust clamping limits to account for bobbing range (prevents getting stuck)
+	float minY = 3.2f - (isShadowSpawned ? bobAmount : 0.0f);
+	float maxY = 3.3f + (isShadowSpawned ? bobAmount : 0.0f);
+
+	// Clamp camera height to adjusted limits
+	if (camera.position.y < minY) {
+		camera.position.y = minY;
+		if (camera.target.y < minY)
+			camera.target.y = minY;
+	}
+	if (camera.position.y > maxY) {
+		camera.position.y = maxY;
+		if (camera.target.y > maxY)
+			camera.target.y = maxY;
 	}
 
 		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_E))
@@ -1351,5 +1722,4 @@ void SceneText::HandleKeyPress(double dt)
 			glUniform1f(m_parameters[U_LIGHT0_POWER], light[0].power);
 		}
 	}
-	
 }
