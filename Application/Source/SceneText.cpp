@@ -199,7 +199,7 @@ void SceneText::Init()
 	meshList[GEO_TEXT]->textureID = LoadTGA("Images//Georgia.tga");
 
 	meshList[GEO_GUI] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	meshList[GEO_GUI]->textureID = LoadTGA("Images//zulmobile.tga");
+	meshList[GEO_GUI]->textureID = LoadTGA("Images//blackblack.tga");
 
 	meshList[GEO_EYEBALL] = MeshBuilder::GenerateOBJMTL("eyeballmtl", "Models//eyeball.obj", "Models//eyeball.mtl");
 	meshList[GEO_EYEBALL]->textureID = LoadTGA("Images//Eye_D.tga");
@@ -619,11 +619,11 @@ void SceneText::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, fl
 	modelStack.Translate(x, y, 0);
 
 	// To do: Use modelStack to scale the GUI
-	modelStack.Scale(100, 100, 1);
+	modelStack.Scale(10000, 10000, 1);
 
 	RenderMesh(mesh, false); //UI should not have light
 
-	RenderMesh(meshList[GEO_OBJECTIVE_TEXT], false);
+	RenderMesh(meshList[GEO_GUI], false);
 
 	projectionStack.PopMatrix();
 	viewStack.PopMatrix();
@@ -1404,15 +1404,6 @@ void SceneText::Render()
 	}
 
 	{
-		// Text in world space
-		modelStack.PushMatrix();
-		modelStack.Translate(25.f, 10.f, 0.f);
-		modelStack.Rotate(-90.f, 0.f, 1.f, 0.f);
-		RenderText(meshList[GEO_TEXT], "shen me zai shang mian", glm::vec3(0, 1, 0));
-		modelStack.PopMatrix();
-	}
-
-	{
 		if (isShadowSpawned)
 		{
 			runObjective = true;
@@ -1458,7 +1449,8 @@ void SceneText::Render()
 
 				runObjective = false;
 
-				// TODO: Render your death screen here
+				RenderMeshOnScreen(meshList[GEO_GUI], 1.f, 1.f, 10000.f, 10000.f);
+
 				RenderTextOnScreen(meshList[GEO_TEXT], "YOU DIED", glm::vec3(1, 0, 0), 75, 245, 300);
 				RenderTextOnScreen(meshList[GEO_TEXT], "Press ESC to exit", glm::vec3(1, 1, 0), 30, 225, 250);
 			}
@@ -1469,6 +1461,8 @@ void SceneText::Render()
 	{
 
 		runObjective = false;
+
+		RenderMeshOnScreen(meshList[GEO_GUI], 1.f, 1.f, 10000.f, 10000.f);
 
 		RenderTextOnScreen(meshList[GEO_TEXT], "YOU ESCAPED!", glm::vec3(1, 1, 0.3), 75, 190, 300);
 		RenderTextOnScreen(meshList[GEO_TEXT], "Press ESC to exit", glm::vec3(1, 1, 0), 30, 225, 250);
