@@ -222,6 +222,9 @@ void SceneText::Init()
 
 	meshList[GEO_FLASHLIGHT] = MeshBuilder::GenerateOBJMTL("flashlight", "Models//low_poly_flashlight.obj", "Models//low_poly_flashlight.mtl");
 
+	meshList[GEO_NOTE] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[GEO_NOTE]->textureID = LoadTGA("Images//note.tga");
+
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
 
@@ -432,6 +435,38 @@ void SceneText::Update(double dt)
 
 	light[0].position = glm::vec3(camera.position.x, camera.position.y, camera.position.z);
 
+	// Shadow rise cutscene
+	{
+		// Define the minPos and maxPos variables in the correct scope
+		const glm::vec3 minPos(65.0f, 1.0f, 25.0f);
+		const glm::vec3 maxPos(85.0f, 4.0f, 45.0f);
+
+		// Define the cutsceneActivation lambda in the same scope
+		auto cutsceneActivation = [](const glm::vec3& p, const glm::vec3& mn, const glm::vec3& mx) {
+			return (p.x >= mn.x && p.x <= mx.x) &&
+				(p.y >= mn.y && p.y <= mx.y) &&
+				(p.z >= mn.z && p.z <= mx.z);
+			};
+
+		if (!isShadowSpawned && cutsceneActivation(camera.position, minPos, maxPos))
+		{
+			isShadowSpawned = true;
+		}
+
+		if (isShadowSpawned)
+		{
+			if (shadowY < shadowTargetY)
+			{
+				shadowY += (float)(shadowRiseSpeed * dt);
+
+				// Ensure we don't overshot the target
+				if (shadowY > shadowTargetY) shadowY = shadowTargetY;
+
+				moveSpeed = 15.f;
+			}
+		}
+	}
+
 	HandleMouseInput();
 
 }
@@ -623,7 +658,7 @@ void SceneText::RenderFlashlight()
 	if (!flashlightOn)
 	{
 		// World-space flashlight (original behaviour)
-		modelStack.Translate(15.f, 2.f, 38.f);
+		modelStack.Translate(-10.f, 1.f, 38.f);
 	}
 	else
 	{
@@ -652,7 +687,7 @@ void SceneText::RenderFlashlight()
 		modelStack.PopMatrix();
 	}
 
-	modelStack.Scale(1.f, 1.f, 1.f);
+	modelStack.Scale(2.f, 2.f, 2.f);
 
 	meshList[GEO_FLASHLIGHT]->material.kAmbient = glm::vec3(0.3f);
 	meshList[GEO_FLASHLIGHT]->material.kDiffuse = glm::vec3(0.6f);
@@ -781,18 +816,6 @@ void SceneText::Render()
 	RenderMesh(meshList[GEO_ABANDONEDHOUSE2], true);
 	modelStack.PopMatrix();
 	
-	
-	modelStack.PushMatrix();
-	modelStack.Translate(-10.f, 1.f, 38.f);
-	modelStack.Scale(0.5f, 0.5f, 0.5f);
-	modelStack.Rotate(90.f, 0.f, -1.f, 0.f);
-	meshList[GEO_SHADOW]->material.kAmbient = glm::vec3(0.f);
-	meshList[GEO_SHADOW]->material.kDiffuse = glm::vec3(1.f, 0.f, 0.f);
-	meshList[GEO_SHADOW]->material.kSpecular = glm::vec3(0.f);
-	meshList[GEO_SHADOW]->material.kShininess = 5.0f;
-	RenderMesh(meshList[GEO_SHADOW], false);
-	modelStack.PopMatrix();
-	
 
 	/*
 	// Peter label
@@ -852,19 +875,50 @@ void SceneText::Render()
 	}
 	modelStack.PopMatrix();
 
+	// notes
+	{
+		// note
+		modelStack.PushMatrix();
+		modelStack.Translate(16.f, 0.6f, -1.4f);
+		modelStack.Scale(1.5f, 1.5f, 1.5f);
+		modelStack.Rotate(125.f, 0.f, 0.f, 1.f);
+		modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+		modelStack.Rotate(265.f, 0.f, 0.f, 1.f);
+		meshList[GEO_NOTE]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
+		meshList[GEO_NOTE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+		meshList[GEO_NOTE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+		meshList[GEO_NOTE]->material.kShininess = 5.0f;
+		RenderMesh(meshList[GEO_NOTE], true);
+		modelStack.PopMatrix();
 
-	/*
-	// Tower
-	modelStack.PushMatrix();
-	modelStack.Translate(10.f, -3.f, 0.f);
-	modelStack.Scale(5.f, 5.f, 5.f);
-	meshList[GEO_TREETREE]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
-	meshList[GEO_TREETREE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-	meshList[GEO_TREETREE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-	meshList[GEO_TREETREE]->material.kShininess = 5.0f;
-	RenderMesh(meshList[GEO_TREETREE], true);
-	modelStack.PopMatrix();
-	*/
+		// note
+		modelStack.PushMatrix();
+		modelStack.Translate(16.5f, 4.f, 21.3f);
+		modelStack.Scale(1.5f, 1.5f, 1.5f);
+		modelStack.Rotate(205.f, 0.f, 1.f, 0.f);
+		modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+		modelStack.Rotate(25.f, 1.f, 0.f, 0.f);
+		meshList[GEO_NOTE]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
+		meshList[GEO_NOTE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+		meshList[GEO_NOTE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+		meshList[GEO_NOTE]->material.kShininess = 5.0f;
+		RenderMesh(meshList[GEO_NOTE], true);
+		modelStack.PopMatrix();
+
+		// note
+		modelStack.PushMatrix();
+		modelStack.Translate(4.f, 4.f, 41.f);
+		modelStack.Scale(1.5f, 1.5f, 1.5f);
+		modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+		modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+		modelStack.Rotate(25.f, 1.f, 0.f, 0.f);
+		meshList[GEO_NOTE]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
+		meshList[GEO_NOTE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+		meshList[GEO_NOTE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+		meshList[GEO_NOTE]->material.kShininess = 5.0f;
+		RenderMesh(meshList[GEO_NOTE], true);
+		modelStack.PopMatrix();
+	}
 
 	if (showDark)
 	{
@@ -976,6 +1030,17 @@ void SceneText::Render()
 
 	RenderTextOnScreen(meshList[GEO_TEXT], "work in progress", glm::vec3(1, 1, 1), 25 /*size*/, 150 /*horizontal pos*/, 10 /*vertical pos*/);
 
+	if (flashlightOn)
+	{
+		// direct player to cutscene (the one that appears only after flash is picked up)
+		modelStack.PushMatrix();
+		modelStack.Translate(15.f, 1.f, 40.f);
+		modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+		modelStack.Rotate(15.f, 0.f, 1.f, 0.f);
+		RenderText(meshList[GEO_TEXT], "< walk this way", glm::vec3(1, 1, 1));
+		modelStack.PopMatrix();
+	}
+
 	{
 		// Text in world space
 		modelStack.PushMatrix();
@@ -984,19 +1049,49 @@ void SceneText::Render()
 		RenderText(meshList[GEO_TEXT], "shen me zai shang mian", glm::vec3(0, 1, 0));
 		modelStack.PopMatrix();
 
-		// Text in world space
+		// direct player to cutscene
 		modelStack.PushMatrix();
-		modelStack.Translate(13.f, 3.f, 38.f);
+		modelStack.Translate(35.f, 1.f, 40.f);
 		modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
-		RenderText(meshList[GEO_TEXT], "<-- light placeholder", glm::vec3(1, 1, 1));
+		modelStack.Rotate(15.f, 0.f, 1.f, 0.f);
+		RenderText(meshList[GEO_TEXT], "< walk this way", glm::vec3(1, 1, 1));
 		modelStack.PopMatrix();
 
-		// Text in world space
+		// direct player to cutscene
 		modelStack.PushMatrix();
-		modelStack.Translate(13.f, 5.f, 38.f);
+		modelStack.Translate(55.f, 1.f, 40.f);
 		modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
-		RenderText(meshList[GEO_TEXT], "press e to brighten shit", glm::vec3(1, 1, 1));
+		modelStack.Rotate(15.f, 0.f, 1.f, 0.f);
+		RenderText(meshList[GEO_TEXT], "< walk this way", glm::vec3(1, 1, 1));
 		modelStack.PopMatrix();
+
+		// direct player to cutscene
+		modelStack.PushMatrix();
+		modelStack.Translate(80.f, 1.f, 40.f);
+		modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+		modelStack.Rotate(15.f, 0.f, 1.f, 0.f);
+		RenderText(meshList[GEO_TEXT], "< walk this way", glm::vec3(1, 1, 1));
+		modelStack.PopMatrix();
+	}
+
+	{
+		if (isShadowSpawned)
+		{
+			modelStack.PushMatrix();
+			// Use shadowY here instead of 1.f
+			modelStack.Translate(90.f, shadowY, 37.f);
+			modelStack.Scale(0.5f, 0.5f, 0.5f);
+			modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+			meshList[GEO_SHADOW]->material.kAmbient = glm::vec3(0.f);
+			meshList[GEO_SHADOW]->material.kDiffuse = glm::vec3(1.f, 0.f, 0.f);
+			meshList[GEO_SHADOW]->material.kSpecular = glm::vec3(0.f);
+			meshList[GEO_SHADOW]->material.kShininess = 5.0f;
+
+			RenderMesh(meshList[GEO_SHADOW], false);
+			modelStack.PopMatrix();
+
+			RenderTextOnScreen(meshList[GEO_TEXT], "RUN", glm::vec3(1, 0, 0), 75, 325, 450);
+		}
 	}
 }
 
@@ -1113,9 +1208,6 @@ void SceneText::HandleKeyPress(double dt)
 		showDark = !showDark;
 	}
 
-	// Movement speed (units per second)
-	const float moveSpeed = 5.0f;
-
 	// Calculate forward and right vectors based on camera orientation
 	glm::vec3 forward = glm::normalize(camera.target - camera.position);
 	glm::vec3 right = glm::normalize(glm::cross(forward, camera.up));
@@ -1158,22 +1250,18 @@ void SceneText::HandleKeyPress(double dt)
 		camera.position.y = 3.2f;
 		if (camera.target.y < 3.2f)
 			camera.target.y = 3.2f;
-		// Re-init to refresh internal vectors after adjustment
-		camera.Init(camera.position, camera.target, camera.up);
 	}
 
 	if (camera.position.y > 3.3f) {
 		camera.position.y = 3.3f;
 		if (camera.target.y > 3.3f)
 			camera.target.y = 3.3f;
-		// Re-init to refresh internal vectors after adjustment
-		camera.Init(camera.position, camera.target, camera.up);
 	}
 
 		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_E))
 	{
-		const glm::vec3 minPos(10.0f, 1.0f, 35.0f);
-		const glm::vec3 maxPos(20.0f, 4.0f, 41.0f);
+		const glm::vec3 minPos(-20.f, 1.0f, 35.0f);
+		const glm::vec3 maxPos(0.f, 4.0f, 41.0f);
 
 		auto isInsideBox = [](const glm::vec3& p, const glm::vec3& mn, const glm::vec3& mx) {
 			return (p.x >= mn.x && p.x <= mx.x) &&

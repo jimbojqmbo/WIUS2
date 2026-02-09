@@ -35,6 +35,8 @@ public:
 		GEO_ZUL,
 		GEO_SHADOW,
 
+		GEO_NOTE,
+
 		GEO_PEWPEW,
 
 		GEO_GRASS,
@@ -163,6 +165,15 @@ private:
 	bool showDark = true; 
 	bool flashlightOn = false;
 	glm::vec3 flashlightWorldPos = glm::vec3(15.f, 2.f, 38.f);
+
+	// In your header file
+	bool cutsceneActivation = false;
+	bool isShadowSpawned = false;
+	float shadowY = -10.0f; // Start below the ground
+	float shadowTargetY = 1.0f;  // Your desired final height
+	float shadowRiseSpeed = 4.0f; // Units per second
+
+	float moveSpeed = 5.0f;
 };
 
 #endif
