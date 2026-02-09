@@ -55,6 +55,8 @@ public:
 		GEO_EYEBALL,
 		GEO_EYEBALL_MTL,
 
+		GEO_OBJECTIVE_TEXT,
+
 		NUM_GEOMETRY,
 	};
 

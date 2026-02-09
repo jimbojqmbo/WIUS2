@@ -196,7 +196,7 @@ void SceneText::Init()
 
 	// 16 x 16 is the number of columns and rows for the text
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
-	meshList[GEO_TEXT]->textureID = LoadTGA("Images//calibri.tga");
+	meshList[GEO_TEXT]->textureID = LoadTGA("Images//Georgia.tga");
 
 	meshList[GEO_GUI] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_GUI]->textureID = LoadTGA("Images//zulmobile.tga");
@@ -224,6 +224,9 @@ void SceneText::Init()
 
 	meshList[GEO_NOTE] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_NOTE]->textureID = LoadTGA("Images//note.tga");
+
+	meshList[GEO_OBJECTIVE_TEXT] = MeshBuilder::GenerateQuad("objectivetext", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[GEO_OBJECTIVE_TEXT]->textureID = LoadTGA("Images//objectivetexttest.tga");
 
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
@@ -269,6 +272,9 @@ void SceneText::Init()
 	glUniform1f(m_parameters[U_FOG_START], fogStart);
 	glUniform1f(m_parameters[U_FOG_END], fogEnd);
 	glUniform3fv(m_parameters[U_FOG_COLOR], 1, &fogColor.r);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 }
 
@@ -549,7 +555,7 @@ void SceneText::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, fl
 
 	RenderMesh(mesh, false); //UI should not have light
 
-	RenderMesh(meshList[GEO_GUI], false);
+	RenderMesh(meshList[GEO_OBJECTIVE_TEXT], false);
 
 	projectionStack.PopMatrix();
 	viewStack.PopMatrix();
@@ -582,7 +588,7 @@ void SceneText::RenderText(Mesh* mesh, std::string text, glm::vec3 color)
 	{
 		glm::mat4 characterSpacing = glm::translate(
 			glm::mat4(1.f),
-			glm::vec3(i * 1.0f, 0, 0));
+			glm::vec3(i * 1.f, 0, 0));
 		glm::mat4 MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top() * characterSpacing;
 		glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, glm::value_ptr(MVP));
 
@@ -1029,16 +1035,102 @@ void SceneText::Render()
 	//RenderMeshOnScreen(meshList[GEO_GUI], 50, 50, 10, 10);
 
 	RenderTextOnScreen(meshList[GEO_TEXT], "work in progress", glm::vec3(1, 1, 1), 25 /*size*/, 150 /*horizontal pos*/, 10 /*vertical pos*/);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Objective:", glm::vec3(1, 1, 1), 20, 15, 560);
+	RenderTextOnScreen(meshList[GEO_TEXT], "- Find a way out", glm::vec3(1, 1, 1), 20, 15, 530);
 
 	if (flashlightOn)
 	{
+		if (!isShadowSpawned)
+		{
+		// direct player to cutscene (the one that appears only after flash is picked up)
+		modelStack.PushMatrix();
+		modelStack.Translate(-5.f, 1.f, 40.f);
+		modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+		modelStack.Rotate(15.f, 0.f, 1.f, 0.f);
+		RenderText(meshList[GEO_TEXT], "< < <", glm::vec3(1, 1, 1));
+		modelStack.PopMatrix();
+
 		// direct player to cutscene (the one that appears only after flash is picked up)
 		modelStack.PushMatrix();
 		modelStack.Translate(15.f, 1.f, 40.f);
 		modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
 		modelStack.Rotate(15.f, 0.f, 1.f, 0.f);
-		RenderText(meshList[GEO_TEXT], "< walk this way", glm::vec3(1, 1, 1));
+		RenderText(meshList[GEO_TEXT], "< < <", glm::vec3(1, 1, 1));
 		modelStack.PopMatrix();
+
+		// direct player to cutscene
+		modelStack.PushMatrix();
+		modelStack.Translate(35.f, 1.f, 40.f);
+		modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+		modelStack.Rotate(15.f, 0.f, 1.f, 0.f);
+		RenderText(meshList[GEO_TEXT], "< < <", glm::vec3(1, 1, 1));
+		modelStack.PopMatrix();
+
+		// direct player to cutscene
+		modelStack.PushMatrix();
+		modelStack.Translate(55.f, 1.f, 40.f);
+		modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+		modelStack.Rotate(15.f, 0.f, 1.f, 0.f);
+		RenderText(meshList[GEO_TEXT], "< < <", glm::vec3(1, 1, 1));
+		modelStack.PopMatrix();
+
+		// direct player to cutscene
+		modelStack.PushMatrix();
+		modelStack.Translate(80.f, 1.f, 40.f);
+		modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+		modelStack.Rotate(15.f, 0.f, 1.f, 0.f);
+		RenderText(meshList[GEO_TEXT], "< < <", glm::vec3(1, 1, 1));
+		modelStack.PopMatrix();
+
+		
+		RenderTextOnScreen(meshList[GEO_TEXT], "- Follow the path indicators", glm::vec3(1, 1, 0.5), 20, 15, 510);
+		}
+
+		if (isShadowSpawned)
+		{
+			// direct player
+			modelStack.PushMatrix();
+			modelStack.Translate(-8.f, 4.f, 40.f);
+			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+			modelStack.Scale(2.f, 2.f, 2.f);
+			RenderText(meshList[GEO_TEXT], "> > >", glm::vec3(1, 1, 1));
+			modelStack.PopMatrix();
+
+			// direct player
+			modelStack.PushMatrix();
+			modelStack.Translate(12.f, 4.f, 40.f);
+			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+			modelStack.Scale(2.f, 2.f, 2.f);
+			RenderText(meshList[GEO_TEXT], "> > >", glm::vec3(1, 1, 1));
+			modelStack.PopMatrix();
+
+			// direct player
+			modelStack.PushMatrix();
+			modelStack.Translate(34.f, 4.f, 40.f);
+			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+			modelStack.Scale(2.f, 2.f, 2.f);
+			RenderText(meshList[GEO_TEXT], "> > >", glm::vec3(1, 1, 1));
+			modelStack.PopMatrix();
+
+			// direct player
+			modelStack.PushMatrix();
+			modelStack.Translate(54.f, 4.f, 40.f);
+			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+			modelStack.Scale(2.f, 2.f, 2.f);
+			RenderText(meshList[GEO_TEXT], "> > >", glm::vec3(1, 1, 1));
+			modelStack.PopMatrix();
+
+			// direct player
+			modelStack.PushMatrix();
+			modelStack.Translate(77.f, 4.f, 40.f);
+			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+			modelStack.Scale(2.f, 2.f, 2.f);
+			RenderText(meshList[GEO_TEXT], "> > >", glm::vec3(1, 1, 1));
+			modelStack.PopMatrix();
+
+
+			RenderTextOnScreen(meshList[GEO_TEXT], "- Follow the path indicators", glm::vec3(1, 1, 0.5), 20, 15, 510);
+		}
 	}
 
 	{
@@ -1047,30 +1139,6 @@ void SceneText::Render()
 		modelStack.Translate(25.f, 10.f, 0.f);
 		modelStack.Rotate(-90.f, 0.f, 1.f, 0.f);
 		RenderText(meshList[GEO_TEXT], "shen me zai shang mian", glm::vec3(0, 1, 0));
-		modelStack.PopMatrix();
-
-		// direct player to cutscene
-		modelStack.PushMatrix();
-		modelStack.Translate(35.f, 1.f, 40.f);
-		modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
-		modelStack.Rotate(15.f, 0.f, 1.f, 0.f);
-		RenderText(meshList[GEO_TEXT], "< walk this way", glm::vec3(1, 1, 1));
-		modelStack.PopMatrix();
-
-		// direct player to cutscene
-		modelStack.PushMatrix();
-		modelStack.Translate(55.f, 1.f, 40.f);
-		modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
-		modelStack.Rotate(15.f, 0.f, 1.f, 0.f);
-		RenderText(meshList[GEO_TEXT], "< walk this way", glm::vec3(1, 1, 1));
-		modelStack.PopMatrix();
-
-		// direct player to cutscene
-		modelStack.PushMatrix();
-		modelStack.Translate(80.f, 1.f, 40.f);
-		modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
-		modelStack.Rotate(15.f, 0.f, 1.f, 0.f);
-		RenderText(meshList[GEO_TEXT], "< walk this way", glm::vec3(1, 1, 1));
 		modelStack.PopMatrix();
 	}
 
