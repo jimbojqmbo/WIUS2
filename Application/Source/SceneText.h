@@ -204,7 +204,7 @@ private:
 	bool isEndActivated = false;
 
 	bool startOfGame = true;
-	float StarttextTimer = 6.0f;
+	float StarttextTimer = 7.0f;
 	float ChasetextTimer = 6.0f;
 	float flashlighttextTimer = 5.0f;
 };
