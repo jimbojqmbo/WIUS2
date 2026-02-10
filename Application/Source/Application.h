@@ -7,19 +7,19 @@
 class Application
 {
 public:
+	enum SCENE_NUM
+	{
+		SCENE_GUI = 0,
+		SCENE_TEXT,
+		TOTAL_SCENE
+	};
+
 	Application();
 	~Application();
 	void Init();
 	void Run();
 	void Exit();
 	static bool IsKeyPressed(unsigned short key);
-
-	enum SCENE_NUM
-	{
-		SCENE_TEXT = 0,
-		SCENE_GUI,
-		TOTAL_SCENE
-	};
 
 private:
 

@@ -138,7 +138,7 @@ void Application::Init()
 		//return -1;
 	}
 
-	sceneNum = SCENE_TEXT;
+	sceneNum = SCENE_GUI;
 }
 
 void Application::Run()
@@ -147,31 +147,14 @@ void Application::Run()
 	//Scene *scene = new SceneText();
 	//scene->Init();
 
-	Scene* scene1 = new SceneText(); // You decide which scene you want to load
-		Scene* scene2 = new SceneGUI();
+	Scene* scene1 = new SceneGUI();
+	Scene* scene2 = new SceneText();
+
 	Scene* scene = scene1;
 	scene->Init();
 
-	if (!isEnterUp && KeyboardController::GetInstance() -> IsKeyDown(GLFW_KEY_ENTER)) {
-		if (sceneNum == SCENE_TEXT) {
-			scene1->Exit(); // Ensure you exit previous screen and remove the previous shader
-				scene2->Init(); // Initialise the next screen
-			scene = scene2;
-			sceneNum = SCENE_GUI;
-		}
-		else if (sceneNum == SCENE_GUI) {
-			scene2->Exit();
-			scene1->Init();
-			scene = scene1;
-			sceneNum = SCENE_TEXT;
-		}
-		isEnterUp = true;
-	}
-	else if (isEnterUp &&
-		KeyboardController::GetInstance() -> IsKeyUp(GLFW_KEY_ENTER))
-	{
-		isEnterUp = false;
-	}
+	sceneNum = SCENE_GUI;
+	bool isEnterUp = false;
 
 	m_timer.startTimer();    // Start timer to calculate how long it takes to render this frame
 
@@ -179,8 +162,30 @@ void Application::Run()
 	{
 		scene->Update(m_timer.getElapsedTime());
 		scene->Render();
+
+		// === SCENE SWITCHING LOGIC HERE ===
+		if (!isEnterUp && KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_ENTER)) {
+			if (sceneNum == SCENE_GUI) {
+				scene1->Exit();
+				scene2->Init();
+				scene = scene2;
+				sceneNum = SCENE_TEXT;
+			}
+			else {
+				scene2->Exit();
+				scene1->Init();
+				scene = scene1;
+				sceneNum = SCENE_GUI;
+			}
+			isEnterUp = true;
+		}
+		else if (isEnterUp && KeyboardController::GetInstance()->IsKeyUp(GLFW_KEY_ENTER)) {
+			isEnterUp = false;
+		}
+
 		//Swap buffers
 		glfwSwapBuffers(m_window);
+		KeyboardController::GetInstance()->PostUpdate();
 
 		KeyboardController::GetInstance()->PostUpdate();
 
@@ -213,4 +218,5 @@ void Application::Exit()
 	glfwDestroyWindow(m_window);
 	//Finalize and clean up GLFW
 	glfwTerminate();
+
 }

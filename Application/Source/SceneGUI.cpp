@@ -1,4 +1,5 @@
 #include "SceneGUI.h"
+#include "Mesh.h"
 #include "GL\glew.h"
 
 // GLM Headers
@@ -34,8 +35,8 @@ void SceneGUI::Init()
 	//Enable depth buffer and depth testing
 	glEnable(GL_DEPTH_TEST);
 
-	//Enable back face culling
-	glEnable(GL_CULL_FACE);
+	//Enable back face culling (change back to glEnable to allow)
+	glDisable(GL_CULL_FACE);
 
 	//Default to fill mode
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -45,7 +46,8 @@ void SceneGUI::Init()
 	glBindVertexArray(m_vertexArrayID);
 
 	// Load the shader programs
-	m_programID = LoadShaders("Shader//Texture.vertexshader", "Shader//Texture.fragmentshader");
+	//m_programID = LoadShaders("Shader//Texture.vertexshader", "Shader//Texture.fragmentshader");
+	m_programID = LoadShaders("Shader//Texture.vertexshader", "Shader//Text.fragmentshader");
 	glUseProgram(m_programID);
 
 	// Get a handle for our "MVP" uniform
@@ -72,9 +74,16 @@ void SceneGUI::Init()
 	m_parameters[U_LIGHTENABLED] = glGetUniformLocation(m_programID, "lightEnabled");
 	m_parameters[U_NUMLIGHTS] = glGetUniformLocation(m_programID, "numLights");
 
+	Mesh::SetMaterialLoc(m_parameters[U_MATERIAL_AMBIENT], m_parameters[U_MATERIAL_DIFFUSE], m_parameters[U_MATERIAL_SPECULAR], m_parameters[U_MATERIAL_SHININESS]);
 
 	// Initialise camera properties
-	camera.Init(45.f, 45.f, 10.f);
+	//camera.Init(45.f, 45.f, 10.f);
+
+	camera.Init(
+		glm::vec3(0.0f, 3.0f, -5.0f),   // camera position
+		glm::vec3(-125.f, 180.0f, -25.0f),   // target = object position
+		glm::vec3(3.0f, 1.0f, 0.0f)     // world up
+	);
 
 	// Init VBO here
 	for (int i = 0; i < NUM_GEOMETRY; ++i)
@@ -85,26 +94,93 @@ void SceneGUI::Init()
 	meshList[GEO_AXES] = MeshBuilder::GenerateAxes("Axes", 10000.f, 10000.f, 10000.f);
 	meshList[GEO_SPHERE] = MeshBuilder::GenerateSphere("Sun", glm::vec3(1.f, 1.f, 1.f), 1.f, 16, 16);
 	//meshList[GEO_CUBE] = MeshBuilder::GenerateCube("Arm", glm::vec3(0.5f, 0.5f, 0.5f), 1.f);
+
 	meshList[GEO_LEFT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_LEFT]->textureID = LoadTGA("Images//left.tga");
+	//meshList[GEO_LEFT]->textureID = LoadTGA("Images//blackblack.tga");
+	//meshList[GEO_LEFT]->textureID = LoadTGA("Images//whitesky//whiteskyleft.tga");
+	meshList[GEO_LEFT]->textureID = LoadTGA("Images//redleft copy.tga");
+	//meshList[GEO_LEFT]->textureID = LoadTGA("Images//left.tga");
+
 	meshList[GEO_RIGHT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_RIGHT]->textureID = LoadTGA("Images//right.tga");
+	//meshList[GEO_RIGHT]->textureID = LoadTGA("Images//blackblack.tga");
+	//meshList[GEO_RIGHT]->textureID = LoadTGA("Images//whitesky//whiteskyright.tga");
+	meshList[GEO_RIGHT]->textureID = LoadTGA("Images//redright copy.tga");
+	//meshList[GEO_RIGHT]->textureID = LoadTGA("Images//right.tga");
+
 	meshList[GEO_BACK] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_BACK]->textureID = LoadTGA("Images//back.tga");
+	//meshList[GEO_BACK]->textureID = LoadTGA("Images//blackblack.tga");
+	//meshList[GEO_BACK]->textureID = LoadTGA("Images//whitesky//whiteskyback.tga");
+	meshList[GEO_BACK]->textureID = LoadTGA("Images//redback copy.tga");
+	//meshList[GEO_BACK]->textureID = LoadTGA("Images//back.tga");
+
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_FRONT]->textureID = LoadTGA("Images//front.tga");
+	//meshList[GEO_FRONT]->textureID = LoadTGA("Images//blackblack.tga");
+	//meshList[GEO_FRONT]->textureID = LoadTGA("Images//whitesky//whiteskyfront.tga");
+	meshList[GEO_FRONT]->textureID = LoadTGA("Images//redfront copy.tga");
+	//meshList[GEO_FRONT]->textureID = LoadTGA("Images//front.tga");
+
 	meshList[GEO_TOP] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_TOP]->textureID = LoadTGA("Images//top.tga");
+	//meshList[GEO_TOP]->textureID = LoadTGA("Images//saharatop.tga");
+	//meshList[GEO_TOP]->textureID = LoadTGA("Images//top.tga");
+	//meshList[GEO_TOP]->textureID = LoadTGA("Images//whitesky//whiteskytop.tga");
+	meshList[GEO_TOP]->textureID = LoadTGA("Images//redtop copy.tga");
+	//meshList[GEO_TOP]->textureID = LoadTGA("Images//bigblackmoon.tga");
+
 	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//bottom.tga");
+	//meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//blackblack.tga");
+	//meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//whitesky//whiteskybottom.tga");
+	meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//redbottom copy.tga");
+	//meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//bottom.tga");
+
 	//meshList[GEO_QUAD]->textureID = LoadTGA("Images//NYP.tga");
+	meshList[GEO_QUAD] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
+
+	meshList[GEO_CYLINDER] = MeshBuilder::GenerateCylinder("Cylinder", glm::vec3(1.f, 1.f, 1.f), 36, 1.f, 2.f);
+
+	meshList[GEO_ZUL] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
+	meshList[GEO_ZUL]->textureID = LoadTGA("Images//zulmobile.tga");
+
+	meshList[GEO_GRASS] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
+	meshList[GEO_GRASS]->textureID = LoadTGA("Images//coast_sand_rocks_02 copy.tga");
+
+	//meshList[GEO_GUI] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	//meshList[GEO_GUI]->textureID = LoadTGA("Images//color.tga");
+
+	// 16 x 16 is the number of columns and rows for the text
+	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
+	meshList[GEO_TEXT]->textureID = LoadTGA("Images//Georgia.tga");
 
 	meshList[GEO_GUI] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	meshList[GEO_GUI]->textureID = LoadTGA("Images//color.tga");
+	meshList[GEO_GUI]->textureID = LoadTGA("Images//blackblack.tga");
 
+	meshList[GEO_EYEBALL] = MeshBuilder::GenerateOBJMTL("eyeballmtl", "Models//eyeball.obj", "Models//eyeball.mtl");
+	meshList[GEO_EYEBALL]->textureID = LoadTGA("Images//Eye_D.tga");
 
-	//meshList[GEO_SPHERE_BLUE] = MeshBuilder::GenerateSphere("Earth", Color(0.4f, 0.2f, 0.8f), 1.f, 12, 12);
-	//meshList[GEO_SPHERE_GREY] = MeshBuilder::GenerateSphere("Moon", Color(0.5f, 0.5f, 0.5f), 1.f, 4, 4);
+	meshList[GEO_TOWER] = MeshBuilder::GenerateOBJMTL("tower", "Models//wooden watch tower2.obj", "Models//wooden watch tower2.mtl");
+	meshList[GEO_TOWER]->textureID = LoadTGA("Images//Wood_Tower_Col.tga");
+
+	meshList[GEO_PINETREE] = MeshBuilder::GenerateOBJMTL("tower", "Models//DeadTree_LoPoly.obj", "Models//DeadTree_LoPoly.mtl");
+	meshList[GEO_PINETREE]->textureID = LoadTGA("Images//DeadTree_LoPoly_DeadTree_Diffuse copy.tga");
+
+	//meshList[GEO_PEWPEW] = MeshBuilder::GenerateOBJMTL("tower", "Models//low-poly_geissele_urg-i_14.5.obj", "Models//low-poly_geissele_urg-i_14.5.mtl");
+
+	meshList[GEO_ABANDONEDHOUSE] = MeshBuilder::GenerateOBJMTL("abandonedhse", "Models//abandoned_house.obj", "Models//abandoned_house.mtl");
+	meshList[GEO_ABANDONEDHOUSE]->textureID = LoadTGA("Images//abandonedhouseBaseColor.tga");
+
+	meshList[GEO_ABANDONEDHOUSE2] = MeshBuilder::GenerateOBJMTL("abandonedhse", "Models//abandonedwoodhouse.obj", "Models//abandonedwoodhouse.mtl");
+	meshList[GEO_ABANDONEDHOUSE2]->textureID = LoadTGA("Images//woodabandonedhouse copy.tga");
+
+	meshList[GEO_SHADOW] = MeshBuilder::GenerateOBJMTL("shadow", "Models//shadowretry.obj", "Models//shadowretry.mtl");
+
+	meshList[GEO_FLASHLIGHT] = MeshBuilder::GenerateOBJMTL("flashlight", "Models//low_poly_flashlight.obj", "Models//low_poly_flashlight.mtl");
+
+	meshList[GEO_NOTE] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[GEO_NOTE]->textureID = LoadTGA("Images//note.tga");
+
+	meshList[GEO_OBJECTIVE_TEXT] = MeshBuilder::GenerateQuad("objectivetext", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[GEO_OBJECTIVE_TEXT]->textureID = LoadTGA("Images//objectivetexttest.tga");
+
+	meshList[GEO_SPARKLING_STAR] = MeshBuilder::GenerateOBJMTL("sparklingstar", "Models//sparkling_star.obj", "Models//sparkling_star.mtl");
 
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
@@ -112,14 +188,14 @@ void SceneGUI::Init()
 
 	glUniform1i(m_parameters[U_NUMLIGHTS], NUM_LIGHTS);
 
-	light[0].position = glm::vec3(0, 5, 0);
-	light[0].color = glm::vec3(1, 1, 1);
-	light[0].type = Light::LIGHT_POINT;
-	light[0].power = 1;
+	light[0].position = glm::vec3(camera.position.x, camera.position.y, camera.position.z);
+	light[0].color = glm::vec3(1, 0, 0);
+	light[0].type = Light::LIGHT_DIRECTIONAL;
+	light[0].power = 0.6;
 	light[0].kC = 1.f;
 	light[0].kL = 0.01f;
 	light[0].kQ = 0.001f;
-	light[0].cosCutoff = 45.f;
+	light[0].cosCutoff = 4.f;
 	light[0].cosInner = 30.f;
 	light[0].exponent = 3.f;
 	light[0].spotDirection = glm::vec3(0.f, 1.f, 0.f);
@@ -136,61 +212,32 @@ void SceneGUI::Init()
 
 	enableLight = true;
 
+	m_parameters[U_TEXT_ENABLED] = glGetUniformLocation(m_programID, "textEnabled");
+	m_parameters[U_TEXT_COLOR] = glGetUniformLocation(m_programID, "textColor");
 
-}
+	// Fog uniforms (locations)
+	m_parameters[U_FOG_ENABLED] = glGetUniformLocation(m_programID, "fogEnabled");
+	m_parameters[U_FOG_START] = glGetUniformLocation(m_programID, "fogStart");
+	m_parameters[U_FOG_END] = glGetUniformLocation(m_programID, "fogEnd");
+	m_parameters[U_FOG_COLOR] = glGetUniformLocation(m_programID, "fogColor");
 
-void SceneGUI::HandleMouseInput() {
-	static bool isLeftUp = false;
-	static bool isRightUp = false;
-	// Process Left button
-	if (!isLeftUp && MouseController::GetInstance() -> IsButtonDown(GLFW_MOUSE_BUTTON_LEFT))
-	{
-		isLeftUp = true;
-		std::cout << "LBUTTON DOWN" << std::endl;
-	}
-	else if (isLeftUp && MouseController::GetInstance() -> IsButtonUp(GLFW_MOUSE_BUTTON_LEFT))
-	{
-		isLeftUp = false;
-		std::cout << "LBUTTON UP" << std::endl;
-	}
-	// Continue to do for right button
-	if (!isRightUp && MouseController::GetInstance()->IsButtonDown(GLFW_MOUSE_BUTTON_RIGHT))
-	{
-		isRightUp = true;
-		std::cout << "RBUTTON DOWN" << std::endl;
-	}
-	else if (isRightUp && MouseController::GetInstance()->IsButtonUp(GLFW_MOUSE_BUTTON_RIGHT))
-	{
-		isRightUp = false;
-		std::cout << "RBUTTON UP" << std::endl;
-	}
+	// Set default fog values
+	glUniform1i(m_parameters[U_FOG_ENABLED], fogEnabled ? 1 : 0);
+	glUniform1f(m_parameters[U_FOG_START], fogStart);
+	glUniform1f(m_parameters[U_FOG_END], fogEnd);
+	glUniform3fv(m_parameters[U_FOG_COLOR], 1, &fogColor.r);
 
-	if (!isLeftUp && MouseController::GetInstance() -> IsButtonDown(GLFW_MOUSE_BUTTON_LEFT))
-	{
-		isLeftUp = true;
-		std::cout << "LBUTTON DOWN" << std::endl;
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		// Step 3
-		// transform into UI space
-		double x = MouseController::GetInstance() -> GetMousePositionX();
-		double y = 600 - MouseController::GetInstance() -> GetMousePositionY();
+	isPlayerDead = false;
 
-		// Check if mouse click position is within the GUI box
-		// Change the boundaries as necessary
-		if (x > 0 && x < 100 && y > 0 && y < 100) {
-			std::cout << "GUI IS CLICKED" << std::endl;
-		}
-		// End of step 3
-	}
-
-	if (MouseController::GetInstance()->IsButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
-		std::cout << "LMU PRESSED" << std::endl;
-	}
+	showDark = true;
 }
 
 void SceneGUI::Update(double dt)
 {
-	HandleKeyPress();
+	HandleKeyPress(dt);
 
 	if (KeyboardController::GetInstance()->IsKeyDown('I'))
 		light[0].position.z -= static_cast<float>(dt) * 5.f;
@@ -206,7 +253,8 @@ void SceneGUI::Update(double dt)
 		light[0].position.y += static_cast<float>(dt) * 5.f;
 
 	camera.Update(dt);
-	HandleMouseInput();
+
+	light[0].position = glm::vec3(camera.position.x, camera.position.y, camera.position.z);
 
 }
 
@@ -214,43 +262,53 @@ void SceneGUI::RenderSkybox()
 {
 	// Front face (no rotation needed if quad faces -Z by default)
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 0.f, -50.f);
+	modelStack.Translate(0.f, 0.f, -500.f);
+	modelStack.Scale(10.f, 10.f, 10.f);
+	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
 	RenderMesh(meshList[GEO_FRONT], false);
 	modelStack.PopMatrix();
 
 	// Back face (rotate 180 degrees around Y)
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 0.f, 50.f);
-	modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+	modelStack.Translate(0.f, 0.f, 500.f);
+	modelStack.Rotate(-180.f, 1.f, 1.f, 0.f);
+	modelStack.Scale(10.f, 10.f, 10.f);
 	RenderMesh(meshList[GEO_BACK], false);
 	modelStack.PopMatrix();
 
 	// Left face (rotate 90 degrees around Y)
 	modelStack.PushMatrix();
-	modelStack.Translate(-50.f, 0.f, 0.f);
+	modelStack.Translate(-500.f, 0.f, 0.f);
 	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+	modelStack.Scale(10.f, 10.f, 10.f);
 	RenderMesh(meshList[GEO_LEFT], false);
 	modelStack.PopMatrix();
 
 	// Right face (rotate -90 degrees around Y)
 	modelStack.PushMatrix();
-	modelStack.Translate(50.f, 0.f, 0.f);
+	modelStack.Translate(500.f, 0.f, 0.f);
 	modelStack.Rotate(-90.f, 0.f, 1.f, 0.f);
+	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+	modelStack.Scale(10.f, 10.f, 10.f);
 	RenderMesh(meshList[GEO_RIGHT], false);
 	modelStack.PopMatrix();
 
 	// Top face (rotate -90 degrees around X)
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 50.f, 0.f);
+	modelStack.Translate(0.f, 500.f, 0.f);
 	modelStack.Rotate(90.f, 1.f, 0.f, 0.f);
+	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+	modelStack.Scale(10.f, 10.f, 10.f);
 	RenderMesh(meshList[GEO_TOP], false);
 	modelStack.PopMatrix();
 
 	// Bottom face (rotate 90 degrees around X)
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, -25.f, 0.f);
-	modelStack.Scale(25.f, 25.f, 25.f); // CHANGE TO 10
+	modelStack.Translate(0.f, -500.f, 0.f);
+	modelStack.Scale(10.f, 10.f, 10.f); // CHANGE TO 10
 	modelStack.Rotate(-90.f, 1.f, 0.f, 0.f);
+	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
 	RenderMesh(meshList[GEO_BOTTOM], false);
 	modelStack.PopMatrix();
 }
@@ -274,7 +332,7 @@ void SceneGUI::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, flo
 	modelStack.Translate(x, y, 0);
 
 	// To do: Use modelStack to scale the GUI
-	modelStack.Scale(25, 25, 1);
+	modelStack.Scale(10000, 10000, 1);
 
 	RenderMesh(mesh, false); //UI should not have light
 
@@ -287,6 +345,94 @@ void SceneGUI::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, flo
 	glEnable(GL_DEPTH_TEST);
 }
 
+void SceneGUI::RenderText(Mesh* mesh, std::string text, glm::vec3 color)
+{
+	if (!mesh || mesh->textureID <= 0) //Proper error check
+		return;
+
+	// Enable blending
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	// Disable back face culling
+	glDisable(GL_CULL_FACE);
+
+	glUniform1i(m_parameters[U_TEXT_ENABLED], 1);
+	glUniform3fv(m_parameters[U_TEXT_COLOR], 1, &color.r);
+	glUniform1i(m_parameters[U_LIGHTENABLED], 0);
+	glUniform1i(m_parameters[U_COLOR_TEXTURE_ENABLED], 1);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, mesh->textureID);
+	glUniform1i(m_parameters[U_COLOR_TEXTURE], 0);
+
+	for (unsigned i = 0; i < text.length(); ++i)
+	{
+		glm::mat4 characterSpacing = glm::translate(
+			glm::mat4(1.f),
+			glm::vec3(i * 1.f, 0, 0));
+		glm::mat4 MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top() * characterSpacing;
+		glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, glm::value_ptr(MVP));
+
+		mesh->Render((unsigned)text[i] * 6, 6);
+	}
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glUniform1i(m_parameters[U_TEXT_ENABLED], 0);
+	glEnable(GL_CULL_FACE);
+	glDisable(GL_BLEND);
+}
+
+
+void SceneGUI::RenderTextOnScreen(Mesh* mesh, std::string
+	text, glm::vec3 color, float size, float x, float y)
+{
+	if (!mesh || mesh->textureID <= 0) //Proper error check
+		return;
+	// Enable blending
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_DEPTH_TEST);
+
+	glm::mat4 ortho = glm::ortho(0.f, 800.f, 0.f, 600.f, -100.f, 100.f); // dimension of screen UI
+	projectionStack.PushMatrix();
+	projectionStack.LoadMatrix(ortho);
+
+	viewStack.PushMatrix();
+	viewStack.LoadIdentity(); //No need camera for ortho mode
+	modelStack.PushMatrix();
+	modelStack.LoadIdentity(); //Reset modelStack
+	modelStack.Translate(x, y, 0);
+	modelStack.Scale(size, size, size);
+
+	glUniform1i(m_parameters[U_TEXT_ENABLED], 1);
+	glUniform3fv(m_parameters[U_TEXT_COLOR], 1, &color.r);
+	glUniform1i(m_parameters[U_LIGHTENABLED], 0);
+	glUniform1i(m_parameters[U_COLOR_TEXTURE_ENABLED], 1);
+
+	glActiveTexture(GL_TEXTURE0);
+
+	glBindTexture(GL_TEXTURE_2D, mesh->textureID);
+	glUniform1i(m_parameters[U_COLOR_TEXTURE], 0);
+
+	for (unsigned i = 0; i < text.length(); ++i)
+	{
+		glm::mat4 characterSpacing = glm::translate(glm::mat4(1.f), glm::vec3(0.5f + i * 0.6f, 0.4f, 0));
+		glm::mat4 MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top() * characterSpacing;
+		glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, glm::value_ptr(MVP));
+		mesh->Render((unsigned)text[i] * 6, 6);
+	}
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glUniform1i(m_parameters[U_TEXT_ENABLED], 0);
+
+	projectionStack.PopMatrix();
+	viewStack.PopMatrix();
+	modelStack.PopMatrix();
+
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+}
 
 void SceneGUI::Render()
 {
@@ -303,6 +449,12 @@ void SceneGUI::Render()
 
 	// Load identity matrix into the model stack
 	modelStack.LoadIdentity();
+
+	// Update fog uniforms each frame (camera may move)
+	glUniform1i(m_parameters[U_FOG_ENABLED], fogEnabled ? 1 : 0);
+	glUniform1f(m_parameters[U_FOG_START], fogStart);
+	glUniform1f(m_parameters[U_FOG_END], fogEnd);
+	glUniform3fv(m_parameters[U_FOG_COLOR], 1, &fogColor.r);
 
 	if (light[0].type == Light::LIGHT_DIRECTIONAL)
 	{
@@ -323,33 +475,177 @@ void SceneGUI::Render()
 		glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
 	}
 
-	modelStack.PushMatrix();
 	// Render objects
-	RenderMesh(meshList[GEO_AXES], false);
+	//RenderMesh(meshList[GEO_AXES], false);
 
-	// Render light
-	modelStack.Translate(light[0].position.x, light[0].position.y, light[0].position.z);
-	modelStack.Scale(0.1f, 0.1f, 0.1f);
-	meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
-	meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-	meshList[GEO_SPHERE]->material.kShininess = 5.0f;
-	RenderMesh(meshList[GEO_SPHERE], true);
-	
-
-	/*modelStack.Translate(0.f, 0.f, 0.f);
-	modelStack.Scale(3.f, 3.f, 3.f);
-	meshList[GEO_QUAD]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList[GEO_QUAD]->material.kDiffuse = glm::vec3(0.9f, 0.9f, 0.9f);
-	meshList[GEO_QUAD]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-	meshList[GEO_QUAD]->material.kShininess = 5.0f;
-	RenderMesh(meshList[GEO_QUAD], true);*/
-
-	RenderSkybox();
-	RenderMeshOnScreen(meshList[GEO_GUI], 50, 50, 10, 10);
+	// EYEBALL TEST - isolated transformations
+	modelStack.PushMatrix();
+	modelStack.Translate(0.f, 100.f, -150.f);
+	modelStack.Scale(20.f, 20.f, 20.f);
+	modelStack.Rotate(25.f, 1.f, 0.f, 0.f);
+	meshList[GEO_EYEBALL]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
+	meshList[GEO_EYEBALL]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+	meshList[GEO_EYEBALL]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+	meshList[GEO_EYEBALL]->material.kShininess = 5.0f;
+	RenderMesh(meshList[GEO_EYEBALL], true);
 	modelStack.PopMatrix();
-}
 
+	// Skybox - now renders at world origin without accumulated transforms
+	RenderSkybox();
+
+	// grass tiled from -100 to 100 on X and Z, keep existing scale (5,1,5)
+	modelStack.PushMatrix();
+	{
+		// spacing chosen to match the previous manual placement (50 units)
+		const float start = -250.f;
+		const float end = 250.f;
+		const float step = 50.f;
+		for (float x = start; x <= end; x += step)
+		{
+			for (float z = start; z <= end; z += step)
+			{
+				modelStack.PushMatrix();
+				modelStack.Translate(x, 0.f, z);
+				modelStack.Scale(5.f, 1.f, 5.f);
+				// keep original rotations so the tile faces the same way as before
+				modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+				modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+				RenderMesh(meshList[GEO_GRASS], true);
+				modelStack.PopMatrix();
+			}
+		}
+		// keep the ambient material tweak from original code
+		meshList[GEO_GRASS]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
+	}
+	modelStack.PopMatrix();
+
+	// house
+	modelStack.PushMatrix();
+	{
+		// spacing chosen to match the previous manual placement (50 units)
+		const float start = -200.f;
+		const float end = 200.f;
+		const float step = 25.f;
+		for (float x = start; x <= end; x += step)
+		{
+			modelStack.PushMatrix();
+			modelStack.Translate(x, 0.f, 55.f);
+			modelStack.Scale(1.f, 1.f, 1.f);
+			modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+			RenderMesh(meshList[GEO_ABANDONEDHOUSE], true);
+			modelStack.PopMatrix();
+
+		}
+		meshList[GEO_ABANDONEDHOUSE]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
+	}
+
+		modelStack.PushMatrix();
+		modelStack.Translate(35.f, 0.5f, -10.f);
+		modelStack.Scale(25.f, 100.f, 25.f);
+		meshList[GEO_SPARKLING_STAR]->material.kAmbient = glm::vec3(1.f, 1.f, 0.5f);
+		meshList[GEO_SPARKLING_STAR]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+		meshList[GEO_SPARKLING_STAR]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+		meshList[GEO_SPARKLING_STAR]->material.kShininess = 5.0f;
+		RenderMesh(meshList[GEO_SPARKLING_STAR], true);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(35.f, 0.5f, 0.f);
+		modelStack.Scale(25.f, 100.f, 25.f);
+		meshList[GEO_SPARKLING_STAR]->material.kAmbient = glm::vec3(1.f, 1.f, 0.5f);
+		meshList[GEO_SPARKLING_STAR]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+		meshList[GEO_SPARKLING_STAR]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+		meshList[GEO_SPARKLING_STAR]->material.kShininess = 5.0f;
+		RenderMesh(meshList[GEO_SPARKLING_STAR], true);
+		modelStack.PopMatrix();
+
+		// tree
+		modelStack.PushMatrix();
+		{
+			const float start = -250.f;
+			const float end = 250.f;
+			const float step = 21.f;
+			for (float x = start; x <= end; x += step)
+			{
+				for (float z = start; z <= end; z += step)
+				{
+					modelStack.PushMatrix();
+					modelStack.Translate(x, -1.f, z);
+					modelStack.Scale(0.5f, 0.5f, 0.5f);
+					RenderMesh(meshList[GEO_PINETREE], true);
+					modelStack.PopMatrix();
+				}
+			}
+
+			// material updates (if desired)
+			meshList[GEO_PINETREE]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
+			meshList[GEO_PINETREE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+			meshList[GEO_PINETREE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+			meshList[GEO_PINETREE]->material.kShininess = 5.0f;
+		}
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(35.f, 0.5f, -5.f);
+		modelStack.Scale(0.5f, 0.5f, 0.5f);
+		modelStack.Rotate(90.f, 0.f, -1.f, 0.f);
+		meshList[GEO_SHADOW]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+		meshList[GEO_SHADOW]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+		meshList[GEO_SHADOW]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+		meshList[GEO_SHADOW]->material.kShininess = 5.0f;
+		RenderMesh(meshList[GEO_SHADOW], true);
+		modelStack.PopMatrix();
+
+		// how far in front of the camera
+		const float distanceInFront = 45.0f;
+
+		// camera forward vector
+		glm::vec3 forward = glm::normalize(camera.target - camera.position);
+
+		// desired world position for the quad
+		glm::vec3 quadPos = camera.position + forward * distanceInFront;
+
+		// default quad normal (your code treats quads as facing -Z by default)
+		const glm::vec3 defaultNormal = glm::vec3(0.0f, 0.0f, -1.0f);
+
+		// compute rotation to align defaultNormal -> forward
+		glm::vec3 axis = glm::cross(defaultNormal, forward);
+		float dotp = glm::clamp(glm::dot(defaultNormal, forward), -1.0f, 1.0f);
+		float angleRad = std::acos(dotp); // angle between the vectors (radians)
+		float angleDeg = glm::degrees(angleRad);
+
+		modelStack.PushMatrix();
+		{
+			// translate to position in front of camera
+			modelStack.Translate(quadPos.x, quadPos.y, quadPos.z);
+
+			// apply rotation if needed
+			const float eps = 1e-6f;
+			if (glm::length(axis) > eps && angleDeg > 0.0001f)
+			{
+				axis = glm::normalize(axis);
+				modelStack.Rotate(angleDeg, axis.x, axis.y, axis.z);
+			}
+			else if (dotp < -0.9999f)
+			{
+				// vectors are opposite; rotate 180 degrees around world up
+				modelStack.Rotate(180.0f, 0.0f, 1.0f, 0.0f);
+			}
+
+			// scale the quad as you want
+			modelStack.Scale(100.f, 100.f, 100.f);
+
+			// set material if needed
+			meshList[GEO_QUAD]->material.kAmbient = glm::vec3(0.f, 0.f, 0.f);
+
+			// render (enable lighting if you want)
+			RenderMesh(meshList[GEO_QUAD], true);
+		}
+		modelStack.PopMatrix();
+
+	RenderTextOnScreen(meshList[GEO_TEXT], "Press Enter to start", glm::vec3(1, 0, 1), 25, 225, 275);
+	RenderTextOnScreen(meshList[GEO_TEXT], "You can look at the environment with your mouse.", glm::vec3(1, 1, 1), 20, 125, 225);
+}
 
 void SceneGUI::RenderMesh(Mesh* mesh, bool enableLight)
 {
@@ -402,8 +698,9 @@ void SceneGUI::Exit()
 	glDeleteProgram(m_programID);
 }
 
-void SceneGUI::HandleKeyPress()
+void SceneGUI::HandleKeyPress(double dt)
 {
+
 	if (KeyboardController::GetInstance()->IsKeyPressed(0x31))
 	{
 		// Key press to enable culling
@@ -456,6 +753,5 @@ void SceneGUI::HandleKeyPress()
 		}
 
 		glUniform1i(m_parameters[U_LIGHT0_TYPE], light[0].type);
-	}
-
+	};
 }
