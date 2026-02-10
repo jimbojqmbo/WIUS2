@@ -185,9 +185,6 @@ void SceneText::Init()
 
 	meshList[GEO_CYLINDER] = MeshBuilder::GenerateCylinder("Cylinder", glm::vec3(1.f, 1.f, 1.f), 36, 1.f, 2.f);
 
-	meshList[GEO_ZUL] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
-	meshList[GEO_ZUL]->textureID = LoadTGA("Images//zulmobile.tga");
-
 	meshList[GEO_GRASS] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
 	meshList[GEO_GRASS]->textureID = LoadTGA("Images//coast_sand_rocks_02 copy.tga");
 
@@ -204,9 +201,6 @@ void SceneText::Init()
 	meshList[GEO_EYEBALL] = MeshBuilder::GenerateOBJMTL("eyeballmtl", "Models//eyeball.obj", "Models//eyeball.mtl");
 	meshList[GEO_EYEBALL]->textureID = LoadTGA("Images//Eye_D.tga");
 
-	meshList[GEO_TOWER] = MeshBuilder::GenerateOBJMTL("tower", "Models//wooden watch tower2.obj", "Models//wooden watch tower2.mtl");
-	meshList[GEO_TOWER]->textureID = LoadTGA("Images//Wood_Tower_Col.tga");
-
 	meshList[GEO_PINETREE] = MeshBuilder::GenerateOBJMTL("tower", "Models//DeadTree_LoPoly.obj", "Models//DeadTree_LoPoly.mtl");
 	meshList[GEO_PINETREE]->textureID = LoadTGA("Images//DeadTree_LoPoly_DeadTree_Diffuse copy.tga");
 
@@ -215,9 +209,6 @@ void SceneText::Init()
 	meshList[GEO_ABANDONEDHOUSE] = MeshBuilder::GenerateOBJMTL("abandonedhse", "Models//abandoned_house.obj", "Models//abandoned_house.mtl");
 	meshList[GEO_ABANDONEDHOUSE]->textureID = LoadTGA("Images//abandonedhouseBaseColor.tga");
 
-	meshList[GEO_ABANDONEDHOUSE2] = MeshBuilder::GenerateOBJMTL("abandonedhse", "Models//abandonedwoodhouse.obj", "Models//abandonedwoodhouse.mtl");
-	meshList[GEO_ABANDONEDHOUSE2]->textureID = LoadTGA("Images//woodabandonedhouse copy.tga");
-
 	meshList[GEO_SHADOW] = MeshBuilder::GenerateOBJMTL("shadow", "Models//swamp_monster.obj", "Models//swamp_monster.mtl");
 	meshList[GEO_SHADOW]->textureID = LoadTGA("Images//FOREST_MONSTER_V1_mat_diffuse.tga");
 
@@ -225,9 +216,6 @@ void SceneText::Init()
 
 	meshList[GEO_NOTE] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_NOTE]->textureID = LoadTGA("Images//note.tga");
-
-	meshList[GEO_OBJECTIVE_TEXT] = MeshBuilder::GenerateQuad("objectivetext", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	meshList[GEO_OBJECTIVE_TEXT]->textureID = LoadTGA("Images//objectivetexttest.tga");
 
 	meshList[GEO_SPARKLING_STAR] = MeshBuilder::GenerateOBJMTL("sparklingstar", "Models//sparkling_star.obj", "Models//sparkling_star.mtl");
 
