@@ -1,6 +1,8 @@
 #ifndef SCENE_GUI_H
 #define SCENE_GUI_H
 
+#include "CollisionDetection.h"
+
 #include "Scene.h"
 #include "Mesh.h"
 #include "AltAzCamera.h"

@@ -1,6 +1,8 @@
 #ifndef SCENE_TEXT_H
 #define SCENE_TEXT_H
 
+#include "CollisionDetection.h"
+
 #include "Scene.h"
 #include "Mesh.h"
 #include "AltAzCamera.h"

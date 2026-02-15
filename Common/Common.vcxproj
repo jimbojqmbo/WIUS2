@@ -142,11 +142,14 @@
     <ClCompile Include="Source\KeyboardController.cpp" />
     <ClCompile Include="Source\MouseController.cpp" />
     <ClCompile Include="Source\timer.cpp" />
+    <ClCompile Include="Source\Vector3.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\KeyboardController.h" />
     <ClInclude Include="Source\MouseController.h" />
+    <ClInclude Include="Source\MyMath.h" />
     <ClInclude Include="Source\timer.h" />
+    <ClInclude Include="Source\Vector3.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
