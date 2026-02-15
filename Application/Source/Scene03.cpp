@@ -194,36 +194,12 @@ void Scene03::Init()
 	m_parameters[U_TEXT_ENABLED] = glGetUniformLocation(m_programID, "textEnabled");
 	m_parameters[U_TEXT_COLOR] = glGetUniformLocation(m_programID, "textColor");
 
-	// Fog uniforms (locations)
-	m_parameters[U_FOG_ENABLED] = glGetUniformLocation(m_programID, "fogEnabled");
-	m_parameters[U_FOG_START] = glGetUniformLocation(m_programID, "fogStart");
-	m_parameters[U_FOG_END] = glGetUniformLocation(m_programID, "fogEnd");
-	m_parameters[U_FOG_COLOR] = glGetUniformLocation(m_programID, "fogColor");
-
-	// Set default fog values
-	glUniform1i(m_parameters[U_FOG_ENABLED], fogEnabled ? 1 : 0);
-	glUniform1f(m_parameters[U_FOG_START], fogStart);
-	glUniform1f(m_parameters[U_FOG_END], fogEnd);
-	glUniform3fv(m_parameters[U_FOG_COLOR], 1, &fogColor.r);
-
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	isPlayerDead = false;
 
 }
 
 void Scene03::HandleMouseInput() {
-
-	if (isPlayerDead) {
-		return;  // Skip mouse input when dead
-	}
-
-	// Skip mouse input if stillness is active
-	if (isShadowSpawned && shadowStillTimer < 1.0f)
-	{
-		return;
-	}
 
 	double mouseX = MouseController::GetInstance()->GetMousePositionX();
 	double mouseY = MouseController::GetInstance()->GetMousePositionY();
@@ -498,12 +474,6 @@ void Scene03::Render()
 	// Load identity matrix into the model stack
 	modelStack.LoadIdentity();
 
-	// Update fog uniforms each frame (camera may move)
-	glUniform1i(m_parameters[U_FOG_ENABLED], fogEnabled ? 1 : 0);
-	glUniform1f(m_parameters[U_FOG_START], fogStart);
-	glUniform1f(m_parameters[U_FOG_END], fogEnd);
-	glUniform3fv(m_parameters[U_FOG_COLOR], 1, &fogColor.r);
-
 	if (light[0].type == Light::LIGHT_DIRECTIONAL)
 	{
 		glm::vec3 lightDir(light[0].position.x, light[0].position.y, light[0].position.z);
@@ -620,14 +590,6 @@ void Scene03::Exit()
 
 void Scene03::HandleKeyPress(double dt)
 {
-	if (isPlayerDead) {
-		return;  // Skip all input handling when dead
-	}
-
-	if (isEndActivated)
-	{
-		return;
-	}
 
 	if (KeyboardController::GetInstance()->IsKeyPressed(0x31))
 	{
@@ -683,19 +645,6 @@ void Scene03::HandleKeyPress(double dt)
 		glUniform1i(m_parameters[U_LIGHT0_TYPE], light[0].type);
 	};
 
-	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_G))
-	{
-		// unload quad
-		showDark = !showDark;
-	}
-
-	// Skip movement if stillness is active
-	if (isShadowSpawned && shadowStillTimer < 1.0f)
-	{
-		// Still processing other keys (e.g., lighting toggles), but no movement
-		return;
-	}
-
 	// Calculate forward and right vectors based on camera orientation
 	glm::vec3 forward = glm::normalize(camera.target - camera.position);
 	glm::vec3 right = glm::normalize(glm::cross(forward, camera.up));
@@ -740,10 +689,6 @@ void Scene03::HandleKeyPress(double dt)
 		camera.position += forward * movement;
 		camera.target += forward * movement;
 	}
-
-	// Adjust clamping limits to account for bobbing range (prevents getting stuck)
-	float minY = 3.2f - (isShadowSpawned ? bobAmount : 0.0f);
-	float maxY = 3.3f + (isShadowSpawned ? bobAmount : 0.0f);
 
 	// Clamp camera height to adjusted limits
 	if (camera.position.y < 3.3f) {
