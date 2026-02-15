@@ -10,13 +10,6 @@
 #include "Light.h"
 #include "FPCamera.h"
 
-struct CollisionData
-{
-	glm::vec3 collisionNormal;
-	float penetration;
-	glm::vec3 contactPoint;
-};
-
 class SceneText : public Scene
 {
 public:
