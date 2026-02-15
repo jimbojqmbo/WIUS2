@@ -23,6 +23,12 @@
 #include "SceneGUI.h"
 #include "SceneText.h"
 
+// WIU includes
+#include "Scene01.h"
+#include "Scene02.h"
+#include "Scene03.h"
+#include "Scene04.h"
+
 GLFWwindow* m_window;
 const unsigned char FPS = 144; // FPS of this game
 const unsigned int frameTime = 1000 / FPS; // time for each frame
@@ -97,7 +103,7 @@ void Application::Init()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //We don't want the old OpenGL
 
 	//Create a window and create its OpenGL context
-	m_window = glfwCreateWindow(1280, 720, "DX1111 OPENGL FRAMEWORK", NULL, NULL);
+	m_window = glfwCreateWindow(1280, 720, "OPENGL FRAMEWORK", NULL, NULL);
 
 	//If the window couldn't be created
 	if (!m_window)
@@ -148,7 +154,7 @@ void Application::Run()
 	//scene->Init();
 
 	Scene* scene1 = new SceneGUI();
-	Scene* scene2 = new SceneText();
+	Scene* scene2 = new Scene01();
 
 	Scene* scene = scene1;
 	scene->Init();
@@ -169,7 +175,7 @@ void Application::Run()
 				scene1->Exit();
 				scene2->Init();
 				scene = scene2;
-				sceneNum = SCENE_TEXT;
+				sceneNum = SCENE_01;
 			}
 			else {
 				scene2->Exit();
