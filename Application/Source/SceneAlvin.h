@@ -1,4 +1,4 @@
-//we carry the flame
+//psylockesleftthigh
 
 #ifndef SCENE_02_H
 #define SCENE_02_H
@@ -12,7 +12,7 @@
 #include "Light.h"
 #include "FPCamera.h"
 
-class Scene02 : public Scene
+class SceneAlvin : public Scene
 {
 public:
 	enum GEOMETRY_TYPE
@@ -86,8 +86,8 @@ public:
 		U_TOTAL,
 	};
 
-	Scene02();
-	~Scene02();
+	SceneAlvin();
+	~SceneAlvin();
 
 	virtual void Init();
 	virtual void Update(double dt);

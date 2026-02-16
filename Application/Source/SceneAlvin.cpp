@@ -1,6 +1,6 @@
-//we are charlie kirk
+//psylockesleftthigh
 
-#include "Scene02.h"
+#include "SceneAlvin.h"
 #include "Mesh.h"
 #include "GL\glew.h"
 
@@ -23,15 +23,15 @@
 
 // repo cloning text test
 
-Scene02::Scene02()
+SceneAlvin::SceneAlvin()
 {
 }
 
-Scene02::~Scene02()
+SceneAlvin::~SceneAlvin()
 {
 }
 
-void Scene02::Init()
+void SceneAlvin::Init()
 {
 	// Set background color to dark blue
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
@@ -201,7 +201,7 @@ void Scene02::Init()
 
 }
 
-void Scene02::HandleMouseInput() 
+void SceneAlvin::HandleMouseInput() 
 {
 
 	double mouseX = MouseController::GetInstance()->GetMousePositionX();
@@ -254,7 +254,7 @@ void Scene02::HandleMouseInput()
 	camera.Init(camera.position, camera.target, glm::vec3(0.0f, 3.0f, 0.0f));
 }
 
-void Scene02::Update(double dt)
+void SceneAlvin::Update(double dt)
 {
 	HandleKeyPress(dt);
 
@@ -285,7 +285,7 @@ void Scene02::Update(double dt)
 
 }
 
-void Scene02::RenderSkybox()
+void SceneAlvin::RenderSkybox()
 {
 	// Front face (no rotation needed if quad faces -Z by default)
 	modelStack.PushMatrix();
@@ -340,7 +340,7 @@ void Scene02::RenderSkybox()
 	modelStack.PopMatrix();
 }
 
-void Scene02::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey)
+void SceneAlvin::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey)
 {
 	glDisable(GL_DEPTH_TEST);
 
@@ -372,7 +372,7 @@ void Scene02::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, floa
 	glEnable(GL_DEPTH_TEST);
 }
 
-void Scene02::RenderText(Mesh* mesh, std::string text, glm::vec3 color)
+void SceneAlvin::RenderText(Mesh* mesh, std::string text, glm::vec3 color)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
 		return;
@@ -410,7 +410,7 @@ void Scene02::RenderText(Mesh* mesh, std::string text, glm::vec3 color)
 }
 
 
-void Scene02::RenderTextOnScreen(Mesh* mesh, std::string
+void SceneAlvin::RenderTextOnScreen(Mesh* mesh, std::string
 	text, glm::vec3 color, float size, float x, float y)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
@@ -461,7 +461,7 @@ void Scene02::RenderTextOnScreen(Mesh* mesh, std::string
 	glDisable(GL_BLEND);
 }
 
-void Scene02::Render()
+void SceneAlvin::Render()
 {
 	// Clear color buffer every frame
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -540,7 +540,7 @@ void Scene02::Render()
 	modelStack.PopMatrix();
 }
 
-void Scene02::RenderMesh(Mesh* mesh, bool enableLight)
+void SceneAlvin::RenderMesh(Mesh* mesh, bool enableLight)
 {
 	glm::mat4 MVP, modelView, modelView_inverse_transpose;
 
@@ -577,7 +577,7 @@ void Scene02::RenderMesh(Mesh* mesh, bool enableLight)
 }
 
 
-void Scene02::Exit()
+void SceneAlvin::Exit()
 {
 	// Cleanup VBO here
 	for (int i = 0; i < NUM_GEOMETRY; ++i)
@@ -591,7 +591,7 @@ void Scene02::Exit()
 	glDeleteProgram(m_programID);
 }
 
-void Scene02::HandleKeyPress(double dt)
+void SceneAlvin::HandleKeyPress(double dt)
 {
 
 	if (KeyboardController::GetInstance()->IsKeyPressed(0x31))
