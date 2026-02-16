@@ -1,3 +1,5 @@
+//we carry the flame
+
 #ifndef SCENE_02_H
 #define SCENE_02_H
 

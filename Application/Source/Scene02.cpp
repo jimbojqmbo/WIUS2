@@ -1,3 +1,5 @@
+//we are charlie kirk
+
 #include "Scene02.h"
 #include "Mesh.h"
 #include "GL\glew.h"
