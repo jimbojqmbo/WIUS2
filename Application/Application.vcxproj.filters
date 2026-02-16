@@ -81,7 +81,7 @@
     <ClCompile Include="Source\Scene01.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\SceneAlvin.cpp">
+    <ClCompile Include="Source\Scene02.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Scene03.cpp">
@@ -167,7 +167,7 @@
     <ClInclude Include="Source\Scene01.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SceneAlvin.h">
+    <ClInclude Include="Source\Scene02.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Scene03.h">

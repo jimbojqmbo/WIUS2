@@ -12,7 +12,7 @@
 #include "Light.h"
 #include "FPCamera.h"
 
-class SceneAlvin : public Scene
+class Scene02 : public Scene
 {
 public:
 	enum GEOMETRY_TYPE
@@ -86,8 +86,8 @@ public:
 		U_TOTAL,
 	};
 
-	SceneAlvin();
-	~SceneAlvin();
+	Scene02();
+	~Scene02();
 
 	virtual void Init();
 	virtual void Update(double dt);

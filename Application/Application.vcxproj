@@ -160,7 +160,7 @@
     <ClCompile Include="Source\MeshBuilder.cpp" />
     <ClCompile Include="Source\PhysicsObject.cpp" />
     <ClCompile Include="Source\Scene01.cpp" />
-    <ClCompile Include="Source\SceneAlvin.cpp" />
+    <ClCompile Include="Source\Scene02.cpp" />
     <ClCompile Include="Source\Scene03.cpp" />
     <ClCompile Include="Source\Scene04.cpp" />
     <ClCompile Include="Source\Scene1.cpp" />
@@ -189,7 +189,7 @@
     <ClInclude Include="Source\PhysicsObject.h" />
     <ClInclude Include="Source\Scene.h" />
     <ClInclude Include="Source\Scene01.h" />
-    <ClInclude Include="Source\SceneAlvin.h" />
+    <ClInclude Include="Source\Scene02.h" />
     <ClInclude Include="Source\Scene03.h" />
     <ClInclude Include="Source\Scene04.h" />
     <ClInclude Include="Source\Scene1.h" />
