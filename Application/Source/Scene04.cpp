@@ -178,59 +178,15 @@ void Scene04::Init()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-}
-
-void Scene04::HandleMouseInput() {
-
-	double mouseX = MouseController::GetInstance()->GetMousePositionX();
-	double mouseY = MouseController::GetInstance()->GetMousePositionY();
-
-	// Skip first frame to avoid large delta
-	if (firstMouse) {
-		lastMouseX = mouseX;
-		lastMouseY = mouseY;
-		firstMouse = false;
-		return;
+	for (int i = 0; i < ball_num; i++) {
+		ball[i].mass = 2;
+		ball[i].bounciness = 1;
+		ball[i].pos.y = 10;
 	}
 
-	// Calculate mouse movement delta
-	double deltaX = mouseX - lastMouseX;
-	double deltaY = lastMouseY - mouseY;  // Reversed: y-coordinates go from bottom to top
-
-	lastMouseX = mouseX;
-	lastMouseY = mouseY;
-
-	// Apply sensitivity
-	deltaX *= mouseSensitivity;
-	deltaY *= mouseSensitivity;
-
-	// Update camera rotation based on mouse movement
-	// This depends on your AltAzCamera implementation
-	// Typical approach:
-	camera.azimuth += static_cast<float>(deltaX);
-	camera.altitude += static_cast<float>(deltaY);
-
-	// Clamp altitude to prevent flipping
-	if (camera.altitude > 89.0f)
-		camera.altitude = 89.0f;
-	if (camera.altitude < -89.0f)
-		camera.altitude = -89.0f;
-
-	// convert spherical az/alt to direction and update camera.target
-	float az = glm::radians(camera.azimuth);
-	float alt = glm::radians(camera.altitude);
-
-	// spherical -> cartesian (y is up)
-	glm::vec3 dir;
-	dir.x = cosf(alt) * cosf(az);
-	dir.y = sinf(alt);
-	dir.z = cosf(alt) * sinf(az);
-
-	camera.target = camera.position + glm::normalize(dir);
-
-	// Re-init so FPCamera::Refresh() recalculates 'up' and other derived vectors
-	camera.Init(camera.position, camera.target, glm::vec3(0.0f, 3.0f, 0.0f));
 }
+
+
 
 void Scene04::Update(double dt)
 {
@@ -255,11 +211,32 @@ void Scene04::Update(double dt)
 }
 
 void Scene04::balls_update(double dt) {
-	//gravity
+
 	for (int i = 0; i < ball_num; i++) {
-		ball->AddForce(glm::vec3(0, gravity, 0));
+		//collisions
+		// ball against ball
+		for (int j = 0; j < ball_num; j++) {
+			if (OverlapCircle2Circle(ball[i], ball_radius, ball[j], ball_radius, cd)) {
+				ResolveCollision(cd);
+			}
+		}
+		//gravity 
+		ball[i].AddForce(glm::vec3(0, gravity, 0));
+		//resolve collision
+		ball[i].UpdatePhysics(dt);
 	}
-	//collisions
+	
+}
+
+void Scene04::balls_render() {
+	for (int i = 0; i < ball_num; i++) {
+		modelStack.PushMatrix();
+		modelStack.Translate(ball[i].pos.x, ball[i].pos.y,ball[i].pos.z);
+		modelStack.Scale(2*(ball_radius), 2 * (ball_radius), 2 * (ball_radius));
+		modelStack.Rotate(0 , 1.f, 1.f, 1.f);
+		RenderMesh(meshList[GEO_SPHERE], true);
+		modelStack.PopMatrix();
+	}
 }
 
 void Scene04::RenderSkybox()
@@ -515,6 +492,8 @@ void Scene04::Render()
 		meshList[GEO_GRASS]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
 	}
 	modelStack.PopMatrix();
+
+	balls_render();
 }
 
 void Scene04::RenderMesh(Mesh* mesh, bool enableLight)
@@ -693,6 +672,58 @@ void Scene04::HandleKeyPress(double dt)
 		if (camera.target.y > 3.8f)
 			camera.target.y = 3.8f;
 	}
+}
+
+void Scene04::HandleMouseInput() {
+
+	double mouseX = MouseController::GetInstance()->GetMousePositionX();
+	double mouseY = MouseController::GetInstance()->GetMousePositionY();
+
+	// Skip first frame to avoid large delta
+	if (firstMouse) {
+		lastMouseX = mouseX;
+		lastMouseY = mouseY;
+		firstMouse = false;
+		return;
+	}
+
+	// Calculate mouse movement delta
+	double deltaX = mouseX - lastMouseX;
+	double deltaY = lastMouseY - mouseY;  // Reversed: y-coordinates go from bottom to top
+
+	lastMouseX = mouseX;
+	lastMouseY = mouseY;
+
+	// Apply sensitivity
+	deltaX *= mouseSensitivity;
+	deltaY *= mouseSensitivity;
+
+	// Update camera rotation based on mouse movement
+	// This depends on your AltAzCamera implementation
+	// Typical approach:
+	camera.azimuth += static_cast<float>(deltaX);
+	camera.altitude += static_cast<float>(deltaY);
+
+	// Clamp altitude to prevent flipping
+	if (camera.altitude > 89.0f)
+		camera.altitude = 89.0f;
+	if (camera.altitude < -89.0f)
+		camera.altitude = -89.0f;
+
+	// convert spherical az/alt to direction and update camera.target
+	float az = glm::radians(camera.azimuth);
+	float alt = glm::radians(camera.altitude);
+
+	// spherical -> cartesian (y is up)
+	glm::vec3 dir;
+	dir.x = cosf(alt) * cosf(az);
+	dir.y = sinf(alt);
+	dir.z = cosf(alt) * sinf(az);
+
+	camera.target = camera.position + glm::normalize(dir);
+
+	// Re-init so FPCamera::Refresh() recalculates 'up' and other derived vectors
+	camera.Init(camera.position, camera.target, glm::vec3(0.0f, 3.0f, 0.0f));
 }
 
 bool Scene04::OverlapCircle2CYLINDER(const glm::vec3& pos1, float r1, const glm::vec3& pos2, float width, float height){
