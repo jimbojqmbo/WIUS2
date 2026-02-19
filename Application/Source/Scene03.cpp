@@ -1,3 +1,5 @@
+// Jayren
+
 #include "Scene03.h"
 #include "Mesh.h"
 #include "GL\glew.h"

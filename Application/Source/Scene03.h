@@ -1,3 +1,5 @@
+// Jayren
+
 #ifndef SCENE_03_H
 #define SCENE_03_H
 
