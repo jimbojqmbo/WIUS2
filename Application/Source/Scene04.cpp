@@ -178,10 +178,12 @@ void Scene04::Init()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	//ball innit
 	for (int i = 0; i < ball_num; i++) {
 		ball[i].mass = 2;
 		ball[i].bounciness = 1;
 		ball[i].pos.y = 10;
+		ball[i].pos.x = 10*i;
 	}
 
 }
@@ -190,6 +192,9 @@ void Scene04::Init()
 
 void Scene04::Update(double dt)
 {
+	player.pos = camera.position;
+	std::cout << player.pos.x<< " " <<player.pos.z << std::endl;
+	std::cout << ball[0].pos.x << " " << ball[0].pos.z << std::endl;
 	//physics
 	balls_update(dt);
 	//handle inputs
@@ -220,8 +225,23 @@ void Scene04::balls_update(double dt) {
 				ResolveCollision(cd);
 			}
 		}
+		//ball agaisnt player test
+		if (OverlapCircle2Circle(ball[i], ball_radius, player, ball_radius, cd)) {
+			ResolveCollision(cd);
+		}
+		//ball against floor
+		/*
+		if (OverlapCircle2OBB(ball[i],ball_radius,floor,10,10,cd)) {
+			ResolveCollision(cd);
+		}
+		*/
+		
 		//gravity 
 		ball[i].AddForce(glm::vec3(0, gravity, 0));
+		//
+		if (ball[i].pos.y < 3.0f) {
+			ball[i].pos.y = 3.0f;
+		}
 		//resolve collision
 		ball[i].UpdatePhysics(dt);
 	}
@@ -232,7 +252,7 @@ void Scene04::balls_render() {
 	for (int i = 0; i < ball_num; i++) {
 		modelStack.PushMatrix();
 		modelStack.Translate(ball[i].pos.x, ball[i].pos.y,ball[i].pos.z);
-		modelStack.Scale(2*(ball_radius), 2 * (ball_radius), 2 * (ball_radius));
+		modelStack.Scale((ball_radius),(ball_radius),(ball_radius));
 		modelStack.Rotate(0 , 1.f, 1.f, 1.f);
 		RenderMesh(meshList[GEO_SPHERE], true);
 		modelStack.PopMatrix();
@@ -731,4 +751,28 @@ bool Scene04::OverlapCircle2CYLINDER(const glm::vec3& pos1, float r1, const glm:
 	float lengthSq = glm::dot(d, d);
 	float rsum = r1 + width;
 	return lengthSq <= rsum * rsum;
+}
+
+void Scene04::ResolveCollision(CollisionData cd) {
+
+	PhysicsObject&  o1 = *cd.pObj1;
+	PhysicsObject& o2 = *cd.pObj2;
+
+	glm::vec3 oc = (cd.collisionNormal * cd.penetration);
+
+	oc.x = oc.x / 2;
+	oc.y = oc.y / 2;
+	oc.z = oc.z / 2;
+	if (o2.mass > 0.f) {
+		o1.pos -= oc;
+		o2.pos += oc;
+
+		o1.AddImpulse(-cd.collisionNormal * (1 + o1.bounciness));
+		o2.AddImpulse(cd.collisionNormal * (1 + o2.bounciness));
+	}
+	else {
+		o1.pos -= oc;
+		o1.AddImpulse(-cd.collisionNormal * (1 + o1.bounciness));
+	}
+	
 }
