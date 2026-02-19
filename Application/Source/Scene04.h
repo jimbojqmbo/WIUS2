@@ -130,6 +130,21 @@ private:
 	double lastMouseY = 300.0;
 
 	float moveSpeed = 5.0f;
+	//additional
+	//objects
+	PhysicsObject ball[10];
+	//varibles
+	float ball_diameter = 2;
+	//functions
+
+	bool OverlapCircle2CYLINDER(const Vector3& pos1, float r1, const Vector3& pos2, float width,float height);
+		/*
+	{
+		float lengthSq = (pos1 - pos2).LengthSquared();
+		return lengthSq <= (r1 + r2) * (r1 + r2);
+	}
+	*/
+
 };
 
 #endif

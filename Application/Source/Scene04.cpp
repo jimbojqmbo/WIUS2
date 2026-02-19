@@ -701,3 +701,8 @@ void Scene04::HandleKeyPress(double dt)
 			camera.target.y = 3.8f;
 	}
 }
+
+bool OverlapCircle2CYLINDER(const Vector3& pos1, float r1, const Vector3& pos2, float width, float height){
+	float lengthSq = (pos1 - pos2).LengthSquared();
+	return lengthSq <= (r1 + width) * (r1 + width);
+}
