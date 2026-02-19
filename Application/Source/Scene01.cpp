@@ -1,3 +1,7 @@
+// ---------------------------------------------------------------
+// jin ming's scene
+// ---------------------------------------------------------------
+
 #include "Scene01.h"
 #include "Mesh.h"
 #include "GL\glew.h"
@@ -81,19 +85,35 @@ void Scene01::Init()
 	// Initialise camera properties
 	//camera.Init(45.f, 45.f, 10.f);
 
-	camera.Init(
-		glm::vec3(4.0f, 3.0f, 0.0f), // position: Y = 1.0f
-		glm::vec3(0.0f, 1.0f, 0.0f), // target:  Y = 1.0f (same height -> no pitch)
-		glm::vec3(0.0f, 1.0f, 0.0f)  // world up
+	camera1.Init(
+		glm::vec3(0.f, 3.f, 10.f),
+		glm::vec3(0.f, 3.f, 0.f),
+		glm::vec3(0.f, 1.f, 0.f)
 	);
 
+	camera2.Init(
+		glm::vec3(10.f, 3.f, 10.f),
+		glm::vec3(0.f, 3.f, 0.f),
+		glm::vec3(0.f, 1.f, 0.f)
+	);
+
+
 	// enforce minimum Y at launch
-	if (camera.position.y < 3.3f) {
-		camera.position.y = 3.3f;
+	if (camera1.position.y < 3.3f) {
+		camera1.position.y = 3.3f;
 		// keep the camera looking at the same relative height (adjust target to avoid looking too far down)
-		if (camera.target.y < 3.3f) camera.target.y = 3.3f;
+		if (camera1.target.y < 3.3f) camera1.target.y = 3.3f;
 		// re-initialize so FPCamera::Init() recomputes its internal vectors (Refresh)
-		camera.Init(camera.position, camera.target, camera.up);
+		camera1.Init(camera1.position, camera1.target, camera1.up);
+	}
+
+	// enforce minimum Y at launch
+	if (camera2.position.y < 3.3f) {
+		camera2.position.y = 3.3f;
+		// keep the camera looking at the same relative height (adjust target to avoid looking too far down)
+		if (camera2.target.y < 3.3f) camera2.target.y = 3.3f;
+		// re-initialize so FPCamera::Init() recomputes its internal vectors (Refresh)
+		camera2.Init(camera2.position, camera2.target, camera2.up);
 	}
 
 	// Init VBO here
@@ -161,13 +181,16 @@ void Scene01::Init()
 	meshList[GEO_GUI] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_GUI]->textureID = LoadTGA("Images//blackblack.tga");
 
+	meshList[GEO_SHADOW] = MeshBuilder::GenerateOBJMTL("shadow", "Models//swamp_monster.obj", "Models//swamp_monster.mtl");
+	meshList[GEO_SHADOW]->textureID = LoadTGA("Images//FOREST_MONSTER_V1_mat_diffuse.tga");
+
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
 
 
 	glUniform1i(m_parameters[U_NUMLIGHTS], NUM_LIGHTS);
 
-	light[0].position = glm::vec3(camera.position.x, camera.position.y, camera.position.z);
+	light[0].position = glm::vec3(camera1.position.x, camera1.position.y, camera1.position.z);
 	light[0].color = glm::vec3(1, 1, 0.5);
 	light[0].type = Light::LIGHT_POINT;
 	light[0].power = 0;
@@ -199,7 +222,7 @@ void Scene01::Init()
 
 }
 
-void Scene01::HandleMouseInput() {
+void Scene01::HandleMouseInput(FPCamera& cam) {
 
 	double mouseX = MouseController::GetInstance()->GetMousePositionX();
 	double mouseY = MouseController::GetInstance()->GetMousePositionY();
@@ -226,18 +249,18 @@ void Scene01::HandleMouseInput() {
 	// Update camera rotation based on mouse movement
 	// This depends on your AltAzCamera implementation
 	// Typical approach:
-	camera.azimuth += static_cast<float>(deltaX);
-	camera.altitude += static_cast<float>(deltaY);
+	cam.azimuth += static_cast<float>(deltaX);
+	cam.altitude += static_cast<float>(deltaY);
 
 	// Clamp altitude to prevent flipping
-	if (camera.altitude > 89.0f)
-		camera.altitude = 89.0f;
-	if (camera.altitude < -89.0f)
-		camera.altitude = -89.0f;
+	if (cam.altitude > 89.0f)
+		cam.altitude = 89.0f;
+	if (cam.altitude < -89.0f)
+		cam.altitude = -89.0f;
 
 	// convert spherical az/alt to direction and update camera.target
-	float az = glm::radians(camera.azimuth);
-	float alt = glm::radians(camera.altitude);
+	float az = glm::radians(cam.azimuth);
+	float alt = glm::radians(cam.altitude);
 
 	// spherical -> cartesian (y is up)
 	glm::vec3 dir;
@@ -245,16 +268,21 @@ void Scene01::HandleMouseInput() {
 	dir.y = sinf(alt);
 	dir.z = cosf(alt) * sinf(az);
 
-	camera.target = camera.position + glm::normalize(dir);
+	cam.target = cam.position + glm::normalize(dir);
 
 	// Re-init so FPCamera::Refresh() recalculates 'up' and other derived vectors
-	camera.Init(camera.position, camera.target, glm::vec3(0.0f, 3.0f, 0.0f));
+	// Use normalized up vector (0,1,0) instead of a scaled up vector
+	cam.Init(cam.position, cam.target, glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 void Scene01::Update(double dt)
 {
-	HandleKeyPress(dt);
+	HandleKeyPress1(camera1, dt);
+	HandleKeyPress2(camera2, dt);
 
+	HandleMouseInput(camera1);
+
+	/*
 	if (KeyboardController::GetInstance()->IsKeyDown('I'))
 		light[0].position.z -= static_cast<float>(dt) * 5.f;
 	if (KeyboardController::GetInstance()->IsKeyDown('K'))
@@ -267,19 +295,28 @@ void Scene01::Update(double dt)
 		light[0].position.y -= static_cast<float>(dt) * 5.f;
 	if (KeyboardController::GetInstance()->IsKeyDown('P'))
 		light[0].position.y += static_cast<float>(dt) * 5.f;
+	*/
 
-	camera.Update(dt);
+	// Removed calls to camera1.Update(dt) and camera2.Update(dt)
+	// FPCamera::Update() processes global input (arrow keys / mouse deltas)
+	// which was being applied to both cameras; input is now handled explicitly
+	// in HandleKeyPress1/2 and HandleMouseInput so each camera is updated only
+	// by its own handlers.
 
 	// Prevent camera from going below ground after camera updates
-	if (camera.position.y < 3.0f) {
-		camera.position.y = 3.0f;
-		if (camera.target.y < 3.0f)
-			camera.target.y = 3.0f;
-		camera.Init(camera.position, camera.target, camera.up);
+	if (camera1.position.y < 3.0f) {
+		camera1.position.y = 3.0f;
+		if (camera1.target.y < 3.0f)
+			camera1.target.y = 3.0f;
+		camera1.Init(camera1.position, camera1.target, camera1.up);
 	}
 
-	HandleMouseInput();
-
+	if (camera2.position.y < 3.0f) {
+		camera2.position.y = 3.0f;
+		if (camera2.target.y < 3.0f)
+			camera2.target.y = 3.0f;
+		camera2.Init(camera2.position, camera2.target, camera2.up);
+	}
 }
 
 void Scene01::RenderSkybox()
@@ -458,17 +495,15 @@ void Scene01::RenderTextOnScreen(Mesh* mesh, std::string
 	glDisable(GL_BLEND);
 }
 
-void Scene01::Render()
+void Scene01::RenderSceneFromCamera(FPCamera& cam)
 {
-	// Clear color buffer every frame
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	bool isCamera1 = (&cam == &camera1);
 
-	// Load view matrix stack and set it with camera position, target position and up direction
 	viewStack.LoadIdentity();
 	viewStack.LookAt(
-		camera.position.x, camera.position.y, camera.position.z,
-		camera.target.x, camera.target.y, camera.target.z,
-		camera.up.x, camera.up.y, camera.up.z
+		cam.position.x, cam.position.y, cam.position.z,
+		cam.target.x, cam.target.y, cam.target.z,
+		cam.up.x, cam.up.y, cam.up.z
 	);
 
 	// Load identity matrix into the model stack
@@ -493,12 +528,11 @@ void Scene01::Render()
 		glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
 	}
 
-	// Render objects
-	//RenderMesh(meshList[GEO_AXES], false);
+	// ---- RENDER EVERYTHING BELOW ----
 
 	// Render light sphere - isolated transformations
 	modelStack.PushMatrix();
-	modelStack.Translate(camera.position.x, 15.f, camera.position.z);
+	modelStack.Translate(cam.position.x, 15.f, cam.position.z);
 	modelStack.Scale(0.1f, 0.1f, 0.1f);
 	meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
 	meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
@@ -535,6 +569,71 @@ void Scene01::Render()
 		meshList[GEO_GRASS]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
 	}
 	modelStack.PopMatrix();
+
+	// ----- Render Player 1 Model -----
+	if (!isCamera1)  // If current view is NOT camera1
+	{
+		modelStack.PushMatrix();
+		modelStack.Translate(camera1.position.x, camera1.position.y - 0.5f, camera1.position.z);
+		modelStack.Scale(0.5f, 0.5f, 0.5f);
+		modelStack.Rotate(90.f, 0.f, -1.f, 0.f);
+		RenderMesh(meshList[GEO_SHADOW], true);
+		modelStack.PopMatrix();
+	}
+
+	// ----- Render Player 2 Model -----
+	if (isCamera1)  // If current view IS camera1
+	{
+		modelStack.PushMatrix();
+		modelStack.Translate(camera2.position.x, camera2.position.y - 0.5f, camera2.position.z);
+		modelStack.Scale(0.5f, 0.5f, 0.5f);
+		modelStack.Rotate(90.f, 0.f, -1.f, 0.f);
+		RenderMesh(meshList[GEO_SHADOW], true);
+		modelStack.PopMatrix();
+	}
+
+}
+
+
+void Scene01::Render()
+{
+	// Clear color buffer every frame
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	int width = 900;
+	int height = 1600;
+	glfwGetFramebufferSize(glfwGetCurrentContext(), &width, &height);
+
+	// -------- LEFT SCREEN --------
+	glViewport(0, 0, width / 2, height);
+
+	projectionStack.LoadMatrix(
+		glm::perspective(
+			glm::radians(45.f),
+			(float)(width / 2) / height,
+			0.1f,
+			1000.f
+		)
+	);
+
+	RenderSceneFromCamera(camera1);
+
+	// -------- RIGHT SCREEN --------
+	glViewport(width / 2, 0, width / 2, height);
+
+	projectionStack.LoadMatrix(
+		glm::perspective(
+			glm::radians(45.f),
+			(float)(width / 2) / height,
+			0.1f,
+			1000.f
+		)
+	);
+
+	RenderSceneFromCamera(camera2);
+
+	// Render objects
+	//RenderMesh(meshList[GEO_AXES], false);
 }
 
 void Scene01::RenderMesh(Mesh* mesh, bool enableLight)
@@ -588,7 +687,7 @@ void Scene01::Exit()
 	glDeleteProgram(m_programID);
 }
 
-void Scene01::HandleKeyPress(double dt)
+void Scene01::HandleKeyPress1(FPCamera& cam, double dt)
 {
 
 	if (KeyboardController::GetInstance()->IsKeyPressed(0x31))
@@ -646,59 +745,192 @@ void Scene01::HandleKeyPress(double dt)
 	};
 
 	// Calculate forward and right vectors based on camera orientation
-	glm::vec3 forward = glm::normalize(camera.target - camera.position);
-	glm::vec3 right = glm::normalize(glm::cross(forward, camera.up));
+	glm::vec3 forward = glm::normalize(cam.target - cam.position);
+	glm::vec3 right = glm::normalize(glm::cross(forward, cam.up));
 
 	// Use IsKeyDown for continuous movement while holding the key
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_W))
 	{
 		// Move forward
 		float movement = moveSpeed * static_cast<float>(dt);
-		camera.position += forward * movement;
-		camera.target += forward * movement;
+		cam.position += forward * movement;
+		cam.target += forward * movement;
 	}
 
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_S))
 	{
 		// Move backward
 		float movement = moveSpeed * static_cast<float>(dt);
-		camera.position -= forward * movement;
-		camera.target -= forward * movement;
+		cam.position -= forward * movement;
+		cam.target -= forward * movement;
 	}
 
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_A))
 	{
 		// Move left (strafe)
 		float movement = moveSpeed * static_cast<float>(dt);
-		camera.position -= right * movement;
-		camera.target -= right * movement;
+		cam.position -= right * movement;
+		cam.target -= right * movement;
 	}
 
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_D))
 	{
 		// Move right (strafe)
 		float movement = moveSpeed * static_cast<float>(dt);
-		camera.position += right * movement;
-		camera.target += right * movement;
+		cam.position += right * movement;
+		cam.target += right * movement;
 	}
 
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT_SHIFT))
 	{
 		// sprint at 10.f
 		float movement = (1.5 * moveSpeed) * static_cast<float>(dt);
-		camera.position += forward * movement;
-		camera.target += forward * movement;
+		cam.position += forward * movement;
+		cam.target += forward * movement;
 	}
 
 	// Clamp camera height to adjusted limits
-	if (camera.position.y < 3.3f) {
-		camera.position.y = 3.3f;
-		if (camera.target.y < 3.3f)
-			camera.target.y = 3.3f;
+	if (cam.position.y < 3.3f) {
+		cam.position.y = 3.3f;
+		if (cam.target.y < 3.3f)
+			cam.target.y = 3.3f;
 	}
-	if (camera.position.y > 3.8f) {
-		camera.position.y = 3.8f;
-		if (camera.target.y > 3.8f)
-			camera.target.y = 3.8f;
+	if (cam.position.y > 3.5f) {
+		cam.position.y = 3.5f;
+		if (cam.target.y > 3.5f)
+			cam.target.y = 3.5f;
 	}
+
+	// Ensure FPCamera internal vectors are recalculated after manual changes
+	cam.Init(cam.position, cam.target, cam.up);
+}
+
+void Scene01::HandleKeyPress2(FPCamera& cam, double dt)
+{
+	// Common toggles (culling, polygon mode, background, lights)
+	if (KeyboardController::GetInstance()->IsKeyPressed(0x31)) glEnable(GL_CULL_FACE);
+	if (KeyboardController::GetInstance()->IsKeyPressed(0x32)) glDisable(GL_CULL_FACE);
+	if (KeyboardController::GetInstance()->IsKeyPressed(0x33)) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	if (KeyboardController::GetInstance()->IsKeyPressed(0x34)) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	if (KeyboardController::GetInstance()->IsKeyPressed(VK_SPACE)) glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_0))
+	{
+		if (light[0].power <= 0.1f) light[0].power = 1.f;
+		else light[0].power = 0.1f;
+		glUniform1f(m_parameters[U_LIGHT0_POWER], light[0].power);
+	}
+
+	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_TAB))
+	{
+		if (light[0].type == Light::LIGHT_POINT) light[0].type = Light::LIGHT_DIRECTIONAL;
+		else if (light[0].type == Light::LIGHT_DIRECTIONAL) light[0].type = Light::LIGHT_SPOT;
+		else light[0].type = Light::LIGHT_POINT;
+		glUniform1i(m_parameters[U_LIGHT0_TYPE], light[0].type);
+	}
+
+	// --- ROTATION (azimuth / altitude) FIRST ---
+	const float rotationSpeed = 90.0f; // degrees per second
+
+	bool rotated = false;
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_I))
+	{
+		cam.altitude += rotationSpeed * static_cast<float>(dt);
+		rotated = true;
+	}
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_K))
+	{
+		cam.altitude -= rotationSpeed * static_cast<float>(dt);
+		rotated = true;
+	}
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_J))
+	{
+		cam.azimuth -= rotationSpeed * static_cast<float>(dt);
+		rotated = true;
+	}
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_L))
+	{
+		cam.azimuth += rotationSpeed * static_cast<float>(dt);
+		rotated = true;
+	}
+
+	if (rotated)
+	{
+		// Clamp altitude
+		if (cam.altitude > 89.0f) cam.altitude = 89.0f;
+		if (cam.altitude < -89.0f) cam.altitude = -89.0f;
+
+		// Wrap azimuth cleanly into [0,360)
+		cam.azimuth = fmod(cam.azimuth + 360.0f, 360.0f);
+
+		// Recompute spherical -> cartesian direction and update target
+		float az = glm::radians(cam.azimuth);
+		float alt = glm::radians(cam.altitude);
+		glm::vec3 dir;
+		dir.x = cosf(alt) * cosf(az);
+		dir.y = sinf(alt);
+		dir.z = cosf(alt) * sinf(az);
+		cam.target = cam.position + glm::normalize(dir);
+	}
+
+	// --- MOVEMENT based on the up-to-date orientation ---
+	glm::vec3 forward = glm::normalize(cam.target - cam.position);
+	glm::vec3 right = glm::normalize(glm::cross(forward, cam.up));
+
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_UP))
+	{
+		float movement = moveSpeed * static_cast<float>(dt);
+		cam.position += forward * movement;
+		cam.target += forward * movement;
+	}
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_DOWN))
+	{
+		float movement = moveSpeed * static_cast<float>(dt);
+		cam.position -= forward * movement;
+		cam.target -= forward * movement;
+	}
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT))
+	{
+		float movement = moveSpeed * static_cast<float>(dt);
+		cam.position -= right * movement;
+		cam.target -= right * movement;
+	}
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_RIGHT))
+	{
+		float movement = moveSpeed * static_cast<float>(dt);
+		cam.position += right * movement;
+		cam.target += right * movement;
+	}
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_RIGHT_SHIFT))
+	{
+		float movement = (1.5f * moveSpeed) * static_cast<float>(dt);
+		cam.position += forward * movement;
+		cam.target += forward * movement;
+	}
+
+	// Preserve vertical offset when clamping Y so pitch (altitude) is not lost.
+	{
+		const float minY = 3.3f;
+		const float maxY = 3.5f;
+		float oldY = cam.position.y;
+		// clamp position.y
+		cam.position.y = glm::clamp(cam.position.y, minY, maxY);
+		// apply same delta to target.y to keep the view direction consistent
+		float deltaY = cam.position.y - oldY;
+		cam.target.y += deltaY;
+	}
+
+	// After movement, keep azimuth/altitude consistent with the new forward vector
+	{
+		glm::vec3 newForward = glm::normalize(cam.target - cam.position);
+		float altRad = asin(glm::clamp(newForward.y, -1.0f, 1.0f));
+		float azRad = atan2(newForward.z, newForward.x);
+		cam.altitude = glm::degrees(altRad);
+		cam.azimuth = glm::degrees(azRad);
+		cam.azimuth = fmod(cam.azimuth + 360.0f, 360.0f);
+	}
+
+	// Recompute FPCamera internals once at the end
+	cam.Init(cam.position, cam.target, cam.up);
 }

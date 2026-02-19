@@ -10,6 +10,11 @@
 #include "Light.h"
 #include "FPCamera.h"
 
+struct Player
+{
+	FPCamera camera;
+};
+
 class Scene01 : public Scene
 {
 public:
@@ -93,7 +98,8 @@ public:
 	virtual void Exit();
 
 private:
-	void HandleKeyPress(double dt);
+	void HandleKeyPress1(FPCamera& cam, double dt);
+	void HandleKeyPress2(FPCamera& cam, double dt);
 	void RenderMesh(Mesh* mesh, bool enableLight);
 
 	unsigned m_vertexArrayID;
@@ -103,7 +109,9 @@ private:
 	unsigned m_parameters[U_TOTAL];
 
 	//AltAzCamera camera;
-	FPCamera camera;
+	//FPCamera camera;
+	FPCamera camera1;
+	FPCamera camera2;
 	int projType = 1; // fix to 0 for orthographic, 1 for projection
 
 	MatrixStack modelStack, viewStack, projectionStack;
@@ -113,10 +121,11 @@ private:
 	bool enableLight;
 
 	void RenderSkybox();
+	void RenderSceneFromCamera(FPCamera& cam);
 
 	void RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey);
 
-	void HandleMouseInput();
+	void HandleMouseInput(FPCamera& cam);
 
 	void RenderText(Mesh* mesh, std::string text, glm::vec3 color);
 	void RenderTextOnScreen(Mesh* mesh, std::string text, glm::vec3 color, float size, float x, float y);
@@ -130,6 +139,9 @@ private:
 	double lastMouseY = 300.0;
 
 	float moveSpeed = 5.0f;
+
+	Player player1;
+	Player player2;
 };
 
 #endif
