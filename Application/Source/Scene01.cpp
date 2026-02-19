@@ -22,6 +22,7 @@
 #include "LoadTGA.h"
 #include "MouseController.h"
 #include <iostream>
+#include <cmath> // for atan2, etc.
 
 // repo cloning text test
 
@@ -128,39 +129,33 @@ void Scene01::Init()
 
 	meshList[GEO_LEFT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
 	//meshList[GEO_LEFT]->textureID = LoadTGA("Images//blackblack.tga");
-	//meshList[GEO_LEFT]->textureID = LoadTGA("Images//whitesky//whiteskyleft.tga");
-	meshList[GEO_LEFT]->textureID = LoadTGA("Images//redleft copy.tga");
+	meshList[GEO_LEFT]->textureID = LoadTGA("Images//whitesky//whiteskyleft.tga");
 	//meshList[GEO_LEFT]->textureID = LoadTGA("Images//left.tga");
 
 	meshList[GEO_RIGHT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
 	//meshList[GEO_RIGHT]->textureID = LoadTGA("Images//blackblack.tga");
-	//meshList[GEO_RIGHT]->textureID = LoadTGA("Images//whitesky//whiteskyright.tga");
-	meshList[GEO_RIGHT]->textureID = LoadTGA("Images//redright copy.tga");
+	meshList[GEO_RIGHT]->textureID = LoadTGA("Images//whitesky//whiteskyright.tga");
 	//meshList[GEO_RIGHT]->textureID = LoadTGA("Images//right.tga");
 
 	meshList[GEO_BACK] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
 	//meshList[GEO_BACK]->textureID = LoadTGA("Images//blackblack.tga");
-	//meshList[GEO_BACK]->textureID = LoadTGA("Images//whitesky//whiteskyback.tga");
-	meshList[GEO_BACK]->textureID = LoadTGA("Images//redback copy.tga");
+	meshList[GEO_BACK]->textureID = LoadTGA("Images//whitesky//whiteskyback.tga");
 	//meshList[GEO_BACK]->textureID = LoadTGA("Images//back.tga");
 
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
 	//meshList[GEO_FRONT]->textureID = LoadTGA("Images//blackblack.tga");
-	//meshList[GEO_FRONT]->textureID = LoadTGA("Images//whitesky//whiteskyfront.tga");
-	meshList[GEO_FRONT]->textureID = LoadTGA("Images//redfront copy.tga");
+	meshList[GEO_FRONT]->textureID = LoadTGA("Images//whitesky//whiteskyfront.tga");
 	//meshList[GEO_FRONT]->textureID = LoadTGA("Images//front.tga");
 
 	meshList[GEO_TOP] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
 	//meshList[GEO_TOP]->textureID = LoadTGA("Images//saharatop.tga");
 	//meshList[GEO_TOP]->textureID = LoadTGA("Images//top.tga");
-	//meshList[GEO_TOP]->textureID = LoadTGA("Images//whitesky//whiteskytop.tga");
-	meshList[GEO_TOP]->textureID = LoadTGA("Images//redtop copy.tga");
+	meshList[GEO_TOP]->textureID = LoadTGA("Images//whitesky//whiteskytop.tga");
 	//meshList[GEO_TOP]->textureID = LoadTGA("Images//bigblackmoon.tga");
 
 	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
 	//meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//blackblack.tga");
-	//meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//whitesky//whiteskybottom.tga");
-	meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//redbottom copy.tga");
+	meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//whitesky//whiteskybottom.tga");
 	//meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//bottom.tga");
 
 	//meshList[GEO_QUAD]->textureID = LoadTGA("Images//NYP.tga");
@@ -183,6 +178,12 @@ void Scene01::Init()
 
 	meshList[GEO_SHADOW] = MeshBuilder::GenerateOBJMTL("shadow", "Models//swamp_monster.obj", "Models//swamp_monster.mtl");
 	meshList[GEO_SHADOW]->textureID = LoadTGA("Images//FOREST_MONSTER_V1_mat_diffuse.tga");
+
+	meshList[GEO_ABANDONEDHOUSE] = MeshBuilder::GenerateOBJMTL("bumper car", "Models//abandoned_house.obj", "Models//abandoned_house.mtl");
+	meshList[GEO_ABANDONEDHOUSE]->textureID = LoadTGA("Images//abandonedhouseBaseColor.tga");
+
+	meshList[BUMPERCAR] = MeshBuilder::GenerateOBJMTL("bumper car", "Models//Bumper Car//bumper_car.obj", "Models//Bumper Car//bumper_car.mtl");
+	meshList[BUMPERCAR]->textureID = LoadTGA("Images//Bumper Car//bumpercar_baseColor.tga");
 
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
@@ -571,18 +572,53 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 	}
 	modelStack.PopMatrix();
 
+
+	{
+
+		modelStack.PushMatrix();
+		modelStack.Translate(30.f, 0.f, -10.f);
+		modelStack.Scale(0.5, 0.5, 0.5);
+		modelStack.Rotate(75.f, 0.f, 1.f, 0.f);
+		meshList[GEO_ABANDONEDHOUSE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+		meshList[GEO_ABANDONEDHOUSE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+		meshList[GEO_ABANDONEDHOUSE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+		meshList[GEO_ABANDONEDHOUSE]->material.kShininess = 5.0f;
+		RenderMesh(meshList[GEO_ABANDONEDHOUSE], true);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(10.f, 0.f, -10.f);
+		modelStack.Scale(0.5, 0.5, 0.5);
+		modelStack.Rotate(-75.f, 0.f, 1.f, 0.f);
+		meshList[GEO_ABANDONEDHOUSE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+		meshList[GEO_ABANDONEDHOUSE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+		meshList[GEO_ABANDONEDHOUSE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+		meshList[GEO_ABANDONEDHOUSE]->material.kShininess = 5.0f;
+		RenderMesh(meshList[GEO_ABANDONEDHOUSE], true);
+		modelStack.PopMatrix();
+	}
+
 	// ----- Render Player 1 Model -----
 	if (!isCamera1)  // If current view is NOT camera1
 	{
 		modelStack.PushMatrix();
-		modelStack.Translate(camera1.position.x, camera1.position.y - 0.5f, camera1.position.z);
-		modelStack.Scale(0.5f, 0.5f, 0.5f);
-		modelStack.Rotate(90.f, 0.f, -1.f, 0.f);
-		meshList[GEO_SHADOW]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
-		meshList[GEO_SHADOW]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-		meshList[GEO_SHADOW]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-		meshList[GEO_SHADOW]->material.kShininess = 5.0f;
-		RenderMesh(meshList[GEO_SHADOW], true);
+		modelStack.Translate(camera1.position.x, 0.5f, camera1.position.z);
+		modelStack.Scale(3.f, 3.f, 3.f);
+
+		// Make the model face the direction camera1 is facing:
+		{
+			glm::vec3 pForward = glm::normalize(camera1.target - camera1.position);
+			// Yaw in degrees from X axis
+			float yaw = glm::degrees(atan2(pForward.z, pForward.x));
+			// Rotate the model around world Y so it faces the same horizontal direction
+			modelStack.Rotate(yaw, 0.f, -1.f, 0.f);
+		}
+
+		meshList[BUMPERCAR]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+		meshList[BUMPERCAR]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+		meshList[BUMPERCAR]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+		meshList[BUMPERCAR]->material.kShininess = 5.0f;
+		RenderMesh(meshList[BUMPERCAR], true);
 		modelStack.PopMatrix();
 	}
 
@@ -590,14 +626,21 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 	if (isCamera1)  // If current view IS camera1
 	{
 		modelStack.PushMatrix();
-		modelStack.Translate(camera2.position.x, camera2.position.y - 0.5f, camera2.position.z);
-		modelStack.Scale(0.5f, 0.5f, 0.5f);
-		modelStack.Rotate(90.f, 0.f, -1.f, 0.f);
-		meshList[GEO_SHADOW]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
-		meshList[GEO_SHADOW]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-		meshList[GEO_SHADOW]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-		meshList[GEO_SHADOW]->material.kShininess = 5.0f;
-		RenderMesh(meshList[GEO_SHADOW], true);
+		modelStack.Translate(camera2.position.x, 0.5f, camera2.position.z);
+		modelStack.Scale(3.f, 3.f, 3.f);
+
+		// Make the model face the direction camera2 is facing:
+		{
+			glm::vec3 pForward = glm::normalize(camera2.target - camera2.position);
+			float yaw = glm::degrees(atan2(pForward.z, pForward.x));
+			modelStack.Rotate(yaw, 0.f, -1.f, 0.f);
+		}
+
+		meshList[BUMPERCAR]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+		meshList[BUMPERCAR]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+		meshList[BUMPERCAR]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+		meshList[BUMPERCAR]->material.kShininess = 5.0f;
+		RenderMesh(meshList[BUMPERCAR], true);
 		modelStack.PopMatrix();
 	}
 }

@@ -35,6 +35,7 @@ public:
 		GEO_SHADOW,
 
 		GEO_NOTE,
+		BUMPERCAR,
 
 		GEO_SPARKLING_STAR,
 
