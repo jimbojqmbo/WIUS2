@@ -1,5 +1,3 @@
-//Alvin
-
 #ifndef SCENE_03_H
 #define SCENE_03_H
 
@@ -11,6 +9,8 @@
 #include "MatrixStack.h"
 #include "Light.h"
 #include "FPCamera.h"
+#include "PhysicsObject.h"
+#include <vector>
 
 class Scene03 : public Scene
 {
@@ -79,8 +79,18 @@ public:
 	virtual void Exit();
 
 private:
+	// Functions
 	void HandleKeyPress(double dt);
 	void RenderMesh(Mesh* mesh, bool enableLight);
+
+	void RenderSkybox();
+
+	void RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey);
+
+	void HandleMouseInput();
+
+	void RenderText(Mesh* mesh, std::string text, glm::vec3 color);
+	void RenderTextOnScreen(Mesh* mesh, std::string text, glm::vec3 color, float size, float x, float y);
 
 	unsigned m_vertexArrayID;
 	Mesh* meshList[NUM_GEOMETRY];
@@ -97,15 +107,6 @@ private:
 	static const int NUM_LIGHTS = 1;
 	Light light[NUM_LIGHTS];
 	bool enableLight;
-
-	void RenderSkybox();
-
-	void RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey);
-
-	void HandleMouseInput();
-
-	void RenderText(Mesh* mesh, std::string text, glm::vec3 color);
-	void RenderTextOnScreen(Mesh* mesh, std::string text, glm::vec3 color, float size, float x, float y);
 
 	glm::vec3 change;
 

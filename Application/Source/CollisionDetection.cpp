@@ -2,6 +2,36 @@
 #include <cmath>
 #include <algorithm>
 
+// Math Functions
+float LengthSquared(const glm::vec3& vector)
+{
+	return vector.x * vector.x + vector.y * vector.y + vector.z * vector.z;
+}
+
+bool IsZero(const glm::vec3 vector)
+{
+	return fabs(vector.x) < 1e-8f && fabs(vector.y) < 1e-8f && fabs(vector.z) < 1e-8f;
+}
+
+float Length(const glm::vec3 vector)
+{
+	return std::sqrt(LengthSquared(vector));
+}
+
+glm::vec3 Normalize(const glm::vec3& vector)
+{
+	float len = Length(vector);
+	if (len > 1e-8f)
+		return vector / len;
+	else
+		return glm::vec3(0.f); // can't normalize zero vector
+}
+
+float Dot(glm::vec3 vector1, glm::vec3 vector2)
+{
+	return vector1.x * vector2.x + vector1.y * vector2.x + vector1.z * vector2.z;
+}
+
 // Positional circle-vs-circle (already present)
 bool OverlapCircle2Circle(const glm::vec3& pos1, float r1, const glm::vec3& pos2, float r2)
 {

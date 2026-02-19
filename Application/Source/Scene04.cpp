@@ -280,6 +280,10 @@ void Scene04::Update(double dt)
 
 	HandleMouseInput();
 
+	//physics
+
+	
+
 }
 
 void Scene04::RenderSkybox()
@@ -702,7 +706,7 @@ void Scene04::HandleKeyPress(double dt)
 	}
 }
 
-bool OverlapCircle2CYLINDER(const Vector3& pos1, float r1, const Vector3& pos2, float width, float height){
-	float lengthSq = (pos1 - pos2).LengthSquared();
+bool Scene04::OverlapCircle2CYLINDER(const glm::vec3& pos1, float r1, const glm::vec3& pos2, float width, float height){
+	float lengthSq = glm::length(pos1 - pos2);
 	return lengthSq <= (r1 + width) * (r1 + width);
 }
