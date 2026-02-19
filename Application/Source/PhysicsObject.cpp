@@ -2,7 +2,7 @@
 
 PhysicsObject::PhysicsObject()
 	: pos{}, vel{}, accel{}, mass{ 1.f }, m_totalForces{},
-	  angularVel{}, angleDeg{}, bounciness{1.f}
+	angularVel{}, angleDeg{}, bounciness{ 1.f }
 {
 }
 
@@ -13,8 +13,8 @@ void PhysicsObject::AddForce(const glm::vec3& force)
 
 void PhysicsObject::AddImpulse(const glm::vec3& impulse)
 {
-	//TODO
-	if (mass == 0)
+	// immediate velocity change
+	if (mass == 0.0f)
 		return;
 
 	vel += impulse * (1.0f / mass);
@@ -22,9 +22,8 @@ void PhysicsObject::AddImpulse(const glm::vec3& impulse)
 
 void PhysicsObject::UpdatePhysics(float dt)
 {
-	//TODO
 	glm::vec3 finalAccel = accel;
-	if (mass > 0)
+	if (mass > 0.0f)
 	{
 		finalAccel += m_totalForces * (1.f / mass);
 	}

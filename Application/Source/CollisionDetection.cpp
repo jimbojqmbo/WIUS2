@@ -35,15 +35,17 @@ float Dot(glm::vec3 vector1, glm::vec3 vector2)
 // Positional circle-vs-circle (already present)
 bool OverlapCircle2Circle(const glm::vec3& pos1, float r1, const glm::vec3& pos2, float r2)
 {
-	float lengthSq = LengthSquared(pos1 - pos2);
-	return lengthSq <= (r1 + r2) * (r1 + r2);
+	glm::vec3 d = pos1 - pos2;
+	float lengthSq = glm::dot(d, d);
+	float rsum = r1 + r2;
+	return lengthSq <= rsum * rsum;
 }
 
 // PhysicsObject-based circle-vs-circle that fills CollisionData
 bool OverlapCircle2Circle(PhysicsObject& circle1, float r1, PhysicsObject& circle2, float r2, CollisionData& cd)
 {
 	glm::vec3 n = circle2.pos - circle1.pos;
-	float dist2 = LengthSquared(n);
+	float dist2 = glm::dot(n, n);
 	float rsum = r1 + r2;
 
 	// no overlap
@@ -120,42 +122,42 @@ bool OverlapAABB2AABB(PhysicsObject& box1, float w1, float h1,
 	return true;
 }
 
-// Circle vs line segment (positional) - already implemented but repeated here for completeness
+// Circle vs line segment (positional)
 bool OverlapCircle2Line(const glm::vec3& circlePos, float radius,
 	const glm::vec3& lineStart,
 	const glm::vec3& lineEnd)
 {
 	glm::vec3 lineTangent = lineEnd - lineStart;
-	if (IsZero(lineTangent)) return false;  // not a valid segment
+	float lineLength = glm::length(lineTangent);
+	if (lineLength <= 1e-8f) return false;  // not a valid segment
 
-	float lineLength = Length(lineTangent);
-	Normalize(lineTangent);
+	lineTangent = glm::normalize(lineTangent);
 
 	// normal to the line
 	glm::vec3 lineNormal{ -lineTangent.y, lineTangent.x, 0.f };
 
 	// distance from circle center to infinite line
-	float distToLine = Dot(circlePos - lineStart, lineNormal);
+	float distToLine = glm::dot(circlePos - lineStart, lineNormal);
 
-	if (fabs(distToLine) > radius)
+	if (std::fabs(distToLine) > radius)
 		return false;
 
 	// projection along line tangent
 	glm::vec3 lineVec = circlePos - lineStart;
-	float projectedDist = Dot(lineVec, lineTangent);
+	float projectedDist = glm::dot(lineVec, lineTangent);
 
 	// check against segment endpoints if outside
 	if (projectedDist > lineLength)
 	{
 		glm::vec3 diff = circlePos - lineEnd;
-		float distSq = LengthSquared(diff);
+		float distSq = glm::dot(diff, diff);
 		if (distSq > radius * radius)
 			return false;
 	}
 	else if (projectedDist < 0)
 	{
 		glm::vec3 diff = circlePos - lineStart;
-		float distSq = LengthSquared(diff);
+		float distSq = glm::dot(diff, diff);
 		if (distSq > radius * radius)
 			return false;
 	}
@@ -175,7 +177,7 @@ bool OverlapCircle2OBB(PhysicsObject& circle, float radius, PhysicsObject& box, 
 	glm::vec3 closest(cx, cy, 0.f);
 
 	glm::vec3 diff = circle.pos - closest;
-	float dist2 = LengthSquared(diff);
+	float dist2 = glm::dot(diff, diff);
 
 	if (dist2 > radius * radius)
 		return false;
@@ -202,7 +204,6 @@ bool OverlapCircle2OBB(PhysicsObject& circle, float radius, PhysicsObject& box, 
 // General collision resolver placeholder - scenes may use CollisionData to resolve
 void ResolveCollision(CollisionData& cd)
 {
-	// Leave resolution to scene-specific logic (needs restitution, friction etc.)
 	(void)cd;
 }
 
@@ -210,12 +211,12 @@ void ResolveCollision(CollisionData& cd)
 void ResolveCircle2StaticLine(PhysicsObject& ball, float radius, const glm::vec3& lineStart, const glm::vec3& lineEnd)
 {
 	glm::vec3 lineTangent = lineEnd - lineStart;
-	float lineLength = Length(lineTangent);
+	float lineLength = glm::length(lineTangent);
 	if (lineLength <= 1e-6f) return;
-	Normalize(lineTangent);
+	lineTangent = glm::normalize(lineTangent);
 
 	glm::vec3 lineVec = ball.pos - lineStart;
-	float projectedDist = Dot(lineVec,lineTangent);
+	float projectedDist = glm::dot(lineVec, lineTangent);
 
 	glm::vec3 normal;
 	float penetrationDist = 0.f;
@@ -225,7 +226,7 @@ void ResolveCircle2StaticLine(PhysicsObject& ball, float radius, const glm::vec3
 	{
 		glm::vec3 closest = lineEnd;
 		glm::vec3 fromClosest = ball.pos - closest;
-		float dist = Length(fromClosest);
+		float dist = glm::length(fromClosest);
 		if (dist > 1e-6f)
 		{
 			normal = fromClosest / dist;
@@ -234,7 +235,7 @@ void ResolveCircle2StaticLine(PhysicsObject& ball, float radius, const glm::vec3
 		else
 		{
 			normal = glm::vec3(-lineTangent.y, lineTangent.x, 0.f);
-			Normalize(normal);
+			normal = glm::normalize(normal);
 			penetrationDist = radius;
 		}
 	}
@@ -243,7 +244,7 @@ void ResolveCircle2StaticLine(PhysicsObject& ball, float radius, const glm::vec3
 	{
 		glm::vec3 closest = lineStart;
 		glm::vec3 fromClosest = ball.pos - closest;
-		float dist = Length(fromClosest);
+		float dist = glm::length(fromClosest);
 		if (dist > 1e-6f)
 		{
 			normal = fromClosest / dist;
@@ -252,7 +253,7 @@ void ResolveCircle2StaticLine(PhysicsObject& ball, float radius, const glm::vec3
 		else
 		{
 			normal = glm::vec3(-lineTangent.y, lineTangent.x, 0.f);
-			Normalize(normal);
+			normal = glm::normalize(normal);
 			penetrationDist = radius;
 		}
 	}
@@ -261,7 +262,7 @@ void ResolveCircle2StaticLine(PhysicsObject& ball, float radius, const glm::vec3
 	{
 		glm::vec3 closest = lineStart + lineTangent * projectedDist;
 		glm::vec3 fromClosest = ball.pos - closest;
-		float dist = Length(fromClosest);
+		float dist = glm::length(fromClosest);
 		if (dist > 1e-6f)
 		{
 			normal = fromClosest / dist;
@@ -270,7 +271,7 @@ void ResolveCircle2StaticLine(PhysicsObject& ball, float radius, const glm::vec3
 		else
 		{
 			normal = glm::vec3(-lineTangent.y, lineTangent.x, 0.f);
-			Normalize(normal);
+			normal = glm::normalize(normal);
 			penetrationDist = radius;
 		}
 	}
@@ -280,7 +281,7 @@ void ResolveCircle2StaticLine(PhysicsObject& ball, float radius, const glm::vec3
 	{
 		ball.pos += normal * penetrationDist;
 		// remove normal component of velocity
-		float vn = Dot(ball.vel,normal);
+		float vn = glm::dot(ball.vel, normal);
 		ball.vel -= normal * vn;
 	}
 }

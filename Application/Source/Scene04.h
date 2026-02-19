@@ -130,6 +130,23 @@ private:
 	double lastMouseY = 300.0;
 
 	float moveSpeed = 5.0f;
+	//additional
+	// idk
+	static const int  ball_num = 10;
+	//objects
+	PhysicsObject ball[ball_num];
+	PhysicsObject floor;
+	PhysicsObject ball_slide;
+	//varibles
+	// game scene
+	float gravity = 10;
+	//size
+	float ball_diameter = 2;
+	float floor_space = 10;
+	//functions
+
+	bool OverlapCircle2CYLINDER(const glm::vec3& pos1, float r1, const glm::vec3& pos2, float width,float height);
+
 };
 
 #endif

@@ -498,6 +498,7 @@ void Scene01::RenderTextOnScreen(Mesh* mesh, std::string
 void Scene01::RenderSceneFromCamera(FPCamera& cam)
 {
 	bool isCamera1 = (&cam == &camera1);
+	bool isCamera2 = (&cam == &camera2);
 
 	viewStack.LoadIdentity();
 	viewStack.LookAt(
@@ -577,6 +578,10 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 		modelStack.Translate(camera1.position.x, camera1.position.y - 0.5f, camera1.position.z);
 		modelStack.Scale(0.5f, 0.5f, 0.5f);
 		modelStack.Rotate(90.f, 0.f, -1.f, 0.f);
+		meshList[GEO_SHADOW]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+		meshList[GEO_SHADOW]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+		meshList[GEO_SHADOW]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+		meshList[GEO_SHADOW]->material.kShininess = 5.0f;
 		RenderMesh(meshList[GEO_SHADOW], true);
 		modelStack.PopMatrix();
 	}
@@ -588,10 +593,13 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 		modelStack.Translate(camera2.position.x, camera2.position.y - 0.5f, camera2.position.z);
 		modelStack.Scale(0.5f, 0.5f, 0.5f);
 		modelStack.Rotate(90.f, 0.f, -1.f, 0.f);
+		meshList[GEO_SHADOW]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+		meshList[GEO_SHADOW]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+		meshList[GEO_SHADOW]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+		meshList[GEO_SHADOW]->material.kShininess = 5.0f;
 		RenderMesh(meshList[GEO_SHADOW], true);
 		modelStack.PopMatrix();
 	}
-
 }
 
 
@@ -604,13 +612,14 @@ void Scene01::Render()
 	int height = 1600;
 	glfwGetFramebufferSize(glfwGetCurrentContext(), &width, &height);
 
-	// -------- LEFT SCREEN --------
+	// LEFT SCREEN
 	glViewport(0, 0, width / 2, height);
+	glClear(GL_DEPTH_BUFFER_BIT);
 
 	projectionStack.LoadMatrix(
 		glm::perspective(
 			glm::radians(45.f),
-			(float)(width / 2) / height,
+			(float)(width / 2) / (float)height,
 			0.1f,
 			1000.f
 		)
@@ -618,13 +627,14 @@ void Scene01::Render()
 
 	RenderSceneFromCamera(camera1);
 
-	// -------- RIGHT SCREEN --------
+	// RIGHT SCREEN
 	glViewport(width / 2, 0, width / 2, height);
+	glClear(GL_DEPTH_BUFFER_BIT);
 
 	projectionStack.LoadMatrix(
 		glm::perspective(
 			glm::radians(45.f),
-			(float)(width / 2) / height,
+			(float)(width / 2) / (float)height,
 			0.1f,
 			1000.f
 		)

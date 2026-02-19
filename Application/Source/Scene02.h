@@ -1,5 +1,3 @@
-//psylockesleftthigh
-
 #ifndef SCENE_02_H
 #define SCENE_02_H
 
