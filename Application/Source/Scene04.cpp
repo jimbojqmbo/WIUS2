@@ -234,22 +234,11 @@ void Scene04::HandleMouseInput() {
 
 void Scene04::Update(double dt)
 {
+	//physics
+	balls_update(dt);
+	//handle inputs
+	HandleMouseInput();
 	HandleKeyPress(dt);
-
-	if (KeyboardController::GetInstance()->IsKeyDown('I'))
-		light[0].position.z -= static_cast<float>(dt) * 5.f;
-	if (KeyboardController::GetInstance()->IsKeyDown('K'))
-		light[0].position.z += static_cast<float>(dt) * 5.f;
-	if (KeyboardController::GetInstance()->IsKeyDown('J'))
-		light[0].position.x -= static_cast<float>(dt) * 5.f;
-	if (KeyboardController::GetInstance()->IsKeyDown('L'))
-		light[0].position.x += static_cast<float>(dt) * 5.f;
-	if (KeyboardController::GetInstance()->IsKeyDown('O'))
-		light[0].position.y -= static_cast<float>(dt) * 5.f;
-	if (KeyboardController::GetInstance()->IsKeyDown('P'))
-		light[0].position.y += static_cast<float>(dt) * 5.f;
-
-	camera.Update(dt);
 
 	// Prevent camera from going below ground after camera updates
 	if (camera.position.y < 3.0f) {
@@ -259,12 +248,18 @@ void Scene04::Update(double dt)
 		camera.Init(camera.position, camera.target, camera.up);
 	}
 
-	HandleMouseInput();
-
-	//physics
+	camera.Update(dt);
 
 	
 
+}
+
+void Scene04::balls_update(double dt) {
+	//gravity
+	for (int i = 0; i < ball_num; i++) {
+		ball->AddForce(glm::vec3(0, gravity, 0));
+	}
+	//collisions
 }
 
 void Scene04::RenderSkybox()
@@ -673,6 +668,19 @@ void Scene04::HandleKeyPress(double dt)
 		camera.position += forward * movement;
 		camera.target += forward * movement;
 	}
+
+	if (KeyboardController::GetInstance()->IsKeyDown('I'))
+		light[0].position.z -= static_cast<float>(dt) * 5.f;
+	if (KeyboardController::GetInstance()->IsKeyDown('K'))
+		light[0].position.z += static_cast<float>(dt) * 5.f;
+	if (KeyboardController::GetInstance()->IsKeyDown('J'))
+		light[0].position.x -= static_cast<float>(dt) * 5.f;
+	if (KeyboardController::GetInstance()->IsKeyDown('L'))
+		light[0].position.x += static_cast<float>(dt) * 5.f;
+	if (KeyboardController::GetInstance()->IsKeyDown('O'))
+		light[0].position.y -= static_cast<float>(dt) * 5.f;
+	if (KeyboardController::GetInstance()->IsKeyDown('P'))
+		light[0].position.y += static_cast<float>(dt) * 5.f;
 
 	// Clamp camera height to adjusted limits
 	if (camera.position.y < 3.3f) {

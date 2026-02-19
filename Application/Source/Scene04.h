@@ -146,6 +146,7 @@ private:
 	//functions
 
 	bool OverlapCircle2CYLINDER(const glm::vec3& pos1, float r1, const glm::vec3& pos2, float width,float height);
+	void balls_update(double dt);
 
 };
 
