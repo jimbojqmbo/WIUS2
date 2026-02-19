@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Vector3.h"
+#include <glm\glm.hpp>
 
 class PhysicsObject
 {
@@ -9,9 +9,9 @@ public:
 	virtual ~PhysicsObject() = default;
 
 	//for linear movement
-	Vector3 pos;
-	Vector3 vel;
-	Vector3 accel;
+	glm::vec3 pos;
+	glm::vec3 vel;
+	glm::vec3 accel;
 	float mass;
 
 	//for angular movement
@@ -21,10 +21,10 @@ public:
 	//misc
 	float bounciness;
 
-	void AddForce(const Vector3& force); //add a pushing force through the center of mass
-	void AddImpulse(const Vector3& impulse); //an impulse results in an immediate change in velocity
+	void AddForce(const glm::vec3& force); //add a pushing force through the center of mass
+	void AddImpulse(const glm::vec3& impulse); //an impulse results in an immediate change in velocity
 	void UpdatePhysics(float dt);
 
 protected:
-	Vector3 m_totalForces;
+	glm::vec3 m_totalForces;
 };

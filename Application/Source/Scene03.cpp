@@ -226,8 +226,6 @@ void Scene03::HandleMouseInput() {
 	deltaY *= mouseSensitivity;
 
 	// Update camera rotation based on mouse movement
-	// This depends on your AltAzCamera implementation
-	// Typical approach:
 	camera.azimuth += static_cast<float>(deltaX);
 	camera.altitude += static_cast<float>(deltaY);
 
@@ -251,6 +249,21 @@ void Scene03::HandleMouseInput() {
 
 	// Re-init so FPCamera::Refresh() recalculates 'up' and other derived vectors
 	camera.Init(camera.position, camera.target, glm::vec3(0.0f, 3.0f, 0.0f));
+	
+	/*if (MouseController::GetInstance()->IsButtonPressed(0)) {
+		PhysicsObject ball;
+		ball.pos = camera.position;
+		ball.accel.Set(0, -300.f, 0);
+
+		Vector3 disp = camera.target - camera.position;
+
+		if (disp.IsZero() == false) {
+			disp.Normalize();
+			ball.vel = disp * 200.f;
+		}
+
+		projectiles.push_back(ball);
+	}*/
 }
 
 void Scene03::Update(double dt)

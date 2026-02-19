@@ -11,6 +11,8 @@
 #include "MatrixStack.h"
 #include "Light.h"
 #include "FPCamera.h"
+#include "PhysicsObject.h"
+#include <vector>
 
 class Scene03 : public Scene
 {
@@ -29,23 +31,8 @@ public:
 		GEO_GUI,
 		GEO_CYLINDER,
 		GEO_TEXT,
-		GEO_SHADOW,
-
-		GEO_NOTE,
-
-		GEO_SPARKLING_STAR,
-
-		GEO_PEWPEW,
 
 		GEO_GRASS,
-
-		GEO_PINETREE,
-		GEO_ABANDONEDHOUSE,
-
-		GEO_FLASHLIGHT,
-
-		GEO_EYEBALL,
-		GEO_EYEBALL_MTL,
 
 		NUM_GEOMETRY,
 	};
@@ -95,8 +82,18 @@ public:
 	virtual void Exit();
 
 private:
+	// Functions
 	void HandleKeyPress(double dt);
 	void RenderMesh(Mesh* mesh, bool enableLight);
+
+	void RenderSkybox();
+
+	void RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey);
+
+	void HandleMouseInput();
+
+	void RenderText(Mesh* mesh, std::string text, glm::vec3 color);
+	void RenderTextOnScreen(Mesh* mesh, std::string text, glm::vec3 color, float size, float x, float y);
 
 	unsigned m_vertexArrayID;
 	Mesh* meshList[NUM_GEOMETRY];
@@ -114,15 +111,6 @@ private:
 	Light light[NUM_LIGHTS];
 	bool enableLight;
 
-	void RenderSkybox();
-
-	void RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey);
-
-	void HandleMouseInput();
-
-	void RenderText(Mesh* mesh, std::string text, glm::vec3 color);
-	void RenderTextOnScreen(Mesh* mesh, std::string text, glm::vec3 color, float size, float x, float y);
-
 	glm::vec3 change;
 
 	// Mouse control
@@ -132,6 +120,9 @@ private:
 	double lastMouseY = 300.0;
 
 	float moveSpeed = 5.0f;
+
+	// Objects for collision detection
+	std::vector<PhysicsObject> projectiles;
 };
 
 #endif

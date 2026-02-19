@@ -6,12 +6,12 @@ PhysicsObject::PhysicsObject()
 {
 }
 
-void PhysicsObject::AddForce(const Vector3& force)
+void PhysicsObject::AddForce(const glm::vec3& force)
 {
 	m_totalForces += force;
 }
 
-void PhysicsObject::AddImpulse(const Vector3& impulse)
+void PhysicsObject::AddImpulse(const glm::vec3& impulse)
 {
 	//TODO
 	if (mass == 0)
@@ -23,7 +23,7 @@ void PhysicsObject::AddImpulse(const Vector3& impulse)
 void PhysicsObject::UpdatePhysics(float dt)
 {
 	//TODO
-	Vector3 finalAccel = accel;
+	glm::vec3 finalAccel = accel;
 	if (mass > 0)
 	{
 		finalAccel += m_totalForces * (1.f / mass);
@@ -34,5 +34,5 @@ void PhysicsObject::UpdatePhysics(float dt)
 
 	angleDeg += angularVel * dt;
 
-	m_totalForces.SetZero();
+	m_totalForces = glm::vec3(0.f);
 }
