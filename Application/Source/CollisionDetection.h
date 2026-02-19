@@ -12,13 +12,6 @@ struct CollisionData
 	PhysicsObject* pObj2;
 };
 
-// Math Functions
-float LengthSquared(const glm::vec3& vector);
-bool IsZero(const glm::vec3 vector);
-float Length(const glm::vec3 vector);
-glm::vec3 Normalize(const glm::vec3& vector);
-float Dot(glm::vec3 vector1, glm::vec3 vector2);
-
 //global collision detection functions
 bool OverlapCircle2Circle(const glm::vec3& pos1, float r1, const glm::vec3& pos2, float r2);
 bool OverlapCircle2Circle(PhysicsObject& circle1, float r1, PhysicsObject& circle2, float r2, CollisionData& cd);
