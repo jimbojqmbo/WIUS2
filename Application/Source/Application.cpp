@@ -159,7 +159,7 @@ void Application::Run()
 	Scene* scene03 = new Scene03();
 	Scene* scene04 = new Scene04();
 
-	Scene* scene = scene1;
+	Scene* scene = scene03;
 	scene->Init();
 
 	sceneNum = SCENE_GUI;

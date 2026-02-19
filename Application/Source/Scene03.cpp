@@ -142,6 +142,9 @@ void Scene03::Init()
 	meshList[GEO_GUI] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_GUI]->textureID = LoadTGA("Images//blackblack.tga");
 
+	meshList[GEO_BASKETBALL] = MeshBuilder::GenerateOBJMTL("Basketball", "Models//basketball.obj", "Models//basketball.mtl");
+	meshList[GEO_BASKETBALL]->textureID = LoadTGA("Images//basketball.tga");
+
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
 
@@ -442,6 +445,10 @@ void Scene03::Render()
 		camera.up.x, camera.up.y, camera.up.z
 	);
 
+	glm::vec3 forward = glm::normalize(camera.target - camera.position);
+	glm::vec3 right = glm::normalize(glm::cross(forward, camera.up));
+	glm::vec3 up = glm::normalize(camera.up);
+
 	// Load identity matrix into the model stack
 	modelStack.LoadIdentity();
 
@@ -481,6 +488,22 @@ void Scene03::Render()
 	// Skybox - now renders at world origin without accumulated transforms
 	RenderSkybox();
 
+	modelStack.PushMatrix();
+	modelStack.Translate(camera.position.x, camera.position.y, camera.position.z);
+	glm::vec3 offset =
+		forward * 1.5f +   // forward
+		right * 0.7f +  // right
+		up * -0.6f;   // down
+	modelStack.Translate(offset.x, offset.y, offset.z);
+	glm::mat4 viewRotation = viewStack.Top();
+	viewRotation[3] = glm::vec4(0, 0, 0, 1);
+	glm::mat4 inverseRotation = glm::inverse(viewRotation);
+	modelStack.MultMatrix(inverseRotation);
+	modelStack.Scale(0.008f, 0.008f, 0.008f);
+	RenderMesh(meshList[GEO_BASKETBALL], false);
+	modelStack.PopMatrix();
+
+
 	// grass tiled from -100 to 100 on X and Z, keep existing scale (5,1,5)
 	modelStack.PushMatrix();
 	{
@@ -505,6 +528,11 @@ void Scene03::Render()
 		// keep the ambient material tweak from original code
 		meshList[GEO_GRASS]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
 	}
+	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	modelStack.Scale(1.f, 1.f, 1.f);
+	RenderTextOnScreen(meshList[GEO_TEXT], "+", glm::vec3(1, 1, 1), 40, 392, 282);
 	modelStack.PopMatrix();
 }
 
@@ -624,42 +652,74 @@ void Scene03::HandleKeyPress(double dt)
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_W))
 	{
 		// Move forward
-		float movement = moveSpeed * static_cast<float>(dt);
-		camera.position += forward * movement;
-		camera.target += forward * movement;
+
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT_SHIFT)) {
+			float sprintmovement = (1.5 * moveSpeed) * static_cast<float>(dt);
+			camera.position += forward * sprintmovement;
+			camera.target += forward * sprintmovement;
+		}
+		else {
+			float movement = moveSpeed * static_cast<float>(dt);
+			camera.position += forward * movement;
+			camera.target += forward * movement;
+		}
 	}
 
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_S))
 	{
 		// Move backward
-		float movement = moveSpeed * static_cast<float>(dt);
-		camera.position -= forward * movement;
-		camera.target -= forward * movement;
+
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT_SHIFT)) {
+			float sprintmovement = (1.5 * moveSpeed) * static_cast<float>(dt);
+			camera.position -= forward * sprintmovement;
+			camera.target -= forward * sprintmovement;
+		}
+		else {
+			float movement = moveSpeed * static_cast<float>(dt);
+			camera.position -= forward * movement;
+			camera.target -= forward * movement;
+		}
 	}
 
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_A))
 	{
 		// Move left (strafe)
-		float movement = moveSpeed * static_cast<float>(dt);
-		camera.position -= right * movement;
-		camera.target -= right * movement;
+
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT_SHIFT)) {
+			float sprintmovement = (1.5 * moveSpeed) * static_cast<float>(dt);
+			camera.position -= right * sprintmovement;
+			camera.target -= right * sprintmovement;
+		}
+		else {
+			float movement = moveSpeed * static_cast<float>(dt);
+			camera.position -= right * movement;
+			camera.target -= right * movement;
+		}
 	}
 
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_D))
 	{
 		// Move right (strafe)
-		float movement = moveSpeed * static_cast<float>(dt);
-		camera.position += right * movement;
-		camera.target += right * movement;
+
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT_SHIFT)) {
+			float sprintmovement = (1.5 * moveSpeed) * static_cast<float>(dt);
+			camera.position += right * sprintmovement;
+			camera.target += right * sprintmovement;
+		}
+		else {
+			float movement = moveSpeed * static_cast<float>(dt);
+			camera.position += right * movement;
+			camera.target += right * movement;
+		}
 	}
 
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT_SHIFT))
-	{
-		// sprint at 10.f
-		float movement = (1.5 * moveSpeed) * static_cast<float>(dt);
-		camera.position += forward * movement;
-		camera.target += forward * movement;
-	}
+	//if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT_SHIFT))
+	//{
+	//	// sprint at 10.f
+	//	float sprintmovement = (1.5 * moveSpeed) * static_cast<float>(dt);
+	//	camera.position += forward * sprintmovement;
+	//	camera.target += forward * sprintmovement;
+	//}
 
 	// Clamp camera height to adjusted limits
 	/*if (camera.position.y < 3.3f) {

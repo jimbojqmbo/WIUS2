@@ -30,6 +30,7 @@ public:
 		GEO_CYLINDER,
 		GEO_TEXT,
 		GEO_GRASS,
+		GEO_BASKETBALL,
 		NUM_GEOMETRY,
 	};
 
@@ -114,7 +115,7 @@ private:
 	double lastMouseX = 400.0;  // Center of 800x600 window
 	double lastMouseY = 300.0;
 
-	float moveSpeed = 50.0f;
+	float moveSpeed = 20.0f;
 };
 
 #endif
