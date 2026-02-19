@@ -1,3 +1,5 @@
+//Alvin
+
 #include "Scene03.h"
 #include "Mesh.h"
 #include "GL\glew.h"
@@ -109,38 +111,38 @@ void Scene03::Init()
 	meshList[GEO_LEFT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
 	//meshList[GEO_LEFT]->textureID = LoadTGA("Images//blackblack.tga");
 	//meshList[GEO_LEFT]->textureID = LoadTGA("Images//whitesky//whiteskyleft.tga");
-	meshList[GEO_LEFT]->textureID = LoadTGA("Images//redleft copy.tga");
+	meshList[GEO_LEFT]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Left.tga");
 	//meshList[GEO_LEFT]->textureID = LoadTGA("Images//left.tga");
 
 	meshList[GEO_RIGHT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
 	//meshList[GEO_RIGHT]->textureID = LoadTGA("Images//blackblack.tga");
 	//meshList[GEO_RIGHT]->textureID = LoadTGA("Images//whitesky//whiteskyright.tga");
-	meshList[GEO_RIGHT]->textureID = LoadTGA("Images//redright copy.tga");
+	meshList[GEO_RIGHT]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Right.tga");
 	//meshList[GEO_RIGHT]->textureID = LoadTGA("Images//right.tga");
 
 	meshList[GEO_BACK] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
 	//meshList[GEO_BACK]->textureID = LoadTGA("Images//blackblack.tga");
 	//meshList[GEO_BACK]->textureID = LoadTGA("Images//whitesky//whiteskyback.tga");
-	meshList[GEO_BACK]->textureID = LoadTGA("Images//redback copy.tga");
+	meshList[GEO_BACK]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Back.tga");
 	//meshList[GEO_BACK]->textureID = LoadTGA("Images//back.tga");
 
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
 	//meshList[GEO_FRONT]->textureID = LoadTGA("Images//blackblack.tga");
 	//meshList[GEO_FRONT]->textureID = LoadTGA("Images//whitesky//whiteskyfront.tga");
-	meshList[GEO_FRONT]->textureID = LoadTGA("Images//redfront copy.tga");
+	meshList[GEO_FRONT]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Front.tga");
 	//meshList[GEO_FRONT]->textureID = LoadTGA("Images//front.tga");
 
 	meshList[GEO_TOP] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
 	//meshList[GEO_TOP]->textureID = LoadTGA("Images//saharatop.tga");
 	//meshList[GEO_TOP]->textureID = LoadTGA("Images//top.tga");
 	//meshList[GEO_TOP]->textureID = LoadTGA("Images//whitesky//whiteskytop.tga");
-	meshList[GEO_TOP]->textureID = LoadTGA("Images//redtop copy.tga");
+	meshList[GEO_TOP]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Top.tga");
 	//meshList[GEO_TOP]->textureID = LoadTGA("Images//bigblackmoon.tga");
 
 	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
 	//meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//blackblack.tga");
 	//meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//whitesky//whiteskybottom.tga");
-	meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//redbottom copy.tga");
+	meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Bottom.tga");
 	//meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//bottom.tga");
 
 	//meshList[GEO_QUAD]->textureID = LoadTGA("Images//NYP.tga");
@@ -282,57 +284,47 @@ void Scene03::Update(double dt)
 
 }
 
-void Scene03::RenderSkybox()
-{
-	// Front face (no rotation needed if quad faces -Z by default)
+void Scene03::RenderSkybox() {
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 0.f, -500.f);
-	modelStack.Scale(10.f, 10.f, 10.f);
-	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+	// Offset in Z direction by -50 units
+	modelStack.Translate(0.f, 0.f, -50.f);
+	meshList[GEO_FRONT]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
 	RenderMesh(meshList[GEO_FRONT], false);
 	modelStack.PopMatrix();
 
-	// Back face (rotate 180 degrees around Y)
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 0.f, 500.f);
-	modelStack.Rotate(-180.f, 1.f, 1.f, 0.f);
-	modelStack.Scale(10.f, 10.f, 10.f);
+	// Offset in Z direction by -50 units
+	modelStack.Translate(0.f, 0.f, 50.f);
+	modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+	meshList[GEO_BACK]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
 	RenderMesh(meshList[GEO_BACK], false);
 	modelStack.PopMatrix();
 
-	// Left face (rotate 90 degrees around Y)
 	modelStack.PushMatrix();
-	modelStack.Translate(-500.f, 0.f, 0.f);
+	modelStack.Translate(-50.f, 0.f, 0.f);
 	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
-	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
-	modelStack.Scale(10.f, 10.f, 10.f);
+	meshList[GEO_LEFT]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
 	RenderMesh(meshList[GEO_LEFT], false);
 	modelStack.PopMatrix();
 
-	// Right face (rotate -90 degrees around Y)
 	modelStack.PushMatrix();
-	modelStack.Translate(500.f, 0.f, 0.f);
-	modelStack.Rotate(-90.f, 0.f, 1.f, 0.f);
-	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
-	modelStack.Scale(10.f, 10.f, 10.f);
+	modelStack.Translate(50.f, 0.f, 0.f);
+	modelStack.Rotate(90.f, 0.f, -1.f, 0.f);
+	meshList[GEO_RIGHT]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
 	RenderMesh(meshList[GEO_RIGHT], false);
 	modelStack.PopMatrix();
 
-	// Top face (rotate -90 degrees around X)
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 500.f, 0.f);
+	modelStack.Translate(0.f, 50.f, 0.f);
 	modelStack.Rotate(90.f, 1.f, 0.f, 0.f);
-	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
-	modelStack.Scale(10.f, 10.f, 10.f);
+	meshList[GEO_TOP]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
 	RenderMesh(meshList[GEO_TOP], false);
 	modelStack.PopMatrix();
 
-	// Bottom face (rotate 90 degrees around X)
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, -500.f, 0.f);
-	modelStack.Scale(10.f, 10.f, 10.f); // CHANGE TO 10
-	modelStack.Rotate(-90.f, 1.f, 0.f, 0.f);
-	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+	modelStack.Translate(0.f, -50.f, 0.f);
+	modelStack.Rotate(90.f, -1.f, 0.f, 0.f);
+	meshList[GEO_BOTTOM]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
 	RenderMesh(meshList[GEO_BOTTOM], false);
 	modelStack.PopMatrix();
 }
@@ -691,7 +683,7 @@ void Scene03::HandleKeyPress(double dt)
 	}
 
 	// Clamp camera height to adjusted limits
-	if (camera.position.y < 3.3f) {
+	/*if (camera.position.y < 3.3f) {
 		camera.position.y = 3.3f;
 		if (camera.target.y < 3.3f)
 			camera.target.y = 3.3f;
@@ -700,5 +692,5 @@ void Scene03::HandleKeyPress(double dt)
 		camera.position.y = 3.8f;
 		if (camera.target.y > 3.8f)
 			camera.target.y = 3.8f;
-	}
+	}*/
 }

@@ -1,5 +1,3 @@
-//psylockesleftthigh
-
 #include "Scene02.h"
 #include "Mesh.h"
 #include "GL\glew.h"

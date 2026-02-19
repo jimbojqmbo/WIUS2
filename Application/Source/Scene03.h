@@ -1,3 +1,5 @@
+//Alvin
+
 #ifndef SCENE_03_H
 #define SCENE_03_H
 
@@ -129,7 +131,7 @@ private:
 	double lastMouseX = 400.0;  // Center of 800x600 window
 	double lastMouseY = 300.0;
 
-	float moveSpeed = 5.0f;
+	float moveSpeed = 50.0f;
 };
 
 #endif
