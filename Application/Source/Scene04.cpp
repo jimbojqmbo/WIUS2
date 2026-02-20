@@ -631,35 +631,57 @@ void Scene04::HandleKeyPress(double dt)
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_W))
 	{
 		// Move forward
-		float movement = moveSpeed * static_cast<float>(dt);
-		camera.position += forward * movement;
-		camera.target += forward * movement;
+
+		glm::vec3 view = glm::normalize(camera.target - camera.position);
+		glm::vec3 oldpos = camera.position;
+
+		camera.position.x += view.x * 0.1;
+		camera.position.z += view.z * 0.1;
+
+		camera.target = camera.position + view;
+
 	}
 
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_S))
 	{
 		// Move backward
-		float movement = moveSpeed * static_cast<float>(dt);
-		camera.position -= forward * movement;
-		camera.target -= forward * movement;
+		glm::vec3 view = glm::normalize(camera.target - camera.position);
+
+		glm::vec3 oldpos = camera.position;
+
+		camera.position.x -= view.x * 0.1;
+		camera.position.z -= view.z * 0.1;
+
+		camera.target = camera.position + view;
 	}
 
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_A))
 	{
 		// Move left (strafe)
-		float movement = moveSpeed * static_cast<float>(dt);
-		camera.position -= right * movement;
-		camera.target -= right * movement;
+		glm::vec3 view = glm::normalize(camera.target - camera.position);
+		glm::vec3 right = glm::normalize(glm::cross(view, camera.up));
+
+		glm::vec3 oldpos = camera.position;
+		glm::vec3 oldtar = camera.target;
+
+		camera.position -= right * glm::vec3(0.1);// *speed; 
+		camera.target -= right * glm::vec3(0.1);// *speed;
+
 	}
 
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_D))
 	{
 		// Move right (strafe)
-		float movement = moveSpeed * static_cast<float>(dt);
-		camera.position += right * movement;
-		camera.target += right * movement;
-	}
+		glm::vec3 view = glm::normalize(camera.target - camera.position);
+		glm::vec3 right = glm::normalize(glm::cross(view, camera.up));
 
+		glm::vec3 oldpos = camera.position;
+		glm::vec3 oldtar = camera.target;
+
+		camera.position += right * glm::vec3(0.1);// *speed; 
+		camera.target += right * glm::vec3(0.1);// *speed;
+	}
+	/*
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT_SHIFT))
 	{
 		// sprint at 10.f
@@ -667,6 +689,7 @@ void Scene04::HandleKeyPress(double dt)
 		camera.position += forward * movement;
 		camera.target += forward * movement;
 	}
+	*/
 
 	if (KeyboardController::GetInstance()->IsKeyDown('I'))
 		light[0].position.z -= static_cast<float>(dt) * 5.f;

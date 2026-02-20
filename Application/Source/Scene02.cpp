@@ -1,3 +1,5 @@
+// Jayren's Scene
+
 #include "Scene02.h"
 #include "Mesh.h"
 #include "GL\glew.h"
@@ -151,6 +153,8 @@ void Scene02::Init()
 	meshList[GEO_GRASS] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
 	meshList[GEO_GRASS]->textureID = LoadTGA("Images//coast_sand_rocks_02 copy.tga");
 
+	meshList[GEO_WALL] = MeshBuilder::GenerateCube("Wall", glm::vec3(1.f, 1.f, 1.f), 1.f);
+
 	//meshList[GEO_GUI] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	//meshList[GEO_GUI]->textureID = LoadTGA("Images//color.tga");
 
@@ -190,9 +194,15 @@ void Scene02::Init()
 	glUniform1f(m_parameters[U_LIGHT0_EXPONENT], light[0].exponent);
 
 	enableLight = true;
+	enableHitbox = false;
 
 	m_parameters[U_TEXT_ENABLED] = glGetUniformLocation(m_programID, "textEnabled");
 	m_parameters[U_TEXT_COLOR] = glGetUniformLocation(m_programID, "textColor");
+
+	// Create Invis Walls
+	{
+		walls.push_back(PhysicsObject(10.f,1.f,10.f, glm::vec3 (0.f,0.f,0.f)));
+	}
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -250,6 +260,28 @@ void Scene02::HandleMouseInput()
 
 	// Re-init so FPCamera::Refresh() recalculates 'up' and other derived vectors
 	camera.Init(camera.position, camera.target, glm::vec3(0.0f, 3.0f, 0.0f));
+
+	if (MouseController::GetInstance()->IsButtonPressed(0))
+	{
+		PhysicsObject ball;
+
+		glm::vec3 forward = glm::normalize(camera.target - camera.position);
+		glm::vec3 right = glm::normalize(glm::cross(forward, camera.up));
+		glm::vec3 up = glm::normalize(camera.up);
+
+		float spawnOffset = 5.0f;
+
+		ball.pos = camera.position
+			+ forward * 5.0f
+			+ right * 1.0f
+			- up * 2.f; 
+
+		ball.vel = forward * 200.f;
+
+		ball.accel = glm::vec3(0, -100.f, 0);
+
+		projectiles.push_back(ball);
+	}
 }
 
 void Scene02::Update(double dt)
@@ -281,6 +313,25 @@ void Scene02::Update(double dt)
 
 	HandleMouseInput();
 
+	for (size_t i = 0; i < projectiles.size(); i++) {
+		PhysicsObject& ball = projectiles[i];
+		ball.UpdatePhysics(dt);
+
+		if (ball.pos.y < -10.f)
+		{
+			projectiles.erase(projectiles.begin() + i);
+			i--;
+		}
+	}
+
+	/*for (int i = 0; i < walls.size(); i++) {
+		PhysicsObject& wall = walls[i];
+		modelStack.PushMatrix();
+		modelStack.Translate(wall.pos.x, wall.pos.y, wall.pos.z);
+		modelStack.Scale(wall.sizeX, wall.sizeY, wall.sizeZ);
+		RenderMesh(meshList[GEO_WALL], false);
+		modelStack.PopMatrix();
+	}*/
 }
 
 void Scene02::RenderSkybox()
@@ -408,8 +459,7 @@ void Scene02::RenderText(Mesh* mesh, std::string text, glm::vec3 color)
 }
 
 
-void Scene02::RenderTextOnScreen(Mesh* mesh, std::string
-	text, glm::vec3 color, float size, float x, float y)
+void Scene02::RenderTextOnScreen(Mesh* mesh, std::string text, glm::vec3 color, float size, float x, float y)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
 		return;
@@ -536,6 +586,34 @@ void Scene02::Render()
 		meshList[GEO_GRASS]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
 	}
 	modelStack.PopMatrix();
+
+	meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+	meshList[GEO_SPHERE]->material.kShininess = 5.0f;
+
+	// Render Projectiles
+	for (int i=0;i<projectiles.size();i++) {
+		PhysicsObject& ball = projectiles[i];
+		modelStack.PushMatrix();
+		modelStack.Translate(ball.pos.x, ball.pos.y, ball.pos.z);
+		modelStack.Scale(0.5f, 0.5f, 0.5f);
+		RenderMesh(meshList[GEO_SPHERE], true);
+		modelStack.PopMatrix();
+	}
+
+	// Render Walls
+
+	if (enableHitbox) {
+		for (int i = 0; i < walls.size(); i++) {
+			PhysicsObject& wall = walls[i];
+			modelStack.PushMatrix();
+			modelStack.Translate(wall.pos.x, wall.pos.y, wall.pos.z);
+			modelStack.Scale(wall.sizeX, wall.sizeY, wall.sizeZ);
+			RenderMesh(meshList[GEO_WALL], false);
+			modelStack.PopMatrix();
+		}
+	}
 }
 
 void Scene02::RenderMesh(Mesh* mesh, bool enableLight)
@@ -645,6 +723,11 @@ void Scene02::HandleKeyPress(double dt)
 
 		glUniform1i(m_parameters[U_LIGHT0_TYPE], light[0].type);
 	};
+
+	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_H))
+	{
+		enableHitbox = !enableHitbox;
+	}
 
 	// Calculate forward and right vectors based on camera orientation
 	glm::vec3 forward = glm::normalize(camera.target - camera.position);

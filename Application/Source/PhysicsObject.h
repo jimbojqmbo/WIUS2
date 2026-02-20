@@ -11,7 +11,12 @@ class PhysicsObject
 {
 public:
 	PhysicsObject();
+	PhysicsObject(float sizeX, float sizeY, float sizeZ, glm::vec3 pos);
 	virtual ~PhysicsObject() = default;
+
+	float sizeX;
+	float sizeY;
+	float sizeZ;
 
 	//for linear movement
 	glm::vec3 pos;
