@@ -125,6 +125,8 @@ private:
 	std::vector<PhysicsObject> walls;
 
 	bool enableHitbox;
+	float fps;
+	bool wasMousePressed = false;
 };
 
 #endif
