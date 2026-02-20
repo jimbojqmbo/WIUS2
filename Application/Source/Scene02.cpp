@@ -334,9 +334,7 @@ void Scene02::Update(double dt)
 	}*/
 }
 
-void Scene02::RenderSkybox()
-{
-	// Front face (no rotation needed if quad faces -Z by default)
+void Scene02::RenderSkybox() {
 	modelStack.PushMatrix();
 	modelStack.Translate(0.f, 0.f, -500.f);
 	modelStack.Scale(10.f, 10.f, 10.f);
