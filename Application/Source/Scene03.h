@@ -10,7 +10,11 @@
 #include "Light.h"
 #include "FPCamera.h"
 #include "PhysicsObject.h"
+#include "CollisionDetection.h"
 #include <vector>
+#include <windows.h>
+#include "mmsystem.h"
+#pragma comment(lib, "winmm.lib")
 
 class Scene03 : public Scene
 {
@@ -18,6 +22,7 @@ public:
 	struct Ball
 	{
 		bool active;
+		bool hitBoard;
 	};
 
 	std::vector<PhysicsObject> balls;
@@ -100,6 +105,8 @@ private:
 	void RenderText(Mesh* mesh, std::string text, glm::vec3 color);
 	void RenderTextOnScreen(Mesh* mesh, std::string text, glm::vec3 color, float size, float x, float y);
 
+	bool OverlapCircle2AABB(glm::vec3 circlePos, float radius, glm::vec3 boxMin, glm::vec3 boxMax);
+
 	unsigned m_vertexArrayID;
 	Mesh* meshList[NUM_GEOMETRY];
 
@@ -133,9 +140,15 @@ private:
 	bool mousePreviouslyDown = false;
 
 	glm::vec3 hoopPosition = glm::vec3(0.f, 0.f, 0.f);
-	float hoopSpeed = 6.7f;
+	float hoopSpeed = 0.f;
 	int hoopDirection = 1;   // 1 = right, -1 = left
 	float hoopLimit = 5.f;  // how far left/right it can move
+
+	float boardMinX = -2.2f;
+	float boardMaxX = 2.2f;
+	float boardMinY = 5.5f;
+	float boardMaxY = 8.5f;
+	float boardZ = 2.3f;
 };
 
 #endif

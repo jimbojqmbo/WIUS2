@@ -136,15 +136,16 @@ bool OverlapCircle2Line(const glm::vec3& circlePos, float radius,
 }
 
 // Circle vs OBB (implement as circle vs AABB aligned with axes centered on box.pos using half-extents w,h)
-bool OverlapCircle2OBB(PhysicsObject& circle, float radius, PhysicsObject& box, float w, float h, CollisionData& cd)
+bool OverlapCircle2OBB(PhysicsObject& circle, float radius, PhysicsObject& box, float w, float h,float w2, CollisionData& cd)
 {
-	glm::vec3 min = box.pos - glm::vec3(w, h, 0.f);
-	glm::vec3 max = box.pos + glm::vec3(w, h, 0.f);
+	glm::vec3 min = box.pos - glm::vec3(w, h, w2);
+	glm::vec3 max = box.pos + glm::vec3(w, h, w2);
 
 	// closest point on AABB to circle center
 	float cx = std::max(min.x, std::min(circle.pos.x, max.x));
 	float cy = std::max(min.y, std::min(circle.pos.y, max.y));
-	glm::vec3 closest(cx, cy, 0.f);
+	float cz = std::max(min.z, std::min(circle.pos.z, max.z));
+	glm::vec3 closest(cx, cy, cz);
 
 	glm::vec3 diff = circle.pos - closest;
 	float dist2 = glm::dot(diff, diff);
@@ -373,4 +374,31 @@ void ResolveCircle2StaticLine(PhysicsObject& ball, float radius, const glm::vec3
 		float vn = glm::dot(ball.vel, normal);
 		ball.vel -= normal * vn;
 	}
+}
+bool OverlapCircle2AABB(glm::vec3 circlePos, float radius, glm::vec3 boxPos, glm::vec3 box_daimension)
+{
+
+	glm::vec3 boxMin;
+	boxMin = glm::vec3(boxPos.x-(box_daimension.x/2), boxPos.y - (box_daimension.y / 2), boxPos.z - (box_daimension.z / 2));
+	glm::vec3 boxMax;
+	boxMax = glm::vec3(boxPos.x + (box_daimension.x / 2), boxPos.y + (box_daimension.y / 2), boxPos.z + (box_daimension.z / 2));
+
+	int nearx = circlePos.x;
+	if (nearx < boxMin.x) {
+		nearx = boxMin.x;
+	}
+	else if (nearx > boxMax.x) {
+		nearx = boxMax.x;
+	}
+	int neary = circlePos.y;
+	if (neary < boxMin.y) {
+		neary = boxMin.y;
+	}
+	else if (neary > boxMax.y) {
+		neary = boxMax.y;
+	}
+	int distx = circlePos.x - nearx;
+	int disty = circlePos.y - neary;
+
+	return (distx * distx + disty * disty) <= (radius * radius);
 }

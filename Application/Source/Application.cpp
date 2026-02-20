@@ -228,6 +228,22 @@ void Application::Run()
 			isEnterUp = false;
 		}
 
+		// === FROM SCENE01 to MAIN MENU ===
+		if (!isEnterUp && KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_BACKSPACE)) {
+			if (sceneNum == SCENE_01) {
+				scene2->Exit();
+				scene1->Init();
+				scene = scene1;
+				sceneNum = SCENE_04;
+
+				glViewport(0, 0, 1600, 900);
+			}
+			isEnterUp = true;
+		}
+		else if (isEnterUp && KeyboardController::GetInstance()->IsKeyUp(GLFW_KEY_BACKSPACE)) {
+			isEnterUp = false;
+		}
+
 		if (KeyboardController::GetInstance()->IsKeyPressed('N'))
 		{
 			enablePointer = false;

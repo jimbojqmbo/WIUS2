@@ -28,6 +28,7 @@ public:
 		GEO_CYLINDER,
 		GEO_TEXT,
 		GEO_SHADOW,
+		GEO_CUBE,
 
 		GEO_NOTE,
 
@@ -149,13 +150,17 @@ private:
 	float gravity = -10;
 	//size
 	float ball_radius = 2;
+
 	float floor_space = 10;
+	float floor_height = 0.25;
 	//functions
 
 	bool OverlapCircle2CYLINDER(const glm::vec3& pos1, float r1, const glm::vec3& pos2, float width,float height);
 	void ResolveCollision(CollisionData cd);
+	//object realted
 	void balls_update(double dt);
 	void balls_render();
+	void walls_render();
 
 };
 

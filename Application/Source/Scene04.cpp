@@ -126,12 +126,12 @@ void Scene04::Init()
 	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
 	meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//redbottom copy.tga");
 
-	//ground
-
+	
+	//shapes
 	meshList[GEO_QUAD] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
-
 	meshList[GEO_CYLINDER] = MeshBuilder::GenerateCylinder("Cylinder", glm::vec3(1.f, 1.f, 1.f), 36, 1.f, 2.f);
-
+	meshList[GEO_CUBE] = MeshBuilder::GenerateCube("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
+	//ground
 	meshList[GEO_GRASS] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
 	meshList[GEO_GRASS]->textureID = LoadTGA("Images//coast_sand_rocks_02 copy.tga");
 
@@ -185,6 +185,16 @@ void Scene04::Init()
 		ball[i].pos.y = 10;
 		ball[i].pos.x = 10*i;
 	}
+	player.mass = 0;
+	player.bounciness = 1;
+	player.pos.y = 10;
+	player.pos.x = 10;
+
+	floor.mass = 0;
+	floor.bounciness = 1;
+	floor.pos.y = 0;
+	floor.pos.x = 0;
+	
 
 }
 
@@ -193,8 +203,9 @@ void Scene04::Init()
 void Scene04::Update(double dt)
 {
 	player.pos = camera.position;
-	std::cout << player.pos.x<< " " <<player.pos.z << std::endl;
-	std::cout << ball[0].pos.x << " " << ball[0].pos.z << std::endl;
+	
+	//std::cout << player.pos.x<< " " <<player.pos.z << std::endl;
+	//std::cout << ball[0].pos.x << " " << ball[0].pos.z << std::endl;
 	//physics
 	balls_update(dt);
 	//handle inputs
@@ -209,6 +220,10 @@ void Scene04::Update(double dt)
 		camera.Init(camera.position, camera.target, camera.up);
 	}
 
+	if (OverlapCircle2OBB(player, ball_radius, floor, floor_space, floor_height, floor_space, cd)) {
+		std::cout << "collided with wall" << std::endl;
+	}
+
 	camera.Update(dt);
 
 	
@@ -218,9 +233,10 @@ void Scene04::Update(double dt)
 void Scene04::balls_update(double dt) {
 
 	for (int i = 0; i < ball_num; i++) {
+		
 		//collisions
 		// ball against ball
-		for (int j = 0; j < ball_num; j++) {
+		for (int j = i + 1; j < ball_num; j++) {
 			if (OverlapCircle2Circle(ball[i], ball_radius, ball[j], ball_radius, cd)) {
 				ResolveCollision(cd);
 			}
@@ -230,22 +246,109 @@ void Scene04::balls_update(double dt) {
 			ResolveCollision(cd);
 		}
 		//ball against floor
-		/*
-		if (OverlapCircle2OBB(ball[i],ball_radius,floor,10,10,cd)) {
+		if (OverlapCircle2OBB(ball[i],ball_radius,floor,floor_space,floor_height,floor_space,cd)) {
 			ResolveCollision(cd);
+			std::cout << "ball collide with floor" << std::endl;
+		}
+		
+	}
+	for (int i = 0; i < ball_num; i++) {
+		//gravity 
+		//ball[i].AddForce(glm::vec3(0, gravity, 0));
+		ball[i].vel = glm::vec3(0, gravity, 0);
+		/*
+		if (not(ball[i].pos.y <= 0 + ball_radius)) {
+			ball[i].pos.y = ball_radius + 2;
 		}
 		*/
-		
-		//gravity 
-		ball[i].AddForce(glm::vec3(0, gravity, 0));
-		//
-		if (ball[i].pos.y < 3.0f) {
-			ball[i].pos.y = 3.0f;
-		}
 		//resolve collision
 		ball[i].UpdatePhysics(dt);
 	}
+	player.AddForce(glm::vec3(0, gravity, 0));
+	player.UpdatePhysics(dt);
 	
+}
+
+void Scene04::Render()
+{
+	// Clear color buffer every frame
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// Load view matrix stack and set it with camera position, target position and up direction
+	viewStack.LoadIdentity();
+	viewStack.LookAt(
+		camera.position.x, camera.position.y, camera.position.z,
+		camera.target.x, camera.target.y, camera.target.z,
+		camera.up.x, camera.up.y, camera.up.z
+	);
+
+	// Load identity matrix into the model stack
+	modelStack.LoadIdentity();
+
+	if (light[0].type == Light::LIGHT_DIRECTIONAL)
+	{
+		glm::vec3 lightDir(light[0].position.x, light[0].position.y, light[0].position.z);
+		glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
+		glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
+	}
+	else if (light[0].type == Light::LIGHT_SPOT)
+	{
+		glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[0].position, 1);
+		glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+		glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[0].spotDirection, 0);
+		glUniform3fv(m_parameters[U_LIGHT0_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
+	}
+	else {
+		// Calculate the light position in camera space
+		glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[0].position, 1);
+		glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+	}
+
+	// Render objects
+	//RenderMesh(meshList[GEO_AXES], false);
+
+	// Render light sphere - isolated transformations
+	modelStack.PushMatrix();
+	modelStack.Translate(camera.position.x, 15.f, camera.position.z);
+	modelStack.Scale(0.1f, 0.1f, 0.1f);
+	meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+	meshList[GEO_SPHERE]->material.kShininess = 5.0f;
+	RenderMesh(meshList[GEO_SPHERE], true);
+	modelStack.PopMatrix();
+
+	// Skybox - now renders at world origin without accumulated transforms
+	RenderSkybox();
+
+	// grass tiled from -100 to 100 on X and Z, keep existing scale (5,1,5)
+	modelStack.PushMatrix();
+	{
+		// spacing chosen to match the previous manual placement (50 units)
+		const float start = -250.f;
+		const float end = 250.f;
+		const float step = 50.f;
+		for (float x = start; x <= end; x += step)
+		{
+			for (float z = start; z <= end; z += step)
+			{
+				modelStack.PushMatrix();
+				modelStack.Translate(x, 0.f, z);
+				modelStack.Scale(5.f, 1.f, 5.f);
+				// keep original rotations so the tile faces the same way as before
+				modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+				modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+				RenderMesh(meshList[GEO_GRASS], true);
+				modelStack.PopMatrix();
+			}
+		}
+		// keep the ambient material tweak from original code
+		meshList[GEO_GRASS]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
+	}
+	modelStack.PopMatrix();
+
+	balls_render();
+	walls_render();
 }
 
 void Scene04::balls_render() {
@@ -257,6 +360,15 @@ void Scene04::balls_render() {
 		RenderMesh(meshList[GEO_SPHERE], true);
 		modelStack.PopMatrix();
 	}
+}
+
+void Scene04::walls_render(){
+	modelStack.PushMatrix();
+	modelStack.Translate(floor.pos.x, floor.pos.y, floor.pos.z);
+	modelStack.Scale(floor_space, floor_height, floor_space);
+	modelStack.Rotate(0, 1.f, 1.f, 1.f);
+	RenderMesh(meshList[GEO_CUBE], true);
+	modelStack.PopMatrix();
 }
 
 void Scene04::RenderSkybox()
@@ -297,6 +409,7 @@ void Scene04::RenderSkybox()
 
 	// Top face (rotate -90 degrees around X)
 	modelStack.PushMatrix();
+	modelStack.Translate(0.f, 500.f, 0.f);
 	modelStack.Translate(0.f, 500.f, 0.f);
 	modelStack.Rotate(90.f, 1.f, 0.f, 0.f);
 	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
@@ -435,86 +548,7 @@ void Scene04::RenderTextOnScreen(Mesh* mesh, std::string
 	glDisable(GL_BLEND);
 }
 
-void Scene04::Render()
-{
-	// Clear color buffer every frame
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// Load view matrix stack and set it with camera position, target position and up direction
-	viewStack.LoadIdentity();
-	viewStack.LookAt(
-		camera.position.x, camera.position.y, camera.position.z,
-		camera.target.x, camera.target.y, camera.target.z,
-		camera.up.x, camera.up.y, camera.up.z
-	);
-
-	// Load identity matrix into the model stack
-	modelStack.LoadIdentity();
-
-	if (light[0].type == Light::LIGHT_DIRECTIONAL)
-	{
-		glm::vec3 lightDir(light[0].position.x, light[0].position.y, light[0].position.z);
-		glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
-		glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
-	}
-	else if (light[0].type == Light::LIGHT_SPOT)
-	{
-		glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[0].position, 1);
-		glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-		glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[0].spotDirection, 0);
-		glUniform3fv(m_parameters[U_LIGHT0_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
-	}
-	else {
-		// Calculate the light position in camera space
-		glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[0].position, 1);
-		glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-	}
-
-	// Render objects
-	//RenderMesh(meshList[GEO_AXES], false);
-
-	// Render light sphere - isolated transformations
-	modelStack.PushMatrix();
-	modelStack.Translate(camera.position.x, 15.f, camera.position.z);
-	modelStack.Scale(0.1f, 0.1f, 0.1f);
-	meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
-	meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-	meshList[GEO_SPHERE]->material.kShininess = 5.0f;
-	RenderMesh(meshList[GEO_SPHERE], true);
-	modelStack.PopMatrix();
-
-	// Skybox - now renders at world origin without accumulated transforms
-	RenderSkybox();
-
-	// grass tiled from -100 to 100 on X and Z, keep existing scale (5,1,5)
-	modelStack.PushMatrix();
-	{
-		// spacing chosen to match the previous manual placement (50 units)
-		const float start = -250.f;
-		const float end = 250.f;
-		const float step = 50.f;
-		for (float x = start; x <= end; x += step)
-		{
-			for (float z = start; z <= end; z += step)
-			{
-				modelStack.PushMatrix();
-				modelStack.Translate(x, 0.f, z);
-				modelStack.Scale(5.f, 1.f, 5.f);
-				// keep original rotations so the tile faces the same way as before
-				modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
-				modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
-				RenderMesh(meshList[GEO_GRASS], true);
-				modelStack.PopMatrix();
-			}
-		}
-		// keep the ambient material tweak from original code
-		meshList[GEO_GRASS]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
-	}
-	modelStack.PopMatrix();
-
-	balls_render();
-}
 
 void Scene04::RenderMesh(Mesh* mesh, bool enableLight)
 {
@@ -633,7 +667,6 @@ void Scene04::HandleKeyPress(double dt)
 		// Move forward
 
 		glm::vec3 view = glm::normalize(camera.target - camera.position);
-		glm::vec3 oldpos = camera.position;
 
 		camera.position.x += view.x * 0.1;
 		camera.position.z += view.z * 0.1;
@@ -647,8 +680,6 @@ void Scene04::HandleKeyPress(double dt)
 		// Move backward
 		glm::vec3 view = glm::normalize(camera.target - camera.position);
 
-		glm::vec3 oldpos = camera.position;
-
 		camera.position.x -= view.x * 0.1;
 		camera.position.z -= view.z * 0.1;
 
@@ -661,9 +692,6 @@ void Scene04::HandleKeyPress(double dt)
 		glm::vec3 view = glm::normalize(camera.target - camera.position);
 		glm::vec3 right = glm::normalize(glm::cross(view, camera.up));
 
-		glm::vec3 oldpos = camera.position;
-		glm::vec3 oldtar = camera.target;
-
 		camera.position -= right * glm::vec3(0.1);// *speed; 
 		camera.target -= right * glm::vec3(0.1);// *speed;
 
@@ -674,9 +702,6 @@ void Scene04::HandleKeyPress(double dt)
 		// Move right (strafe)
 		glm::vec3 view = glm::normalize(camera.target - camera.position);
 		glm::vec3 right = glm::normalize(glm::cross(view, camera.up));
-
-		glm::vec3 oldpos = camera.position;
-		glm::vec3 oldtar = camera.target;
 
 		camera.position += right * glm::vec3(0.1);// *speed; 
 		camera.target += right * glm::vec3(0.1);// *speed;
@@ -777,7 +802,6 @@ bool Scene04::OverlapCircle2CYLINDER(const glm::vec3& pos1, float r1, const glm:
 }
 
 void Scene04::ResolveCollision(CollisionData cd) {
-
 	PhysicsObject&  o1 = *cd.pObj1;
 	PhysicsObject& o2 = *cd.pObj2;
 
@@ -786,16 +810,13 @@ void Scene04::ResolveCollision(CollisionData cd) {
 	oc.x = oc.x / 2;
 	oc.y = oc.y / 2;
 	oc.z = oc.z / 2;
-	if (o2.mass > 0.f) {
-		o1.pos -= oc;
-		o2.pos += oc;
 
-		o1.AddImpulse(-cd.collisionNormal * (1 + o1.bounciness));
+	if (o2.mass > 0.f) {
+		o2.pos += oc;
 		o2.AddImpulse(cd.collisionNormal * (1 + o2.bounciness));
 	}
-	else {
+	if (o1.mass > 0.f) {
 		o1.pos -= oc;
-		o1.AddImpulse(-cd.collisionNormal * (1 + o1.bounciness));
+		o1.AddImpulse(-(cd.collisionNormal * (1 + o1.bounciness)));
 	}
-	
 }

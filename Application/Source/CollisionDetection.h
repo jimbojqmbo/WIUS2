@@ -19,10 +19,12 @@ bool OverlapAABB2AABB(const glm::vec3& min1, const glm::vec3& max1,
 					  const glm::vec3& min2, const glm::vec3& max2);
 bool OverlapAABB2AABB(PhysicsObject& box1, float w1, float h1,
 					  PhysicsObject& box2, float w2, float h2, CollisionData& cd);
+bool OverlapCircle2AABB(glm::vec3 circlePos, float radius, glm::vec3 boxPos, glm::vec3 box_daimension);
+
 bool OverlapCircle2Line(const glm::vec3& circlePos, float radius,
 						const glm::vec3& lineStart, 
 						const glm::vec3& lineEnd);
-bool OverlapCircle2OBB(PhysicsObject& circle, float radius, PhysicsObject& box, float w, float h, CollisionData& cd);
+bool OverlapCircle2OBB(PhysicsObject& circle, float radius, PhysicsObject& box, float w, float h,float w2, CollisionData& cd);
 
 // 3D collision detection functions
 bool OverlapSphere2AABB(PhysicsObject& sphereObj, PhysicsObject& boxObj, CollisionData& cd);
