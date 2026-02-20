@@ -200,6 +200,12 @@ void Scene01::Init()
 	meshList[PAUSEMENU] = MeshBuilder::GenerateQuad("pause", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[PAUSEMENU]->textureID = LoadTGA("Images//scene01pausemenuv2.tga");
 
+	meshList[PLAYER1INDICATORUI] = MeshBuilder::GenerateQuad("player1", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[PLAYER1INDICATORUI]->textureID = LoadTGA("Images//scene01 UI//scene01player1_indicatorUI.tga");
+
+	meshList[PLAYER2INDICATORUI] = MeshBuilder::GenerateQuad("player2", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[PLAYER2INDICATORUI]->textureID = LoadTGA("Images//scene01 UI//scene01player2_indicatorUI.tga");
+
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
 
@@ -505,6 +511,7 @@ void Scene01::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, floa
 	RenderMesh(mesh, false); //UI should not have light
 
 	RenderMesh(meshList[PAUSEMENU], false);
+	RenderMesh(meshList[PLAYER1INDICATORUI], false);
 
 	projectionStack.PopMatrix();
 	viewStack.PopMatrix();
@@ -953,6 +960,12 @@ void Scene01::Render()
 
 		RenderTextOnScreen(meshList[GEO_TEXT], "Z to open menu", glm::vec3(1, 1, 1), 25, 5, 15);
 
+		/*
+		modelStack.PushMatrix();
+		RenderMeshOnScreen(meshList[PLAYER1INDICATORUI], 3, 5, 0.2, 0.2);
+		modelStack.PopMatrix();
+		*/
+
 		// RIGHT SCREEN
 		glViewport(width / 2, 0, width / 2, height);
 		glClear(GL_DEPTH_BUFFER_BIT);
@@ -975,7 +988,7 @@ void Scene01::Render()
 	if (pausemenu)
 	{
 		glViewport(0, 0, 1600, 900);
-		RenderMeshOnScreen(meshList[PAUSEMENU], 800, 450, 1, 1);
+		RenderMeshOnScreen(meshList[PAUSEMENU], 800, 450, 1600, 900);
 	}
 }
 
@@ -1052,6 +1065,8 @@ void Scene01::ResolveCameraCollisionsWithBounce(FPCamera& a, glm::vec3& velA, FP
 			velA.z += impulse.y * invMassA;
 			velB.x -= impulse.x * invMassB;
 			velB.z -= impulse.y * invMassB;
+
+			PlaySound(TEXT("Sounds//fah.wav"), NULL, SND_FILENAME | SND_ASYNC);
 		}
 
 		// Positional correction to prevent sinking (split by mass)
