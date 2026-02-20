@@ -38,6 +38,7 @@ public:
 		GEO_TEXT,
 		GEO_GRASS,
 		GEO_BASKETBALL,
+		GEO_HOOP,
 		NUM_GEOMETRY,
 	};
 
@@ -123,13 +124,18 @@ private:
 	double lastMouseX = 400.0;  // Center of 800x600 window
 	double lastMouseY = 300.0;
 
-	float moveSpeed = 20.0f;
+	float moveSpeed = 10.0f;
 
-	float gravity = 10.f;
+	float gravity = 20.f;
 
 	float fps = 0;
 
 	bool mousePreviouslyDown = false;
+
+	glm::vec3 hoopPosition = glm::vec3(0.f, 0.f, 0.f);
+	float hoopSpeed = 6.7f;
+	int hoopDirection = 1;   // 1 = right, -1 = left
+	float hoopLimit = 5.f;  // how far left/right it can move
 };
 
 #endif

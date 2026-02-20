@@ -84,7 +84,7 @@ void Scene03::Init()
 	//camera.Init(45.f, 45.f, 10.f);
 
 	camera.Init(
-		glm::vec3(4.0f, 3.0f, 0.0f), // position: Y = 1.0f
+		glm::vec3(0.0f, 1.0f, 14.0f), // position: Y = 1.0f
 		glm::vec3(0.0f, 1.0f, 0.0f), // target:  Y = 1.0f (same height -> no pitch)
 		glm::vec3(0.0f, 1.0f, 0.0f)  // world up
 	);
@@ -144,6 +144,9 @@ void Scene03::Init()
 
 	meshList[GEO_BASKETBALL] = MeshBuilder::GenerateOBJMTL("Basketball", "Models//basketball.obj", "Models//basketball.mtl");
 	meshList[GEO_BASKETBALL]->textureID = LoadTGA("Images//basketball.tga");
+
+	meshList[GEO_HOOP] = MeshBuilder::GenerateOBJMTL("hoop", "Models//hoop.obj", "Models//hoop.mtl");
+	meshList[GEO_HOOP]->textureID = LoadTGA("Images//hoop.tga");
 
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
@@ -250,6 +253,10 @@ void Scene03::HandleMouseInput() {
 
 void Scene03::Update(double dt)
 {
+	camera.position.y = 1.f;
+
+	std::cout << camera.position.x << ", 1, " << camera.position.z << std::endl;
+
 	HandleKeyPress(dt);
 
 	if (KeyboardController::GetInstance()->IsKeyDown('I'))
@@ -277,8 +284,7 @@ void Scene03::Update(double dt)
 
 	HandleMouseInput();
 
-	bool mouseCurrentlyDown =
-		MouseController::GetInstance()->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT);
+	bool mouseCurrentlyDown = MouseController::GetInstance()->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT);
 
 	if (mouseCurrentlyDown && !mousePreviouslyDown)
 	{
@@ -287,7 +293,13 @@ void Scene03::Update(double dt)
 		glm::vec3 forward = glm::normalize(camera.target - camera.position);
 
 		newBall.pos = camera.position + forward * 2.0f; // spawn in front
-		newBall.vel = glm::vec3(0.f); // or give throw velocity
+
+		float throwForce = 20.f;     // adjust strength
+		float upwardForce = 20.f;    // small arc
+
+		newBall.vel = forward * throwForce;
+		newBall.vel.y = upwardForce;
+
 		newBall.accel.y = -gravity; //how fast ball drops
 
 		balls.push_back(newBall);
@@ -297,15 +309,40 @@ void Scene03::Update(double dt)
 
 	for (auto& ball : balls) {
 		ball.UpdatePhysics(dt);
-		if (ball.pos.y <= 0.5f)
+		if (ball.pos.y <= 0.4f)
 		{
 			ball.pos.y = 0.4f;
-			ball.vel.y = 0.f;
+			ball.vel.y *= -0.7f;
+
+			// Apply ground friction
+			float friction = 0.98f;  // lower = stops faster
+
+			ball.vel.x *= friction;
+			ball.vel.z *= friction;
+
+			// Stop completely when very slow
+			if (abs(ball.vel.x) < 0.05f) ball.vel.x = 0.f;
+			if (abs(ball.vel.z) < 0.05f) ball.vel.z = 0.f;
 		}
 	}
 
 	float temp = 1.f / dt;
 	fps = glm::round(temp * 100.f) / 100.f;
+
+	// Move hoop left/right
+	hoopPosition.x += hoopDirection * hoopSpeed * static_cast<float>(dt);
+
+	// Reverse direction when reaching limit
+	if (hoopPosition.x > hoopLimit)
+	{
+		hoopPosition.x = hoopLimit;
+		hoopDirection = -1;
+	}
+	else if (hoopPosition.x < -hoopLimit)
+	{
+		hoopPosition.x = -hoopLimit;
+		hoopDirection = 1;
+	}
 }
 
 void Scene03::RenderSkybox() {
@@ -517,15 +554,15 @@ void Scene03::Render()
 	//RenderMesh(meshList[GEO_AXES], false);
 
 	// Render light sphere - isolated transformations
-	modelStack.PushMatrix();
-	modelStack.Translate(camera.position.x, 15.f, camera.position.z);
-	modelStack.Scale(0.1f, 0.1f, 0.1f);
-	meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
-	meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-	meshList[GEO_SPHERE]->material.kShininess = 5.0f;
-	RenderMesh(meshList[GEO_SPHERE], true);
-	modelStack.PopMatrix();
+	//modelStack.PushMatrix();
+	//modelStack.Translate(camera.position.x, 15.f, camera.position.z);
+	//modelStack.Scale(0.1f, 0.1f, 0.1f);
+	//meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	//meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
+	//meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+	//meshList[GEO_SPHERE]->material.kShininess = 5.0f;
+	//RenderMesh(meshList[GEO_SPHERE], true);
+	//modelStack.PopMatrix();
 
 	// Skybox - now renders at world origin without accumulated transforms
 	RenderSkybox();
@@ -550,6 +587,12 @@ void Scene03::Render()
 		RenderMesh(meshList[GEO_BASKETBALL], false);
 		modelStack.PopMatrix();
 	}
+
+	modelStack.PushMatrix();
+	modelStack.Translate(hoopPosition.x, hoopPosition.y, hoopPosition.z);
+	modelStack.Scale(2.f, 2.f, 2.f);
+	RenderMesh(meshList[GEO_HOOP], false);
+	modelStack.PopMatrix();
 
 
 	// grass tiled from -100 to 100 on X and Z, keep existing scale (5,1,5)

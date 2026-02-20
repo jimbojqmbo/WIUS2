@@ -136,15 +136,16 @@ bool OverlapCircle2Line(const glm::vec3& circlePos, float radius,
 }
 
 // Circle vs OBB (implement as circle vs AABB aligned with axes centered on box.pos using half-extents w,h)
-bool OverlapCircle2OBB(PhysicsObject& circle, float radius, PhysicsObject& box, float w, float h, CollisionData& cd)
+bool OverlapCircle2OBB(PhysicsObject& circle, float radius, PhysicsObject& box, float w, float h,float w2, CollisionData& cd)
 {
-	glm::vec3 min = box.pos - glm::vec3(w, h, 0.f);
-	glm::vec3 max = box.pos + glm::vec3(w, h, 0.f);
+	glm::vec3 min = box.pos - glm::vec3(w, h, w2);
+	glm::vec3 max = box.pos + glm::vec3(w, h, w2);
 
 	// closest point on AABB to circle center
 	float cx = std::max(min.x, std::min(circle.pos.x, max.x));
 	float cy = std::max(min.y, std::min(circle.pos.y, max.y));
-	glm::vec3 closest(cx, cy, 0.f);
+	float cz = std::max(min.z, std::min(circle.pos.z, max.z));
+	glm::vec3 closest(cx, cy, cz);
 
 	glm::vec3 diff = circle.pos - closest;
 	float dist2 = glm::dot(diff, diff);
