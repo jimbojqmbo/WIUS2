@@ -209,6 +209,8 @@ void SceneGUI::Init()
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	PlaySound(TEXT("Sounds//topgeartheme.wav"), NULL, SND_FILENAME | SND_ASYNC);
 }
 
 void SceneGUI::Update(double dt)
