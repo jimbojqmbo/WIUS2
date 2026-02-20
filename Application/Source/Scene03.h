@@ -15,6 +15,13 @@
 class Scene03 : public Scene
 {
 public:
+	struct Ball
+	{
+		bool active;
+	};
+
+	std::vector<PhysicsObject> balls;
+
 	enum GEOMETRY_TYPE
 	{
 		GEO_AXES,
@@ -117,6 +124,12 @@ private:
 	double lastMouseY = 300.0;
 
 	float moveSpeed = 20.0f;
+
+	float gravity = 10.f;
+
+	float fps = 0;
+
+	bool mousePreviouslyDown = false;
 };
 
 #endif

@@ -228,6 +228,24 @@ void Application::Run()
 			isEnterUp = false;
 		}
 
+		if (KeyboardController::GetInstance()->IsKeyPressed('N'))
+		{
+			enablePointer = false;
+			std::cout << "Pointer disabled \n";
+		}
+		if (KeyboardController::GetInstance()->IsKeyPressed('M'))
+		{
+			enablePointer = true;
+			std::cout << "Pointer enabled \n";
+		}
+
+		if (enablePointer == false) {
+			glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		}
+		else if (enablePointer == true) {
+			glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		}
+
 		//Swap buffers
 		glfwSwapBuffers(m_window);
 		KeyboardController::GetInstance()->PostUpdate();

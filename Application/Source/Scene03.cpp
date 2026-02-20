@@ -268,15 +268,44 @@ void Scene03::Update(double dt)
 	camera.Update(dt);
 
 	// Prevent camera from going below ground after camera updates
-	if (camera.position.y < 3.0f) {
+	/*if (camera.position.y < 3.0f) {
 		camera.position.y = 3.0f;
 		if (camera.target.y < 3.0f)
 			camera.target.y = 3.0f;
 		camera.Init(camera.position, camera.target, camera.up);
-	}
+	}*/
 
 	HandleMouseInput();
 
+	bool mouseCurrentlyDown =
+		MouseController::GetInstance()->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT);
+
+	if (mouseCurrentlyDown && !mousePreviouslyDown)
+	{
+		PhysicsObject newBall;
+
+		glm::vec3 forward = glm::normalize(camera.target - camera.position);
+
+		newBall.pos = camera.position + forward * 2.0f; // spawn in front
+		newBall.vel = glm::vec3(0.f); // or give throw velocity
+		newBall.accel.y = -gravity; //how fast ball drops
+
+		balls.push_back(newBall);
+	}
+
+	mousePreviouslyDown = mouseCurrentlyDown;
+
+	for (auto& ball : balls) {
+		ball.UpdatePhysics(dt);
+		if (ball.pos.y <= 0.5f)
+		{
+			ball.pos.y = 0.4f;
+			ball.vel.y = 0.f;
+		}
+	}
+
+	float temp = 1.f / dt;
+	fps = glm::round(temp * 100.f) / 100.f;
 }
 
 void Scene03::RenderSkybox() {
@@ -501,12 +530,9 @@ void Scene03::Render()
 	// Skybox - now renders at world origin without accumulated transforms
 	RenderSkybox();
 
-	modelStack.PushMatrix();
+	/*modelStack.PushMatrix();
 	modelStack.Translate(camera.position.x, camera.position.y, camera.position.z);
-	glm::vec3 offset =
-		forward * 1.5f +   // forward
-		right * 0.7f +  // right
-		up * -0.6f;   // down
+	glm::vec3 offset = forward * 1.5f + right * 0.7f + up * -0.6f;
 	modelStack.Translate(offset.x, offset.y, offset.z);
 	glm::mat4 viewRotation = viewStack.Top();
 	viewRotation[3] = glm::vec4(0, 0, 0, 1);
@@ -514,7 +540,16 @@ void Scene03::Render()
 	modelStack.MultMatrix(inverseRotation);
 	modelStack.Scale(0.008f, 0.008f, 0.008f);
 	RenderMesh(meshList[GEO_BASKETBALL], false);
-	modelStack.PopMatrix();
+	modelStack.PopMatrix();*/
+
+	for (auto& ball : balls)
+	{
+		modelStack.PushMatrix();
+		modelStack.Translate(ball.pos.x, ball.pos.y, ball.pos.z);
+		modelStack.Scale(0.008f, 0.008f, 0.008f);
+		RenderMesh(meshList[GEO_BASKETBALL], false);
+		modelStack.PopMatrix();
+	}
 
 
 	// grass tiled from -100 to 100 on X and Z, keep existing scale (5,1,5)
@@ -540,13 +575,19 @@ void Scene03::Render()
 		}
 		// keep the ambient material tweak from original code
 		meshList[GEO_GRASS]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
+		meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
+		meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[GEO_SPHERE]->material.kShininess = 5.0f;
 	}
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
 	modelStack.Scale(1.f, 1.f, 1.f);
-	RenderTextOnScreen(meshList[GEO_TEXT], "+", glm::vec3(1, 1, 1), 40, 392, 282);
+	RenderTextOnScreen(meshList[GEO_TEXT], "+", glm::vec3(0, 1, 1), 40, 392, 282);
 	modelStack.PopMatrix();
+
+	std::string temp("FPS:" + std::to_string(fps));
+	RenderTextOnScreen(meshList[GEO_TEXT], temp.substr(0, 9), glm::vec3(0, 1, 0), 40, 0, 560);
 }
 
 void Scene03::RenderMesh(Mesh* mesh, bool enableLight)
@@ -726,23 +767,20 @@ void Scene03::HandleKeyPress(double dt)
 		}
 	}
 
-	//if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT_SHIFT))
-	//{
-	//	// sprint at 10.f
-	//	float sprintmovement = (1.5 * moveSpeed) * static_cast<float>(dt);
-	//	camera.position += forward * sprintmovement;
-	//	camera.target += forward * sprintmovement;
-	//}
-
-	// Clamp camera height to adjusted limits
-	/*if (camera.position.y < 3.3f) {
-		camera.position.y = 3.3f;
-		if (camera.target.y < 3.3f)
-			camera.target.y = 3.3f;
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_SPACE)) {
+		float fly = moveSpeed * static_cast<float>(dt);
+		camera.position.y += fly;
 	}
-	if (camera.position.y > 3.8f) {
-		camera.position.y = 3.8f;
-		if (camera.target.y > 3.8f)
-			camera.target.y = 3.8f;
+
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT_CONTROL)) {
+		float fly = moveSpeed * static_cast<float>(dt);
+		camera.position.y -= fly;
+	}
+
+	/*if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT_CONTROL)) {
+		camera.position.y = 0.5f;
+	}
+	else if (KeyboardController::GetInstance()->IsKeyReleased(GLFW_KEY_LEFT_CONTROL)) {
+		camera.position.y = 2.f;
 	}*/
 }
