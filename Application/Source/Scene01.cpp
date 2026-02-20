@@ -198,7 +198,7 @@ void Scene01::Init()
 	meshList[EXITBUTTON]->textureID = LoadTGA("Images//exitScene01button.tga");
 
 	meshList[PAUSEMENU] = MeshBuilder::GenerateQuad("pause", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	meshList[PAUSEMENU]->textureID = LoadTGA("Images//scene01pausemenu.tga");
+	meshList[PAUSEMENU]->textureID = LoadTGA("Images//scene01pausemenuv2.tga");
 
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
