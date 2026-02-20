@@ -1,9 +1,20 @@
 #include "PhysicsObject.h"
 
 PhysicsObject::PhysicsObject()
-	: pos{}, vel{}, accel{}, mass{ 1.f }, m_totalForces{},
-	angularVel{}, angleDeg{}, bounciness{ 1.f }
+	: sizeX{1.f}, sizeY{1.f}, sizeZ{1.f}, pos{}, vel{}, accel{}, 
+	mass{ 1.f }, m_totalForces{}, angularVel{}, angleDeg{}, bounciness{ 1.f }
 {
+}
+
+PhysicsObject::PhysicsObject(float sizeX, float sizeY, float sizeZ, glm::vec3 pos)
+	: sizeX{ 1.f }, sizeY{ 1.f }, sizeZ{ 1.f }, pos{}, vel{}, accel{},
+	mass{ 1.f }, m_totalForces{}, angularVel{}, angleDeg{}, bounciness{ 1.f }
+{
+	this->sizeX = sizeX;
+	this->sizeY = sizeY;
+	this->sizeZ = sizeZ;
+
+	this->pos = pos;
 }
 
 void PhysicsObject::AddForce(const glm::vec3& force)
