@@ -34,6 +34,8 @@ public:
 
 		GEO_GRASS,
 
+		GEO_BLASTER,
+
 		NUM_GEOMETRY,
 	};
 
@@ -89,7 +91,7 @@ private:
 
 	void RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey);
 
-	void HandleMouseInput();
+	void HandleMouseInput(double dt);
 
 	void RenderText(Mesh* mesh, std::string text, glm::vec3 color);
 	void RenderTextOnScreen(Mesh* mesh, std::string text, glm::vec3 color, float size, float x, float y);
@@ -126,7 +128,12 @@ private:
 
 	bool enableHitbox;
 	float fps;
-	bool wasMousePressed = false;
+	bool wasMousePressed;
+
+	bool blasterAnimating;
+	bool blasterMovingUp;
+	float blasterAngle;
+	
 };
 
 #endif
