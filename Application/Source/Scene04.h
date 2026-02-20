@@ -134,18 +134,28 @@ private:
 	// idk
 	static const int  ball_num = 10;
 	//objects
+	// physics objects
+	//circle
 	PhysicsObject ball[ball_num];
+	PhysicsObject player;//test
+	//AABB
 	PhysicsObject floor;
+	//OOB
 	PhysicsObject ball_slide;
+	//else
+	CollisionData cd;
 	//varibles
 	// game scene
-	float gravity = 10;
+	float gravity = -10;
 	//size
-	float ball_diameter = 2;
+	float ball_radius = 2;
 	float floor_space = 10;
 	//functions
 
 	bool OverlapCircle2CYLINDER(const glm::vec3& pos1, float r1, const glm::vec3& pos2, float width,float height);
+	void ResolveCollision(CollisionData cd);
+	void balls_update(double dt);
+	void balls_render();
 
 };
 

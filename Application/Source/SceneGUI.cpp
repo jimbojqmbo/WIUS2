@@ -148,7 +148,7 @@ void SceneGUI::Init()
 	meshList[GEO_TEXT]->textureID = LoadTGA("Images//Georgia.tga");
 
 	meshList[GEO_GUI] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	meshList[GEO_GUI]->textureID = LoadTGA("Images//blackblack.tga");
+	meshList[GEO_GUI]->textureID = LoadTGA("Images//testing main menu//testing_menu.tga");
 
 	meshList[GEO_EYEBALL] = MeshBuilder::GenerateOBJMTL("eyeballmtl", "Models//eyeball.obj", "Models//eyeball.mtl");
 	meshList[GEO_EYEBALL]->textureID = LoadTGA("Images//Eye_D.tga");
@@ -321,7 +321,9 @@ void SceneGUI::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, flo
 	modelStack.Translate(x, y, 0);
 
 	// To do: Use modelStack to scale the GUI
-	modelStack.Scale(10000, 10000, 1);
+	modelStack.Scale(1600, 900, 1);
+
+	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
 
 	RenderMesh(mesh, false); //UI should not have light
 
@@ -467,123 +469,8 @@ void SceneGUI::Render()
 	// Render objects
 	//RenderMesh(meshList[GEO_AXES], false);
 
-	// EYEBALL TEST - isolated transformations
-	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 100.f, -150.f);
-	modelStack.Scale(20.f, 20.f, 20.f);
-	modelStack.Rotate(25.f, 1.f, 0.f, 0.f);
-	meshList[GEO_EYEBALL]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
-	meshList[GEO_EYEBALL]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-	meshList[GEO_EYEBALL]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-	meshList[GEO_EYEBALL]->material.kShininess = 5.0f;
-	RenderMesh(meshList[GEO_EYEBALL], true);
-	modelStack.PopMatrix();
-
 	// Skybox - now renders at world origin without accumulated transforms
 	RenderSkybox();
-
-	// grass tiled from -100 to 100 on X and Z, keep existing scale (5,1,5)
-	modelStack.PushMatrix();
-	{
-		// spacing chosen to match the previous manual placement (50 units)
-		const float start = -250.f;
-		const float end = 250.f;
-		const float step = 50.f;
-		for (float x = start; x <= end; x += step)
-		{
-			for (float z = start; z <= end; z += step)
-			{
-				modelStack.PushMatrix();
-				modelStack.Translate(x, 0.f, z);
-				modelStack.Scale(5.f, 1.f, 5.f);
-				// keep original rotations so the tile faces the same way as before
-				modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
-				modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
-				RenderMesh(meshList[GEO_GRASS], true);
-				modelStack.PopMatrix();
-			}
-		}
-		// keep the ambient material tweak from original code
-		meshList[GEO_GRASS]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
-	}
-	modelStack.PopMatrix();
-
-	// house
-	modelStack.PushMatrix();
-	{
-		// spacing chosen to match the previous manual placement (50 units)
-		const float start = -200.f;
-		const float end = 200.f;
-		const float step = 25.f;
-		for (float x = start; x <= end; x += step)
-		{
-			modelStack.PushMatrix();
-			modelStack.Translate(x, 0.f, 55.f);
-			modelStack.Scale(1.f, 1.f, 1.f);
-			modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
-			RenderMesh(meshList[GEO_ABANDONEDHOUSE], true);
-			modelStack.PopMatrix();
-
-		}
-		meshList[GEO_ABANDONEDHOUSE]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
-	}
-
-		modelStack.PushMatrix();
-		modelStack.Translate(35.f, 0.5f, -10.f);
-		modelStack.Scale(25.f, 100.f, 25.f);
-		meshList[GEO_SPARKLING_STAR]->material.kAmbient = glm::vec3(1.f, 1.f, 0.5f);
-		meshList[GEO_SPARKLING_STAR]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-		meshList[GEO_SPARKLING_STAR]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-		meshList[GEO_SPARKLING_STAR]->material.kShininess = 5.0f;
-		RenderMesh(meshList[GEO_SPARKLING_STAR], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(35.f, 0.5f, 0.f);
-		modelStack.Scale(25.f, 100.f, 25.f);
-		meshList[GEO_SPARKLING_STAR]->material.kAmbient = glm::vec3(1.f, 1.f, 0.5f);
-		meshList[GEO_SPARKLING_STAR]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-		meshList[GEO_SPARKLING_STAR]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-		meshList[GEO_SPARKLING_STAR]->material.kShininess = 5.0f;
-		RenderMesh(meshList[GEO_SPARKLING_STAR], true);
-		modelStack.PopMatrix();
-
-		// tree
-		modelStack.PushMatrix();
-		{
-			const float start = -250.f;
-			const float end = 250.f;
-			const float step = 21.f;
-			for (float x = start; x <= end; x += step)
-			{
-				for (float z = start; z <= end; z += step)
-				{
-					modelStack.PushMatrix();
-					modelStack.Translate(x, -1.f, z);
-					modelStack.Scale(0.5f, 0.5f, 0.5f);
-					RenderMesh(meshList[GEO_PINETREE], true);
-					modelStack.PopMatrix();
-				}
-			}
-
-			// material updates (if desired)
-			meshList[GEO_PINETREE]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
-			meshList[GEO_PINETREE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-			meshList[GEO_PINETREE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-			meshList[GEO_PINETREE]->material.kShininess = 5.0f;
-		}
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(35.f, 0.5f, -5.f);
-		modelStack.Scale(0.5f, 0.5f, 0.5f);
-		modelStack.Rotate(90.f, 0.f, -1.f, 0.f);
-		meshList[GEO_SHADOW]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
-		meshList[GEO_SHADOW]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-		meshList[GEO_SHADOW]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-		meshList[GEO_SHADOW]->material.kShininess = 5.0f;
-		RenderMesh(meshList[GEO_SHADOW], true);
-		modelStack.PopMatrix();
 
 		// how far in front of the camera
 		const float distanceInFront = 45.0f;
@@ -632,8 +519,9 @@ void SceneGUI::Render()
 		}
 		modelStack.PopMatrix();
 
-	RenderTextOnScreen(meshList[GEO_TEXT], "Press Enter to start", glm::vec3(1, 0, 1), 25, 225, 275);
-	RenderTextOnScreen(meshList[GEO_TEXT], "You can look at the environment with your mouse.", glm::vec3(1, 1, 1), 20, 125, 225);
+	RenderMeshOnScreen(meshList[GEO_GUI], 400.f, 250.f, 1.f, 1.f);
+	//RenderTextOnScreen(meshList[GEO_TEXT], "Press Enter to start", glm::vec3(1, 0, 1), 25, 225, 275);
+	//RenderTextOnScreen(meshList[GEO_TEXT], "You can look at the environment with your mouse.", glm::vec3(1, 1, 1), 20, 125, 225);
 }
 
 void SceneGUI::RenderMesh(Mesh* mesh, bool enableLight)

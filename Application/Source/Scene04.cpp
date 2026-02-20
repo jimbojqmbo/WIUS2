@@ -102,57 +102,38 @@ void Scene04::Init()
 		meshList[i] = nullptr;
 	}
 
+	//debug
 	meshList[GEO_AXES] = MeshBuilder::GenerateAxes("Axes", 10000.f, 10000.f, 10000.f);
 	meshList[GEO_SPHERE] = MeshBuilder::GenerateSphere("Sun", glm::vec3(1.f, 1.f, 1.f), 1.f, 16, 16);
 	//meshList[GEO_CUBE] = MeshBuilder::GenerateCube("Arm", glm::vec3(0.5f, 0.5f, 0.5f), 1.f);
 
+	//skybox
 	meshList[GEO_LEFT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	//meshList[GEO_LEFT]->textureID = LoadTGA("Images//blackblack.tga");
-	//meshList[GEO_LEFT]->textureID = LoadTGA("Images//whitesky//whiteskyleft.tga");
 	meshList[GEO_LEFT]->textureID = LoadTGA("Images//redleft copy.tga");
-	//meshList[GEO_LEFT]->textureID = LoadTGA("Images//left.tga");
 
 	meshList[GEO_RIGHT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	//meshList[GEO_RIGHT]->textureID = LoadTGA("Images//blackblack.tga");
-	//meshList[GEO_RIGHT]->textureID = LoadTGA("Images//whitesky//whiteskyright.tga");
 	meshList[GEO_RIGHT]->textureID = LoadTGA("Images//redright copy.tga");
-	//meshList[GEO_RIGHT]->textureID = LoadTGA("Images//right.tga");
 
 	meshList[GEO_BACK] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	//meshList[GEO_BACK]->textureID = LoadTGA("Images//blackblack.tga");
-	//meshList[GEO_BACK]->textureID = LoadTGA("Images//whitesky//whiteskyback.tga");
 	meshList[GEO_BACK]->textureID = LoadTGA("Images//redback copy.tga");
-	//meshList[GEO_BACK]->textureID = LoadTGA("Images//back.tga");
 
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	//meshList[GEO_FRONT]->textureID = LoadTGA("Images//blackblack.tga");
-	//meshList[GEO_FRONT]->textureID = LoadTGA("Images//whitesky//whiteskyfront.tga");
 	meshList[GEO_FRONT]->textureID = LoadTGA("Images//redfront copy.tga");
-	//meshList[GEO_FRONT]->textureID = LoadTGA("Images//front.tga");
 
 	meshList[GEO_TOP] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	//meshList[GEO_TOP]->textureID = LoadTGA("Images//saharatop.tga");
-	//meshList[GEO_TOP]->textureID = LoadTGA("Images//top.tga");
-	//meshList[GEO_TOP]->textureID = LoadTGA("Images//whitesky//whiteskytop.tga");
 	meshList[GEO_TOP]->textureID = LoadTGA("Images//redtop copy.tga");
-	//meshList[GEO_TOP]->textureID = LoadTGA("Images//bigblackmoon.tga");
 
 	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	//meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//blackblack.tga");
-	//meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//whitesky//whiteskybottom.tga");
 	meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//redbottom copy.tga");
-	//meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//bottom.tga");
 
-	//meshList[GEO_QUAD]->textureID = LoadTGA("Images//NYP.tga");
+	//ground
+
 	meshList[GEO_QUAD] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
 
 	meshList[GEO_CYLINDER] = MeshBuilder::GenerateCylinder("Cylinder", glm::vec3(1.f, 1.f, 1.f), 36, 1.f, 2.f);
 
 	meshList[GEO_GRASS] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
 	meshList[GEO_GRASS]->textureID = LoadTGA("Images//coast_sand_rocks_02 copy.tga");
-
-	//meshList[GEO_GUI] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	//meshList[GEO_GUI]->textureID = LoadTGA("Images//color.tga");
 
 	// 16 x 16 is the number of columns and rows for the text
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
@@ -197,78 +178,28 @@ void Scene04::Init()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-}
-
-void Scene04::HandleMouseInput() {
-
-	double mouseX = MouseController::GetInstance()->GetMousePositionX();
-	double mouseY = MouseController::GetInstance()->GetMousePositionY();
-
-	// Skip first frame to avoid large delta
-	if (firstMouse) {
-		lastMouseX = mouseX;
-		lastMouseY = mouseY;
-		firstMouse = false;
-		return;
+	//ball innit
+	for (int i = 0; i < ball_num; i++) {
+		ball[i].mass = 2;
+		ball[i].bounciness = 1;
+		ball[i].pos.y = 10;
+		ball[i].pos.x = 10*i;
 	}
 
-	// Calculate mouse movement delta
-	double deltaX = mouseX - lastMouseX;
-	double deltaY = lastMouseY - mouseY;  // Reversed: y-coordinates go from bottom to top
-
-	lastMouseX = mouseX;
-	lastMouseY = mouseY;
-
-	// Apply sensitivity
-	deltaX *= mouseSensitivity;
-	deltaY *= mouseSensitivity;
-
-	// Update camera rotation based on mouse movement
-	// This depends on your AltAzCamera implementation
-	// Typical approach:
-	camera.azimuth += static_cast<float>(deltaX);
-	camera.altitude += static_cast<float>(deltaY);
-
-	// Clamp altitude to prevent flipping
-	if (camera.altitude > 89.0f)
-		camera.altitude = 89.0f;
-	if (camera.altitude < -89.0f)
-		camera.altitude = -89.0f;
-
-	// convert spherical az/alt to direction and update camera.target
-	float az = glm::radians(camera.azimuth);
-	float alt = glm::radians(camera.altitude);
-
-	// spherical -> cartesian (y is up)
-	glm::vec3 dir;
-	dir.x = cosf(alt) * cosf(az);
-	dir.y = sinf(alt);
-	dir.z = cosf(alt) * sinf(az);
-
-	camera.target = camera.position + glm::normalize(dir);
-
-	// Re-init so FPCamera::Refresh() recalculates 'up' and other derived vectors
-	camera.Init(camera.position, camera.target, glm::vec3(0.0f, 3.0f, 0.0f));
 }
+
+
 
 void Scene04::Update(double dt)
 {
+	player.pos = camera.position;
+	std::cout << player.pos.x<< " " <<player.pos.z << std::endl;
+	std::cout << ball[0].pos.x << " " << ball[0].pos.z << std::endl;
+	//physics
+	balls_update(dt);
+	//handle inputs
+	HandleMouseInput();
 	HandleKeyPress(dt);
-
-	if (KeyboardController::GetInstance()->IsKeyDown('I'))
-		light[0].position.z -= static_cast<float>(dt) * 5.f;
-	if (KeyboardController::GetInstance()->IsKeyDown('K'))
-		light[0].position.z += static_cast<float>(dt) * 5.f;
-	if (KeyboardController::GetInstance()->IsKeyDown('J'))
-		light[0].position.x -= static_cast<float>(dt) * 5.f;
-	if (KeyboardController::GetInstance()->IsKeyDown('L'))
-		light[0].position.x += static_cast<float>(dt) * 5.f;
-	if (KeyboardController::GetInstance()->IsKeyDown('O'))
-		light[0].position.y -= static_cast<float>(dt) * 5.f;
-	if (KeyboardController::GetInstance()->IsKeyDown('P'))
-		light[0].position.y += static_cast<float>(dt) * 5.f;
-
-	camera.Update(dt);
 
 	// Prevent camera from going below ground after camera updates
 	if (camera.position.y < 3.0f) {
@@ -278,12 +209,54 @@ void Scene04::Update(double dt)
 		camera.Init(camera.position, camera.target, camera.up);
 	}
 
-	HandleMouseInput();
-
-	//physics
+	camera.Update(dt);
 
 	
 
+}
+
+void Scene04::balls_update(double dt) {
+
+	for (int i = 0; i < ball_num; i++) {
+		//collisions
+		// ball against ball
+		for (int j = 0; j < ball_num; j++) {
+			if (OverlapCircle2Circle(ball[i], ball_radius, ball[j], ball_radius, cd)) {
+				ResolveCollision(cd);
+			}
+		}
+		//ball agaisnt player test
+		if (OverlapCircle2Circle(ball[i], ball_radius, player, ball_radius, cd)) {
+			ResolveCollision(cd);
+		}
+		//ball against floor
+		/*
+		if (OverlapCircle2OBB(ball[i],ball_radius,floor,10,10,cd)) {
+			ResolveCollision(cd);
+		}
+		*/
+		
+		//gravity 
+		ball[i].AddForce(glm::vec3(0, gravity, 0));
+		//
+		if (ball[i].pos.y < 3.0f) {
+			ball[i].pos.y = 3.0f;
+		}
+		//resolve collision
+		ball[i].UpdatePhysics(dt);
+	}
+	
+}
+
+void Scene04::balls_render() {
+	for (int i = 0; i < ball_num; i++) {
+		modelStack.PushMatrix();
+		modelStack.Translate(ball[i].pos.x, ball[i].pos.y,ball[i].pos.z);
+		modelStack.Scale((ball_radius),(ball_radius),(ball_radius));
+		modelStack.Rotate(0 , 1.f, 1.f, 1.f);
+		RenderMesh(meshList[GEO_SPHERE], true);
+		modelStack.PopMatrix();
+	}
 }
 
 void Scene04::RenderSkybox()
@@ -539,6 +512,8 @@ void Scene04::Render()
 		meshList[GEO_GRASS]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
 	}
 	modelStack.PopMatrix();
+
+	balls_render();
 }
 
 void Scene04::RenderMesh(Mesh* mesh, bool enableLight)
@@ -693,6 +668,19 @@ void Scene04::HandleKeyPress(double dt)
 		camera.target += forward * movement;
 	}
 
+	if (KeyboardController::GetInstance()->IsKeyDown('I'))
+		light[0].position.z -= static_cast<float>(dt) * 5.f;
+	if (KeyboardController::GetInstance()->IsKeyDown('K'))
+		light[0].position.z += static_cast<float>(dt) * 5.f;
+	if (KeyboardController::GetInstance()->IsKeyDown('J'))
+		light[0].position.x -= static_cast<float>(dt) * 5.f;
+	if (KeyboardController::GetInstance()->IsKeyDown('L'))
+		light[0].position.x += static_cast<float>(dt) * 5.f;
+	if (KeyboardController::GetInstance()->IsKeyDown('O'))
+		light[0].position.y -= static_cast<float>(dt) * 5.f;
+	if (KeyboardController::GetInstance()->IsKeyDown('P'))
+		light[0].position.y += static_cast<float>(dt) * 5.f;
+
 	// Clamp camera height to adjusted limits
 	if (camera.position.y < 3.3f) {
 		camera.position.y = 3.3f;
@@ -706,7 +694,85 @@ void Scene04::HandleKeyPress(double dt)
 	}
 }
 
+void Scene04::HandleMouseInput() {
+
+	double mouseX = MouseController::GetInstance()->GetMousePositionX();
+	double mouseY = MouseController::GetInstance()->GetMousePositionY();
+
+	// Skip first frame to avoid large delta
+	if (firstMouse) {
+		lastMouseX = mouseX;
+		lastMouseY = mouseY;
+		firstMouse = false;
+		return;
+	}
+
+	// Calculate mouse movement delta
+	double deltaX = mouseX - lastMouseX;
+	double deltaY = lastMouseY - mouseY;  // Reversed: y-coordinates go from bottom to top
+
+	lastMouseX = mouseX;
+	lastMouseY = mouseY;
+
+	// Apply sensitivity
+	deltaX *= mouseSensitivity;
+	deltaY *= mouseSensitivity;
+
+	// Update camera rotation based on mouse movement
+	// This depends on your AltAzCamera implementation
+	// Typical approach:
+	camera.azimuth += static_cast<float>(deltaX);
+	camera.altitude += static_cast<float>(deltaY);
+
+	// Clamp altitude to prevent flipping
+	if (camera.altitude > 89.0f)
+		camera.altitude = 89.0f;
+	if (camera.altitude < -89.0f)
+		camera.altitude = -89.0f;
+
+	// convert spherical az/alt to direction and update camera.target
+	float az = glm::radians(camera.azimuth);
+	float alt = glm::radians(camera.altitude);
+
+	// spherical -> cartesian (y is up)
+	glm::vec3 dir;
+	dir.x = cosf(alt) * cosf(az);
+	dir.y = sinf(alt);
+	dir.z = cosf(alt) * sinf(az);
+
+	camera.target = camera.position + glm::normalize(dir);
+
+	// Re-init so FPCamera::Refresh() recalculates 'up' and other derived vectors
+	camera.Init(camera.position, camera.target, glm::vec3(0.0f, 3.0f, 0.0f));
+}
+
 bool Scene04::OverlapCircle2CYLINDER(const glm::vec3& pos1, float r1, const glm::vec3& pos2, float width, float height){
-	float lengthSq = glm::length(pos1 - pos2);
-	return lengthSq <= (r1 + width) * (r1 + width);
+	glm::vec3 d = pos1 - pos2;
+	float lengthSq = glm::dot(d, d);
+	float rsum = r1 + width;
+	return lengthSq <= rsum * rsum;
+}
+
+void Scene04::ResolveCollision(CollisionData cd) {
+
+	PhysicsObject&  o1 = *cd.pObj1;
+	PhysicsObject& o2 = *cd.pObj2;
+
+	glm::vec3 oc = (cd.collisionNormal * cd.penetration);
+
+	oc.x = oc.x / 2;
+	oc.y = oc.y / 2;
+	oc.z = oc.z / 2;
+	if (o2.mass > 0.f) {
+		o1.pos -= oc;
+		o2.pos += oc;
+
+		o1.AddImpulse(-cd.collisionNormal * (1 + o1.bounciness));
+		o2.AddImpulse(cd.collisionNormal * (1 + o2.bounciness));
+	}
+	else {
+		o1.pos -= oc;
+		o1.AddImpulse(-cd.collisionNormal * (1 + o1.bounciness));
+	}
+	
 }
