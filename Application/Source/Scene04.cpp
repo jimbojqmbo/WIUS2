@@ -203,6 +203,7 @@ void Scene04::Init()
 void Scene04::Update(double dt)
 {
 	player.pos = camera.position;
+	
 	//std::cout << player.pos.x<< " " <<player.pos.z << std::endl;
 	//std::cout << ball[0].pos.x << " " << ball[0].pos.z << std::endl;
 	//physics
@@ -232,11 +233,10 @@ void Scene04::Update(double dt)
 void Scene04::balls_update(double dt) {
 
 	for (int i = 0; i < ball_num; i++) {
-		//gravity 
-		ball[i].AddForce(glm::vec3(0, gravity, 0));
+		
 		//collisions
 		// ball against ball
-		for (int j = 0; j < ball_num; j++) {
+		for (int j = i + 1; j < ball_num; j++) {
 			if (OverlapCircle2Circle(ball[i], ball_radius, ball[j], ball_radius, cd)) {
 				ResolveCollision(cd);
 			}
@@ -250,9 +250,20 @@ void Scene04::balls_update(double dt) {
 			ResolveCollision(cd);
 			std::cout << "ball collide with floor" << std::endl;
 		}
+		
+	}
+	for (int i = 0; i < ball_num; i++) {
+		//gravity 
+		ball[i].AddForce(glm::vec3(0, gravity, 0));
+
+		if (not(ball[i].pos.y <= 0 + ball_radius)) {
+			ball[i].pos.y = ball_radius + 2;
+		}
 		//resolve collision
 		ball[i].UpdatePhysics(dt);
 	}
+	player.AddForce(glm::vec3(0, gravity, 0));
+	player.UpdatePhysics(dt);
 	
 }
 
@@ -654,7 +665,6 @@ void Scene04::HandleKeyPress(double dt)
 		// Move forward
 
 		glm::vec3 view = glm::normalize(camera.target - camera.position);
-		glm::vec3 oldpos = camera.position;
 
 		camera.position.x += view.x * 0.1;
 		camera.position.z += view.z * 0.1;
@@ -668,8 +678,6 @@ void Scene04::HandleKeyPress(double dt)
 		// Move backward
 		glm::vec3 view = glm::normalize(camera.target - camera.position);
 
-		glm::vec3 oldpos = camera.position;
-
 		camera.position.x -= view.x * 0.1;
 		camera.position.z -= view.z * 0.1;
 
@@ -682,9 +690,6 @@ void Scene04::HandleKeyPress(double dt)
 		glm::vec3 view = glm::normalize(camera.target - camera.position);
 		glm::vec3 right = glm::normalize(glm::cross(view, camera.up));
 
-		glm::vec3 oldpos = camera.position;
-		glm::vec3 oldtar = camera.target;
-
 		camera.position -= right * glm::vec3(0.1);// *speed; 
 		camera.target -= right * glm::vec3(0.1);// *speed;
 
@@ -695,9 +700,6 @@ void Scene04::HandleKeyPress(double dt)
 		// Move right (strafe)
 		glm::vec3 view = glm::normalize(camera.target - camera.position);
 		glm::vec3 right = glm::normalize(glm::cross(view, camera.up));
-
-		glm::vec3 oldpos = camera.position;
-		glm::vec3 oldtar = camera.target;
 
 		camera.position += right * glm::vec3(0.1);// *speed; 
 		camera.target += right * glm::vec3(0.1);// *speed;

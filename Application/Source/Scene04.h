@@ -152,7 +152,7 @@ private:
 	float ball_radius = 2;
 
 	float floor_space = 10;
-	float floor_height = 0.1;
+	float floor_height = 0.25;
 	//functions
 
 	bool OverlapCircle2CYLINDER(const glm::vec3& pos1, float r1, const glm::vec3& pos2, float width,float height);
