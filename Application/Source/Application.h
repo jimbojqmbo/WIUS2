@@ -10,8 +10,10 @@ public:
 	enum SCENE_NUM
 	{
 		SCENE_GUI = 0,
-		//SCENE_TEXT,
 		SCENE_01,
+		SCENE_02,
+		SCENE_03,
+		SCENE_04,
 		TOTAL_SCENE
 	};
 

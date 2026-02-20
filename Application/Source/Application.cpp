@@ -155,11 +155,11 @@ void Application::Run()
 
 	Scene* scene1 = new SceneGUI();
 	Scene* scene2 = new Scene01();
-	Scene* scene02 = new Scene02();
-	Scene* scene03 = new Scene03();
-	Scene* scene04 = new Scene04();
+	Scene* scene3 = new Scene02();
+	Scene* scene4 = new Scene03();
+	Scene* scene5 = new Scene04();
 
-	Scene* scene = scene03;
+	Scene* scene = scene1;
 	scene->Init();
 
 	sceneNum = SCENE_GUI;
@@ -172,23 +172,59 @@ void Application::Run()
 		scene->Update(m_timer.getElapsedTime());
 		scene->Render();
 
-		// === SCENE SWITCHING LOGIC HERE ===
-		if (!isEnterUp && KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_ENTER)) {
+		// === FROM MAIN MENU TO SCENE01 ===
+		if (!isEnterUp && KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_1)) {
 			if (sceneNum == SCENE_GUI) {
 				scene1->Exit();
 				scene2->Init();
 				scene = scene2;
 				sceneNum = SCENE_01;
 			}
-			else {
-				scene2->Exit();
-				scene1->Init();
-				scene = scene1;
-				sceneNum = SCENE_GUI;
+			isEnterUp = true;
+		}
+		else if (isEnterUp && KeyboardController::GetInstance()->IsKeyUp(GLFW_KEY_1)) {
+			isEnterUp = false;
+		}
+
+		// === FROM MAIN MENU TO SCENE02 ===
+		if (!isEnterUp && KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_2)) {
+			if (sceneNum == SCENE_GUI) {
+				scene1->Exit();
+				scene3->Init();
+				scene = scene3;
+				sceneNum = SCENE_02;
 			}
 			isEnterUp = true;
 		}
-		else if (isEnterUp && KeyboardController::GetInstance()->IsKeyUp(GLFW_KEY_ENTER)) {
+		else if (isEnterUp && KeyboardController::GetInstance()->IsKeyUp(GLFW_KEY_2)) {
+			isEnterUp = false;
+		}
+
+		// === FROM MAIN MENU TO SCENE03 ===
+		if (!isEnterUp && KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_3)) {
+			if (sceneNum == SCENE_GUI) {
+				scene1->Exit();
+				scene4->Init();
+				scene = scene4;
+				sceneNum = SCENE_03;
+			}
+			isEnterUp = true;
+		}
+		else if (isEnterUp && KeyboardController::GetInstance()->IsKeyUp(GLFW_KEY_3)) {
+			isEnterUp = false;
+		}
+
+		// === FROM MAIN MENU TO SCENE04 ===
+		if (!isEnterUp && KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_4)) {
+			if (sceneNum == SCENE_GUI) {
+				scene1->Exit();
+				scene5->Init();
+				scene = scene5;
+				sceneNum = SCENE_04;
+			}
+			isEnterUp = true;
+		}
+		else if (isEnterUp && KeyboardController::GetInstance()->IsKeyUp(GLFW_KEY_4)) {
 			isEnterUp = false;
 		}
 
