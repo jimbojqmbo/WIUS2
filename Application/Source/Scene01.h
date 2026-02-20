@@ -36,20 +36,20 @@ public:
 
 		GEO_NOTE,
 		BUMPERCAR,
+		TALLTREE,
 
 		GEO_SPARKLING_STAR,
 
 		GEO_PEWPEW,
 
 		GEO_GRASS,
-
-		GEO_PINETREE,
 		GEO_ABANDONEDHOUSE,
 
 		GEO_FLASHLIGHT,
 
 		GEO_EYEBALL,
 		GEO_EYEBALL_MTL,
+		JEFFREYEPSTEIN,
 
 		NUM_GEOMETRY,
 	};
@@ -143,6 +143,8 @@ private:
 
 	Player player1;
 	Player player2;
+
+	float fps = 0;
 
 	void RenderPlayerModel();
 };

@@ -185,6 +185,12 @@ void Scene01::Init()
 	meshList[BUMPERCAR] = MeshBuilder::GenerateOBJMTL("bumper car", "Models//Bumper Car//bumper_car.obj", "Models//Bumper Car//bumper_car.mtl");
 	meshList[BUMPERCAR]->textureID = LoadTGA("Images//Bumper Car//bumpercar_baseColor.tga");
 
+	meshList[TALLTREE] = MeshBuilder::GenerateOBJMTL("bumper car", "Models//tree//VeryTallTree.obj", "Models//tree//VeryTallTree.mtl");
+	meshList[TALLTREE]->textureID = LoadTGA("Images//TallTree_baseColor.tga");
+
+	meshList[JEFFREYEPSTEIN] = MeshBuilder::GenerateOBJMTL("bumper car", "Models//jeffrey//jeffreyepsteinfiles.obj", "Models//jeffrey//jeffreyepsteinfiles.mtl");
+	meshList[JEFFREYEPSTEIN]->textureID = LoadTGA("Images//jeffrey//jeffreyepstein_baseColor.tga");
+
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
 
@@ -318,6 +324,9 @@ void Scene01::Update(double dt)
 			camera2.target.y = 3.0f;
 		camera2.Init(camera2.position, camera2.target, camera2.up);
 	}
+
+	float temp = 1.f / dt;
+	fps = glm::round(temp * 100.f) / 100.f;
 }
 
 void Scene01::RenderSkybox()
@@ -572,6 +581,25 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 	}
 	modelStack.PopMatrix();
 
+	modelStack.PushMatrix();
+	modelStack.Translate(0.f, 0.f, -10.f);
+	modelStack.Scale(0.1, 0.1, 0.1);
+	meshList[TALLTREE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[TALLTREE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
+	meshList[TALLTREE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+	meshList[TALLTREE]->material.kShininess = 5.0f;
+	RenderMesh(meshList[TALLTREE], true);
+	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	modelStack.Translate(0.f, 0.f, -25.f);
+	modelStack.Scale(2, 2, 2);
+	meshList[JEFFREYEPSTEIN]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[JEFFREYEPSTEIN]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
+	meshList[JEFFREYEPSTEIN]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+	meshList[JEFFREYEPSTEIN]->material.kShininess = 5.0f;
+	RenderMesh(meshList[JEFFREYEPSTEIN], true);
+	modelStack.PopMatrix();
 
 	{
 
@@ -684,6 +712,9 @@ void Scene01::Render()
 	);
 
 	RenderSceneFromCamera(camera2);
+
+	std::string temp("FPS:" + std::to_string(fps));
+	RenderTextOnScreen(meshList[GEO_TEXT], temp.substr(0, 9), glm::vec3(0, 1, 0), 40, 0, 560);
 
 	// Render objects
 	//RenderMesh(meshList[GEO_AXES], false);
