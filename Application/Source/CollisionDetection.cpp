@@ -375,3 +375,30 @@ void ResolveCircle2StaticLine(PhysicsObject& ball, float radius, const glm::vec3
 		ball.vel -= normal * vn;
 	}
 }
+bool OverlapCircle2AABB(glm::vec3 circlePos, float radius, glm::vec3 boxPos, glm::vec3 box_daimension)
+{
+
+	glm::vec3 boxMin;
+	boxMin = glm::vec3(boxPos.x-(box_daimension.x/2), boxPos.y - (box_daimension.y / 2), boxPos.z - (box_daimension.z / 2));
+	glm::vec3 boxMax;
+	boxMax = glm::vec3(boxPos.x + (box_daimension.x / 2), boxPos.y + (box_daimension.y / 2), boxPos.z + (box_daimension.z / 2));
+
+	int nearx = circlePos.x;
+	if (nearx < boxMin.x) {
+		nearx = boxMin.x;
+	}
+	else if (nearx > boxMax.x) {
+		nearx = boxMax.x;
+	}
+	int neary = circlePos.y;
+	if (neary < boxMin.y) {
+		neary = boxMin.y;
+	}
+	else if (neary > boxMax.y) {
+		neary = boxMax.y;
+	}
+	int distx = circlePos.x - nearx;
+	int disty = circlePos.y - neary;
+
+	return (distx * distx + disty * disty) <= (radius * radius);
+}
