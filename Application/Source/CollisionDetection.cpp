@@ -402,3 +402,41 @@ bool OverlapCircle2AABB(glm::vec3 circlePos, float radius, glm::vec3 boxPos, glm
 
 	return (distx * distx + disty * disty) <= (radius * radius);
 }
+
+bool OverlapCircle2AABB(PhysicsObject circle, float radius, PhysicsObject box, glm::vec3 box_daimension,CollisionData cd)
+{
+	
+
+	glm::vec3 circlePos;
+	circlePos = circle.pos;
+	glm::vec3 boxPos;
+	boxPos = box.pos;
+	glm::vec3 min;
+	min = glm::vec3(boxPos.x - (box_daimension.x / 2), boxPos.y - (box_daimension.y / 2), boxPos.z - (box_daimension.z / 2));
+	glm::vec3 max;
+	max = glm::vec3(boxPos.x + (box_daimension.x / 2), boxPos.y + (box_daimension.y / 2), boxPos.z + (box_daimension.z / 2));
+
+	glm::vec3 closestPoint;
+	closestPoint.x = glm::clamp(circlePos.x, min.x, max.x);
+	closestPoint.y = glm::clamp(circlePos.y, min.y, max.y);
+	closestPoint.z = glm::clamp(circlePos.z, min.z, max.z);
+
+	glm::vec3 n = circlePos - closestPoint;
+	float dist2 = glm::dot(n, n);
+
+	if (dist2 > radius * radius)
+		return false;
+
+	float dist = std::sqrt(dist2);
+
+	cd.pObj1 = &circle;
+	cd.pObj2 = &box;
+	std::cout << cd.pObj1->mass;
+	cd.collisionNormal = (dist > 1e-8f) ? n / dist : glm::vec3(1.f, 0.f, 0.f);
+	cd.penetration = radius - dist;
+	cd.contactPoint = closestPoint;
+	
+
+	return true;
+
+}

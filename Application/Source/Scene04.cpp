@@ -246,7 +246,7 @@ void Scene04::balls_update(double dt) {
 			ResolveCollision(cd);
 		}
 		//ball against floor
-		if (OverlapCircle2OBB(ball[i],ball_radius,floor,floor_space,floor_height,floor_space,cd)) {
+		if (OverlapCircle2AABB(ball[i],ball_radius,floor,glm::vec3(floor_space, floor_height, floor_space),cd)) {
 			ResolveCollision(cd);
 			std::cout << "ball collide with floor" << std::endl;
 		}
@@ -811,7 +811,7 @@ void Scene04::ResolveCollision(CollisionData cd) {
 	oc.y = oc.y / 2;
 	oc.z = oc.z / 2;
 
-	if (o2.mass > 0.f) {
+    if (o2.mass > 0.f) {
 		o2.pos += oc;
 		o2.AddImpulse(cd.collisionNormal * (1 + o2.bounciness));
 	}
