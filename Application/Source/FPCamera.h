@@ -21,6 +21,9 @@ public:
     float yaw = 0.0f;
     float pitch = 0.0f;
 
+    // Add front vector for compatibility with code using cam.front
+    glm::vec3 front = glm::vec3(0.0f, 0.0f, -1.0f);
+
     FPCamera();
     ~FPCamera();
 

@@ -346,7 +346,7 @@ void Scene03::Update(double dt)
 
 		balls.push_back(newBall);
 
-		PlaySound(TEXT("Sounds//applepay.wav"), NULL, SND_FILENAME | SND_ASYNC);
+		PlaySound(TEXT("Sounds//fah.wav"), NULL, SND_FILENAME | SND_ASYNC);
 	}
 
 	mousePreviouslyDown = mouseCurrentlyDown;

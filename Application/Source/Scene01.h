@@ -52,6 +52,9 @@ public:
 		JEFFREYEPSTEIN,
 		FOREST,
 
+		EXITBUTTON,
+		PAUSEMENU,
+
 		NUM_GEOMETRY,
 	};
 
@@ -152,7 +155,7 @@ private:
 	glm::vec3 cameraVelocity2 = glm::vec3(0.0f);
 
 	float cameraMass = 1;      // mass for each bumper car (equal for now)
-	float restitution = 4;     // bounce: 0 = inelastic, 1 = perfectly elastic
+	float restitution = 2;     // bounce: 0 = inelastic, 1 = perfectly elastic
 	float linearDamping = 2;   // damping per second (friction)
 	float maxSpeed = 25;       // limit speed from exploding
 	float driveAcceleration = 240; // acceleration (units/s^2) from input
@@ -160,6 +163,12 @@ private:
 
 	// Resolve collision by applying an impulse to velocities and a small positional correction (XZ-plane)
 	void ResolveCameraCollisionsWithBounce(FPCamera& a, glm::vec3& velA, FPCamera& b, glm::vec3& velB, double dt);
+
+	bool pausemenu = false;
+	bool isGameRunning = true;
+
+	bool player1InCar = false;
+	bool player2InCar = false;
 	
 };
 
