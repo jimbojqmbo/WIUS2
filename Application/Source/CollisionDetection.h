@@ -24,6 +24,9 @@ bool OverlapCircle2Line(const glm::vec3& circlePos, float radius,
 						const glm::vec3& lineEnd);
 bool OverlapCircle2OBB(PhysicsObject& circle, float radius, PhysicsObject& box, float w, float h, CollisionData& cd);
 
+// 3D collision detection functions
+bool OverlapSphere2AABB(PhysicsObject& sphereObj, PhysicsObject& boxObj, CollisionData& cd);
+
 // collision resolution function
 void ResolveCollision(CollisionData& cd);
 void ResolveCircle2StaticLine(PhysicsObject& ball, float radius, const glm::vec3& lineStart, const glm::vec3& lineEnd);

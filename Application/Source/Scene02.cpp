@@ -33,6 +33,7 @@ Scene02::~Scene02()
 
 void Scene02::Init()
 {
+	fps = 0.f;
 	// Set background color to dark blue
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 
@@ -105,45 +106,27 @@ void Scene02::Init()
 	}
 
 	meshList[GEO_AXES] = MeshBuilder::GenerateAxes("Axes", 10000.f, 10000.f, 10000.f);
-	meshList[GEO_SPHERE] = MeshBuilder::GenerateSphere("Sun", glm::vec3(1.f, 1.f, 1.f), 1.f, 16, 16);
+	meshList[GEO_SPHERE] = MeshBuilder::GenerateSphere("Sun", glm::vec3(1.f, 0.f, 0.f), 1.f, 16, 16);
 	//meshList[GEO_CUBE] = MeshBuilder::GenerateCube("Arm", glm::vec3(0.5f, 0.5f, 0.5f), 1.f);
 
+	//SKYBOX
 	meshList[GEO_LEFT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	//meshList[GEO_LEFT]->textureID = LoadTGA("Images//blackblack.tga");
-	//meshList[GEO_LEFT]->textureID = LoadTGA("Images//whitesky//whiteskyleft.tga");
-	meshList[GEO_LEFT]->textureID = LoadTGA("Images//redleft copy.tga");
-	//meshList[GEO_LEFT]->textureID = LoadTGA("Images//left.tga");
+	meshList[GEO_LEFT]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Left.tga");
 
 	meshList[GEO_RIGHT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	//meshList[GEO_RIGHT]->textureID = LoadTGA("Images//blackblack.tga");
-	//meshList[GEO_RIGHT]->textureID = LoadTGA("Images//whitesky//whiteskyright.tga");
-	meshList[GEO_RIGHT]->textureID = LoadTGA("Images//redright copy.tga");
-	//meshList[GEO_RIGHT]->textureID = LoadTGA("Images//right.tga");
+	meshList[GEO_RIGHT]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Right.tga");
 
 	meshList[GEO_BACK] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	//meshList[GEO_BACK]->textureID = LoadTGA("Images//blackblack.tga");
-	//meshList[GEO_BACK]->textureID = LoadTGA("Images//whitesky//whiteskyback.tga");
-	meshList[GEO_BACK]->textureID = LoadTGA("Images//redback copy.tga");
-	//meshList[GEO_BACK]->textureID = LoadTGA("Images//back.tga");
+	meshList[GEO_BACK]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Back.tga");
 
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	//meshList[GEO_FRONT]->textureID = LoadTGA("Images//blackblack.tga");
-	//meshList[GEO_FRONT]->textureID = LoadTGA("Images//whitesky//whiteskyfront.tga");
-	meshList[GEO_FRONT]->textureID = LoadTGA("Images//redfront copy.tga");
-	//meshList[GEO_FRONT]->textureID = LoadTGA("Images//front.tga");
+	meshList[GEO_FRONT]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Front.tga");
 
 	meshList[GEO_TOP] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	//meshList[GEO_TOP]->textureID = LoadTGA("Images//saharatop.tga");
-	//meshList[GEO_TOP]->textureID = LoadTGA("Images//top.tga");
-	//meshList[GEO_TOP]->textureID = LoadTGA("Images//whitesky//whiteskytop.tga");
-	meshList[GEO_TOP]->textureID = LoadTGA("Images//redtop copy.tga");
-	//meshList[GEO_TOP]->textureID = LoadTGA("Images//bigblackmoon.tga");
+	meshList[GEO_TOP]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Top.tga");
 
 	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	//meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//blackblack.tga");
-	//meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//whitesky//whiteskybottom.tga");
-	meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//redbottom copy.tga");
-	//meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//bottom.tga");
+	meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Bottom.tga");
 
 	//meshList[GEO_QUAD]->textureID = LoadTGA("Images//NYP.tga");
 	meshList[GEO_QUAD] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
@@ -201,7 +184,8 @@ void Scene02::Init()
 
 	// Create Invis Walls
 	{
-		walls.push_back(PhysicsObject(10.f,1.f,10.f, glm::vec3 (0.f,0.f,0.f)));
+		//walls.push_back(PhysicsObject(500.f, 5.f, 500.f, glm::vec3(0.f, -2.f, 0.f), 0.f, 0.5f));
+		walls.push_back(PhysicsObject(1.f, 10.f, 10.f, glm::vec3(0.f, 0.f, 0.f), 0.f, 0.5f));
 	}
 
 	glEnable(GL_BLEND);
@@ -261,9 +245,15 @@ void Scene02::HandleMouseInput()
 	// Re-init so FPCamera::Refresh() recalculates 'up' and other derived vectors
 	camera.Init(camera.position, camera.target, glm::vec3(0.0f, 3.0f, 0.0f));
 
-	if (MouseController::GetInstance()->IsButtonPressed(0))
+	bool isMousePressed = MouseController::GetInstance()->IsButtonPressed(0);
+
+	if (isMousePressed && !wasMousePressed)
 	{
 		PhysicsObject ball;
+
+		ball.sizeX = 0.5f;
+		ball.sizeY = 0.5f;
+		ball.sizeZ = 0.5f;
 
 		glm::vec3 forward = glm::normalize(camera.target - camera.position);
 		glm::vec3 right = glm::normalize(glm::cross(forward, camera.up));
@@ -272,16 +262,20 @@ void Scene02::HandleMouseInput()
 		float spawnOffset = 5.0f;
 
 		ball.pos = camera.position
-			+ forward * 5.0f
+			+ forward * 1.5f
 			+ right * 1.0f
-			- up * 2.f; 
+			- up * 1.f;
 
-		ball.vel = forward * 200.f;
+		ball.vel = forward * 100.f;
 
-		ball.accel = glm::vec3(0, -100.f, 0);
+		ball.accel = glm::vec3(0, -50.f, 0);
+		ball.mass = 1.f;
 
 		projectiles.push_back(ball);
 	}
+
+	// Update previous state
+	wasMousePressed = isMousePressed;
 }
 
 void Scene02::Update(double dt)
@@ -303,11 +297,15 @@ void Scene02::Update(double dt)
 
 	camera.Update(dt);
 
-	// Prevent camera from going below ground after camera updates
-	if (camera.position.y < 3.0f) {
-		camera.position.y = 3.0f;
-		if (camera.target.y < 3.0f)
-			camera.target.y = 3.0f;
+	camera.position.y = 3.3f;
+
+	float temp = static_cast<float>(1.0 / dt);
+	fps = glm::round(temp * 100.f) / 100.f;
+
+	if (camera.position.y < 3.3f) {
+		camera.position.y = 3.3f;
+		if (camera.target.y < 3.3f)
+			camera.target.y = 3.3f;
 		camera.Init(camera.position, camera.target, camera.up);
 	}
 
@@ -315,6 +313,17 @@ void Scene02::Update(double dt)
 
 	for (size_t i = 0; i < projectiles.size(); i++) {
 		PhysicsObject& ball = projectiles[i];
+
+		for (int i = 0; i < walls.size(); i++) {
+			PhysicsObject& wall = walls[i];
+			CollisionData cd;
+			if (OverlapSphere2AABB(ball, wall, cd))
+			{
+				ResolveCollision(cd);
+			}
+		}
+
+
 		ball.UpdatePhysics(dt);
 
 		if (ball.pos.y < -10.f)
@@ -323,68 +332,49 @@ void Scene02::Update(double dt)
 			i--;
 		}
 	}
-
-	/*for (int i = 0; i < walls.size(); i++) {
-		PhysicsObject& wall = walls[i];
-		modelStack.PushMatrix();
-		modelStack.Translate(wall.pos.x, wall.pos.y, wall.pos.z);
-		modelStack.Scale(wall.sizeX, wall.sizeY, wall.sizeZ);
-		RenderMesh(meshList[GEO_WALL], false);
-		modelStack.PopMatrix();
-	}*/
 }
 
-void Scene02::RenderSkybox()
-{
-	// Front face (no rotation needed if quad faces -Z by default)
+void Scene02::RenderSkybox() {
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 0.f, -500.f);
-	modelStack.Scale(10.f, 10.f, 10.f);
-	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+	// Offset in Z direction by -50 units
+	modelStack.Translate(0.f, 0.f, -50.f);
+	meshList[GEO_FRONT]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
 	RenderMesh(meshList[GEO_FRONT], false);
 	modelStack.PopMatrix();
 
-	// Back face (rotate 180 degrees around Y)
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 0.f, 500.f);
-	modelStack.Rotate(-180.f, 1.f, 1.f, 0.f);
-	modelStack.Scale(10.f, 10.f, 10.f);
+	// Offset in Z direction by -50 units
+	modelStack.Translate(0.f, 0.f, 50.f);
+	modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+	meshList[GEO_BACK]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
 	RenderMesh(meshList[GEO_BACK], false);
 	modelStack.PopMatrix();
 
-	// Left face (rotate 90 degrees around Y)
 	modelStack.PushMatrix();
-	modelStack.Translate(-500.f, 0.f, 0.f);
+	modelStack.Translate(-50.f, 0.f, 0.f);
 	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
-	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
-	modelStack.Scale(10.f, 10.f, 10.f);
+	meshList[GEO_LEFT]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
 	RenderMesh(meshList[GEO_LEFT], false);
 	modelStack.PopMatrix();
 
-	// Right face (rotate -90 degrees around Y)
 	modelStack.PushMatrix();
-	modelStack.Translate(500.f, 0.f, 0.f);
-	modelStack.Rotate(-90.f, 0.f, 1.f, 0.f);
-	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
-	modelStack.Scale(10.f, 10.f, 10.f);
+	modelStack.Translate(50.f, 0.f, 0.f);
+	modelStack.Rotate(90.f, 0.f, -1.f, 0.f);
+	meshList[GEO_RIGHT]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
 	RenderMesh(meshList[GEO_RIGHT], false);
 	modelStack.PopMatrix();
 
-	// Top face (rotate -90 degrees around X)
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 500.f, 0.f);
+	modelStack.Translate(0.f, 50.f, 0.f);
 	modelStack.Rotate(90.f, 1.f, 0.f, 0.f);
-	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
-	modelStack.Scale(10.f, 10.f, 10.f);
+	meshList[GEO_TOP]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
 	RenderMesh(meshList[GEO_TOP], false);
 	modelStack.PopMatrix();
 
-	// Bottom face (rotate 90 degrees around X)
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, -500.f, 0.f);
-	modelStack.Scale(10.f, 10.f, 10.f); // CHANGE TO 10
-	modelStack.Rotate(-90.f, 1.f, 0.f, 0.f);
-	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+	modelStack.Translate(0.f, -50.f, 0.f);
+	modelStack.Rotate(90.f, -1.f, 0.f, 0.f);
+	meshList[GEO_BOTTOM]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
 	RenderMesh(meshList[GEO_BOTTOM], false);
 	modelStack.PopMatrix();
 }
@@ -597,7 +587,7 @@ void Scene02::Render()
 		PhysicsObject& ball = projectiles[i];
 		modelStack.PushMatrix();
 		modelStack.Translate(ball.pos.x, ball.pos.y, ball.pos.z);
-		modelStack.Scale(0.5f, 0.5f, 0.5f);
+		modelStack.Scale(ball.sizeX, ball.sizeY, ball.sizeZ);
 		RenderMesh(meshList[GEO_SPHERE], true);
 		modelStack.PopMatrix();
 	}
@@ -613,6 +603,12 @@ void Scene02::Render()
 			RenderMesh(meshList[GEO_WALL], false);
 			modelStack.PopMatrix();
 		}
+	}
+
+	// FPS COUNTER
+	{
+		std::string temp("FPS:" + std::to_string(fps));
+		RenderTextOnScreen(meshList[GEO_TEXT], temp.substr(0, 9), glm::vec3(0, 1, 0), 20, 0, 580);
 	}
 }
 
@@ -737,52 +733,64 @@ void Scene02::HandleKeyPress(double dt)
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_W))
 	{
 		// Move forward
-		float movement = moveSpeed * static_cast<float>(dt);
-		camera.position += forward * movement;
-		camera.target += forward * movement;
+
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT_SHIFT)) {
+			float sprintmovement = (1.5 * moveSpeed) * static_cast<float>(dt);
+			camera.position += forward * sprintmovement;
+			camera.target += forward * sprintmovement;
+		}
+		else {
+			float movement = moveSpeed * static_cast<float>(dt);
+			camera.position += forward * movement;
+			camera.target += forward * movement;
+		}
 	}
 
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_S))
 	{
 		// Move backward
-		float movement = moveSpeed * static_cast<float>(dt);
-		camera.position -= forward * movement;
-		camera.target -= forward * movement;
+
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT_SHIFT)) {
+			float sprintmovement = (1.5 * moveSpeed) * static_cast<float>(dt);
+			camera.position -= forward * sprintmovement;
+			camera.target -= forward * sprintmovement;
+		}
+		else {
+			float movement = moveSpeed * static_cast<float>(dt);
+			camera.position -= forward * movement;
+			camera.target -= forward * movement;
+		}
 	}
 
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_A))
 	{
 		// Move left (strafe)
-		float movement = moveSpeed * static_cast<float>(dt);
-		camera.position -= right * movement;
-		camera.target -= right * movement;
+
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT_SHIFT)) {
+			float sprintmovement = (1.5 * moveSpeed) * static_cast<float>(dt);
+			camera.position -= right * sprintmovement;
+			camera.target -= right * sprintmovement;
+		}
+		else {
+			float movement = moveSpeed * static_cast<float>(dt);
+			camera.position -= right * movement;
+			camera.target -= right * movement;
+		}
 	}
 
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_D))
 	{
 		// Move right (strafe)
-		float movement = moveSpeed * static_cast<float>(dt);
-		camera.position += right * movement;
-		camera.target += right * movement;
-	}
 
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT_SHIFT))
-	{
-		// sprint at 10.f
-		float movement = (1.5 * moveSpeed) * static_cast<float>(dt);
-		camera.position += forward * movement;
-		camera.target += forward * movement;
-	}
-
-	// Clamp camera height to adjusted limits
-	if (camera.position.y < 3.3f) {
-		camera.position.y = 3.3f;
-		if (camera.target.y < 3.3f)
-			camera.target.y = 3.3f;
-	}
-	if (camera.position.y > 3.8f) {
-		camera.position.y = 3.8f;
-		if (camera.target.y > 3.8f)
-			camera.target.y = 3.8f;
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT_SHIFT)) {
+			float sprintmovement = (1.5 * moveSpeed) * static_cast<float>(dt);
+			camera.position += right * sprintmovement;
+			camera.target += right * sprintmovement;
+		}
+		else {
+			float movement = moveSpeed * static_cast<float>(dt);
+			camera.position += right * movement;
+			camera.target += right * movement;
+		}
 	}
 }

@@ -1,20 +1,23 @@
 #include "PhysicsObject.h"
 
 PhysicsObject::PhysicsObject()
-	: sizeX{1.f}, sizeY{1.f}, sizeZ{1.f}, pos{}, vel{}, accel{}, 
-	mass{ 1.f }, m_totalForces{}, angularVel{}, angleDeg{}, bounciness{ 1.f }
+    : sizeX{ 1.f }, sizeY{ 1.f }, sizeZ{ 1.f }, pos{}, prevPos{}, vel{}, accel{},
+	mass{ 1.f }, m_totalForces{}, angularVel{}, orientation{}, bounciness{ 1.f }
 {
 }
 
-PhysicsObject::PhysicsObject(float sizeX, float sizeY, float sizeZ, glm::vec3 pos)
-	: sizeX{ 1.f }, sizeY{ 1.f }, sizeZ{ 1.f }, pos{}, vel{}, accel{},
-	mass{ 1.f }, m_totalForces{}, angularVel{}, angleDeg{}, bounciness{ 1.f }
+PhysicsObject::PhysicsObject(float sizeX, float sizeY, float sizeZ, glm::vec3 pos, float mass, float bounciness)
+    : sizeX{ 1.f }, sizeY{ 1.f }, sizeZ{ 1.f }, pos{}, prevPos{}, vel{}, accel{},
+	mass{ 1.f }, m_totalForces{}, angularVel{}, orientation{}, bounciness{ 1.f }
 {
 	this->sizeX = sizeX;
 	this->sizeY = sizeY;
 	this->sizeZ = sizeZ;
 
 	this->pos = pos;
+
+	this->mass = mass;
+    this->bounciness = bounciness;
 }
 
 void PhysicsObject::AddForce(const glm::vec3& force)
@@ -33,16 +36,28 @@ void PhysicsObject::AddImpulse(const glm::vec3& impulse)
 
 void PhysicsObject::UpdatePhysics(float dt)
 {
-	glm::vec3 finalAccel = accel;
-	if (mass > 0.0f)
-	{
-		finalAccel += m_totalForces * (1.f / mass);
-	}
+    if (mass == 0.f)
+    {
+        m_totalForces = glm::vec3(0.f);
+        return;
+    }
 
-	vel += finalAccel * dt;
-	pos += vel * dt;
+    // Linear motion
+    glm::vec3 finalAccel = accel + m_totalForces / mass;
 
-	angleDeg += angularVel * dt;
+    vel += finalAccel * dt;
 
-	m_totalForces = glm::vec3(0.f);
+    const float damping = 0.98f;
+    vel *= pow(damping, dt * 60.f);
+
+    pos += vel * dt;
+
+    // Angular motion (3D correct)
+    glm::quat omega(0.f, angularVel.x, angularVel.y, angularVel.z);
+    glm::quat dq = 0.5f * omega * orientation;
+
+    orientation += dq * dt;
+    orientation = glm::normalize(orientation);
+
+    m_totalForces = glm::vec3(0.f);
 }

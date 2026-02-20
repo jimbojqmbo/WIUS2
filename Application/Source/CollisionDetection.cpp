@@ -171,10 +171,129 @@ bool OverlapCircle2OBB(PhysicsObject& circle, float radius, PhysicsObject& box, 
 	return true;
 }
 
-// General collision resolver placeholder - scenes may use CollisionData to resolve
+bool OverlapSphere2AABB(PhysicsObject& sphereObj, PhysicsObject& boxObj, CollisionData& cd)
+{
+	glm::vec3 spherePos = sphereObj.pos;
+	float radius = sphereObj.sizeX * 0.5f;
+
+	glm::vec3 halfSize(boxObj.sizeX * 0.5f, boxObj.sizeY * 0.5f, boxObj.sizeZ * 0.5f);
+
+	glm::vec3 boxMin = boxObj.pos - halfSize;
+	glm::vec3 boxMax = boxObj.pos + halfSize;
+
+	// Prepare to store the closest collision
+	float minPenetration = FLT_MAX;
+	glm::vec3 bestNormal(0.f);
+	glm::vec3 bestContact(0.f);
+	bool collided = false;
+
+	// Define each face (normal and plane coordinate)
+	struct Face { glm::vec3 normal; glm::vec3 point; };
+	Face faces[6] = {
+		{ glm::vec3(1, 0, 0), boxMax }, // +X
+		{ glm::vec3(-1, 0, 0), boxMin }, // -X
+		{ glm::vec3(0, 1, 0), boxMax }, // +Y
+		{ glm::vec3(0,-1, 0), boxMin }, // -Y
+		{ glm::vec3(0, 0, 1), boxMax }, // +Z
+		{ glm::vec3(0, 0,-1), boxMin }  // -Z
+	};
+
+	// Check each face
+	for (int i = 0; i < 6; ++i)
+	{
+		Face f = faces[i];
+
+		// Project sphere center onto the face plane (clamp to face bounds)
+		glm::vec3 closest = spherePos;
+		if (f.normal.x != 0) {
+			closest.x = f.point.x;
+			closest.y = glm::clamp(spherePos.y, boxMin.y, boxMax.y);
+			closest.z = glm::clamp(spherePos.z, boxMin.z, boxMax.z);
+		}
+		if (f.normal.y != 0) {
+			closest.y = f.point.y;
+			closest.x = glm::clamp(spherePos.x, boxMin.x, boxMax.x);
+			closest.z = glm::clamp(spherePos.z, boxMin.z, boxMax.z);
+		}
+		if (f.normal.z != 0) {
+			closest.z = f.point.z;
+			closest.x = glm::clamp(spherePos.x, boxMin.x, boxMax.x);
+			closest.y = glm::clamp(spherePos.y, boxMin.y, boxMax.y);
+		}
+
+		glm::vec3 diff = spherePos - closest;
+		float distSquared = glm::dot(diff, diff);
+
+		if (distSquared <= radius * radius)
+		{
+			float penetration = radius - sqrt(distSquared);
+			if (penetration < minPenetration)
+			{
+				minPenetration = penetration;
+				bestNormal = f.normal;
+				bestContact = closest;
+				collided = true;
+			}
+		}
+	}
+
+	if (collided)
+	{
+		cd.pObj1 = &sphereObj;
+		cd.pObj2 = &boxObj;
+		cd.collisionNormal = bestNormal;
+		cd.penetration = minPenetration;
+		cd.contactPoint = bestContact;
+		return true;
+	}
+
+	return false;
+}
+
 void ResolveCollision(CollisionData& cd)
 {
-	(void)cd;
+	PhysicsObject& Obj1 = *cd.pObj1;
+	PhysicsObject& Obj2 = *cd.pObj2;
+
+	glm::vec3 n = glm::normalize(cd.collisionNormal);
+
+	float invMass1 = (Obj1.mass == 0.f) ? 0.f : 1.f / Obj1.mass;
+	float invMass2 = (Obj2.mass == 0.f) ? 0.f : 1.f / Obj2.mass;
+	float totalInvMass = invMass1 + invMass2;
+	if (totalInvMass == 0.f) return;
+
+	// --- Immediate positional correction ---
+	Obj1.pos += n * cd.penetration; // fully move sphere out of wall
+
+	// --- Compute relative velocity along normal ---
+	float velAlongNormal = glm::dot(Obj1.vel - Obj2.vel, n);
+
+	// --- Apply bounciness ---
+	float restitution = std::min(Obj1.bounciness, Obj2.bounciness);
+
+	if (velAlongNormal < 0.f) // only if moving into the wall
+	{
+		float j = -(1.f + restitution) * velAlongNormal / totalInvMass;
+		glm::vec3 impulse = j * n;
+
+		Obj1.vel += impulse * invMass1;
+		Obj2.vel -= impulse * invMass2; // wall usually has invMass=0
+	}
+
+	// --- Friction along tangent ---
+	glm::vec3 relativeVel = Obj1.vel - Obj2.vel;
+	glm::vec3 tangent = relativeVel - glm::dot(relativeVel, n) * n;
+	float lenT = glm::length(tangent);
+	if (lenT > 0.001f)
+	{
+		tangent /= lenT;
+		glm::vec3 frictionImpulse = -0.4f * tangent * glm::length(relativeVel); // simple friction
+		Obj1.vel += frictionImpulse * invMass1;
+		Obj2.vel -= frictionImpulse * invMass2;
+	}
+
+	// Clamp very small velocities
+	if (glm::length(Obj1.vel) < 0.01f) Obj1.vel = glm::vec3(0.f);
 }
 
 // Resolve circle vs static line using PhysicsObject interface
