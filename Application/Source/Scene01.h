@@ -50,6 +50,7 @@ public:
 		GEO_EYEBALL,
 		GEO_EYEBALL_MTL,
 		JEFFREYEPSTEIN,
+		FOREST,
 
 		NUM_GEOMETRY,
 	};
@@ -139,14 +140,27 @@ private:
 	double lastMouseX = 400.0;  // Center of 800x600 window
 	double lastMouseY = 300.0;
 
-	float moveSpeed = 5.0f;
+	float moveSpeed = 15;
 
 	Player player1;
 	Player player2;
 
 	float fps = 0;
 
-	void RenderPlayerModel();
+	// Physics / bumper-car properties
+	glm::vec3 cameraVelocity1 = glm::vec3(0.0f);
+	glm::vec3 cameraVelocity2 = glm::vec3(0.0f);
+
+	float cameraMass = 1;      // mass for each bumper car (equal for now)
+	float restitution = 4;     // bounce: 0 = inelastic, 1 = perfectly elastic
+	float linearDamping = 2;   // damping per second (friction)
+	float maxSpeed = 25;       // limit speed from exploding
+	float driveAcceleration = 240; // acceleration (units/s^2) from input
+	float cameraRadius = 3.5;    // collision radius per camera
+
+	// Resolve collision by applying an impulse to velocities and a small positional correction (XZ-plane)
+	void ResolveCameraCollisionsWithBounce(FPCamera& a, glm::vec3& velA, FPCamera& b, glm::vec3& velB, double dt);
+	
 };
 
 #endif
