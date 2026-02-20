@@ -254,11 +254,13 @@ void Scene04::balls_update(double dt) {
 	}
 	for (int i = 0; i < ball_num; i++) {
 		//gravity 
-		ball[i].AddForce(glm::vec3(0, gravity, 0));
-
+		//ball[i].AddForce(glm::vec3(0, gravity, 0));
+		ball[i].vel = glm::vec3(0, gravity, 0);
+		/*
 		if (not(ball[i].pos.y <= 0 + ball_radius)) {
 			ball[i].pos.y = ball_radius + 2;
 		}
+		*/
 		//resolve collision
 		ball[i].UpdatePhysics(dt);
 	}
