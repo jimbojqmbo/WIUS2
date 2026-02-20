@@ -251,11 +251,53 @@ void Scene03::HandleMouseInput() {
 	}*/
 }
 
+bool Scene03::OverlapCircle2AABB(glm::vec3 circlePos, float radius, glm::vec3 boxMin, glm::vec3 boxMax)
+{
+	glm::vec3 closest = circlePos;
+
+	if (closest.x < boxMin.x) {
+		closest.x = boxMin.x;
+	}
+	else if (closest.x > boxMax.x) {
+		closest.x = boxMax.x;
+	}
+
+	if (closest.y < boxMin.y) {
+		closest.y = boxMin.y;
+	}
+	else if (closest.y > boxMax.y) {
+		closest.y = boxMax.y;
+	}
+
+	glm::vec3 diff = circlePos - closest;
+
+	// Step 3: distance check
+	float distSq = diff.x * diff.x + diff.y * diff.y;
+
+	if (distSq <= radius * radius) {
+		return true;
+	}
+
+	return false;
+}
+
 void Scene03::Update(double dt)
 {
-	camera.position.y = 1.f;
+	float boardMinX = hoopPosition.x - 2.2f;
+	float boardMaxX = hoopPosition.x + 2.2f;
 
-	std::cout << camera.position.x << ", 1, " << camera.position.z << std::endl;
+	float boardMinY = hoopPosition.y + 5.5f;
+	float boardMaxY = hoopPosition.y + 8.5f;
+
+	float boardZ = hoopPosition.z + 2.3f;
+
+	//camera.position.y = 1.f;
+
+	//height of backboard is 3
+	//-2.2, 5.5, 2.3
+	//2.2, 8.5, 2.3
+
+	//std::cout << camera.position.x << ", " << camera.position.y << ", " << camera.position.z << std::endl;
 
 	HandleKeyPress(dt);
 
@@ -294,8 +336,8 @@ void Scene03::Update(double dt)
 
 		newBall.pos = camera.position + forward * 2.0f; // spawn in front
 
-		float throwForce = 20.f;     // adjust strength
-		float upwardForce = 20.f;    // small arc
+		float throwForce = 25.f;     // adjust strength
+		float upwardForce = 14.f;    // small arc
 
 		newBall.vel = forward * throwForce;
 		newBall.vel.y = upwardForce;
@@ -303,6 +345,8 @@ void Scene03::Update(double dt)
 		newBall.accel.y = -gravity; //how fast ball drops
 
 		balls.push_back(newBall);
+
+		PlaySound(TEXT("Sounds//applepay.wav"), NULL, SND_FILENAME | SND_ASYNC);
 	}
 
 	mousePreviouslyDown = mouseCurrentlyDown;
@@ -323,6 +367,51 @@ void Scene03::Update(double dt)
 			// Stop completely when very slow
 			if (abs(ball.vel.x) < 0.05f) ball.vel.x = 0.f;
 			if (abs(ball.vel.z) < 0.05f) ball.vel.z = 0.f;
+		}
+
+		float radius = 0.4f;   // approximate basketball radius
+
+		//// -------- BACKBOARD COLLISION --------
+		//if (ball.pos.z >= boardZ - radius &&
+		//	ball.pos.z <= boardZ + radius &&
+		//	ball.pos.x >= boardMinX &&
+		//	ball.pos.x <= boardMaxX &&
+		//	ball.pos.y >= boardMinY &&
+		//	ball.pos.y <= boardMaxY)
+		//{
+		//	// Move ball slightly in front of board
+		//	ball.pos.z = boardZ - radius;
+
+		//	// Reflect Z velocity (bounce backward)
+		//	ball.vel.z *= -0.6f;  // 60% bounce
+
+		//	// Optional small dampening
+		//	ball.vel.x *= 0.9f;
+		//	ball.vel.y *= 0.9f;
+		//}
+		
+		float boardMinX = hoopPosition.x - 2.2f;
+		float boardMaxX = hoopPosition.x + 2.2f;
+		float boardMinY = hoopPosition.y + 5.5f;
+		float boardMaxY = hoopPosition.y + 8.5f;
+		float boardZ = hoopPosition.z + 2.3f;
+
+		// Check collision
+		if (ball.pos.x >= boardMinX &&
+			ball.pos.x <= boardMaxX &&
+			ball.pos.y >= boardMinY &&
+			ball.pos.y <= boardMaxY)
+		{
+			// Check crossing from either side
+			if (abs(ball.pos.z - boardZ) <= radius)
+			{
+				float direction = (ball.pos.z > boardZ) ? 1.f : -1.f;
+
+				ball.pos.z = boardZ + direction * radius;
+
+				ball.vel.z = -ball.vel.z * 0.4f;
+			}
+
 		}
 	}
 

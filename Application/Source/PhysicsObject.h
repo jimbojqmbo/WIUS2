@@ -36,6 +36,7 @@ public:
 	void AddImpulse(const glm::vec3& impulse); //an impulse results in an immediate change in velocity
 	void UpdatePhysics(float dt);
 
+	bool hitBoard = false;
 protected:
 	glm::vec3 m_totalForces;
 };
