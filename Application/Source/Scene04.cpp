@@ -631,9 +631,20 @@ void Scene04::HandleKeyPress(double dt)
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_W))
 	{
 		// Move forward
+		/*
 		float movement = moveSpeed * static_cast<float>(dt);
 		camera.position += forward * movement;
 		camera.target += forward * movement;
+		*/
+		
+		glm::vec3 view = glm::normalize(camera.target - camera.position);
+		glm::vec3 oldpos = camera.position;
+
+		camera.position.x += view.x * moveSpeed;
+		camera.position.z += view.z * moveSpeed;
+
+		camera.target = camera.position + view;
+
 	}
 
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_S))
