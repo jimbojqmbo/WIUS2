@@ -22,6 +22,7 @@
 #include "LoadTGA.h"
 #include "MouseController.h"
 #include <iostream>
+#include <iomanip>
 #include <cmath> // for atan2, etc.
 
 // repo cloning text test
@@ -200,11 +201,20 @@ void Scene01::Init()
 	meshList[PAUSEMENU] = MeshBuilder::GenerateQuad("pause", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[PAUSEMENU]->textureID = LoadTGA("Images//scene01pausemenuv2.tga");
 
-	meshList[PLAYER1INDICATORUI] = MeshBuilder::GenerateQuad("player1", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	meshList[PLAYER1INDICATORUI]->textureID = LoadTGA("Images//scene01 UI//scene01player1_indicatorUI.tga");
+	{
+		// PLAYER INDICATOR
+		meshList[PLAYER1INDICATORUI] = MeshBuilder::GenerateQuad("player1", glm::vec3(1.f, 1.f, 1.f), 1.f);
+		meshList[PLAYER1INDICATORUI]->textureID = LoadTGA("Images//scene01 UI//scene01player1_indicatorUI.tga");
 
-	meshList[PLAYER2INDICATORUI] = MeshBuilder::GenerateQuad("player2", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	meshList[PLAYER2INDICATORUI]->textureID = LoadTGA("Images//scene01 UI//scene01player2_indicatorUI.tga");
+		meshList[PLAYER2INDICATORUI] = MeshBuilder::GenerateQuad("player2", glm::vec3(1.f, 1.f, 1.f), 1.f);
+		meshList[PLAYER2INDICATORUI]->textureID = LoadTGA("Images//scene01 UI//scene01player2_indicatorUI.tga");
+	}
+
+	{
+		// GROUND
+		meshList[GREYGROUND] = MeshBuilder::GenerateQuad("grey ground", glm::vec3(1.f, 1.f, 1.f), 1.f);
+		meshList[GREYGROUND]->textureID = LoadTGA("Images//scene01_ground//greyground.tga");
+	}
 
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
@@ -428,6 +438,12 @@ void Scene01::Update(double dt)
 
 	float temp = 1.f / dt;
 	fps = glm::round(temp * 100.f) / 100.f;
+
+	// Output camera positions for debugging (Scene01 only)
+	std::cout << std::fixed << std::setprecision(2)
+		<< "Camera1 Pos: (" << camera1.position.x << ", " << camera1.position.y << ", " << camera1.position.z << ")  "
+		<< "Camera2 Pos: (" << camera2.position.x << ", " << camera2.position.y << ", " << camera2.position.z << ")  "
+		<< "FPS: " << fps << std::endl;
 }
 
 void Scene01::RenderSkybox()
@@ -483,6 +499,66 @@ void Scene01::RenderSkybox()
 	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
 	RenderMesh(meshList[GEO_BOTTOM], false);
 	modelStack.PopMatrix();
+}
+
+void Scene01::RenderPathway()
+{
+	// Render the pathway as a smooth curved strip built from identical GREYGROUND quads.
+	// Each tile keeps the same scale used previously so visual scale remains unchanged.
+	const int segments = 64; // increase for a smoother curve
+	const glm::vec3 p0(-100.f, 0.3f, 25.f);  // start
+	const glm::vec3 p1(-40.f, 0.3f, 60.f);   // control 1
+	const glm::vec3 p2(40.f, 0.3f, -10.f);   // control 2
+	const glm::vec3 p3(100.f, 0.3f, 25.f);   // end
+
+	auto cubicBezier = [](float t, const glm::vec3& a, const glm::vec3& b, const glm::vec3& c, const glm::vec3& d) {
+		float u = 1.0f - t;
+		return u * u * u * a + 3.0f * u * u * t * b + 3.0f * u * t * t * c + t * t * t * d;
+		};
+	auto cubicBezierDeriv = [](float t, const glm::vec3& a, const glm::vec3& b, const glm::vec3& c, const glm::vec3& d) {
+		float u = 1.0f - t;
+		return 3.0f * u * u * (b - a) + 6.0f * u * t * (c - b) + 3.0f * t * t * (d - c);
+		};
+
+	// Material for the path (keeps same visual as before)
+	meshList[GREYGROUND]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GREYGROUND]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GREYGROUND]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+	meshList[GREYGROUND]->material.kShininess = 5.0f;
+
+	// Tweak this to change path width. Original X-scale was 100.f — reduce to make path narrower.
+	const float pathWidth = 40;    // <-- adjust this value
+	const float pathHeightScale = 50;
+	const float pathDepthScale = 5;
+
+	for (int i = 0; i < segments; ++i)
+	{
+		// center each segment on its parametric midpoint for nicer overlap
+		float t = (i + 0.5f) / static_cast<float>(segments);
+		glm::vec3 pos = cubicBezier(t, p0, p1, p2, p3);
+		glm::vec3 tangent = cubicBezierDeriv(t, p0, p1, p2, p3);
+
+		// Compute yaw so the quad aligns with the path tangent (XZ plane)
+		float yaw = glm::degrees(atan2(tangent.z, tangent.x));
+
+		modelStack.PushMatrix();
+		// Position on the curve
+		modelStack.Translate(pos.x, pos.y, pos.z);
+
+		// Align tile along curve's heading
+		modelStack.Rotate(yaw, 0.f, 1.f, 0.f);
+
+		// Orient the quad flat on the ground and flip to match original orientation
+		modelStack.Rotate(90.f, 1.f, 0.f, 0.f);
+		modelStack.Rotate(180.f, 1.f, 0.f, 0.f);
+
+		// Keep tile scale but use narrower width (X)
+		modelStack.Scale(pathWidth, pathHeightScale, pathDepthScale);
+
+		// Render without lighting (same as original pathway)
+		RenderMesh(meshList[GREYGROUND], false);
+		modelStack.PopMatrix();
+	}
 }
 
 void Scene01::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey)
@@ -684,10 +760,10 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 			}
 			// keep the ambient material tweak from original code
 			meshList[GEO_GRASS]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
-			meshList[GEO_ABANDONEDHOUSE]->material.kDiffuse = glm::vec3(1, 1, 1);
-			meshList[GEO_ABANDONEDHOUSE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
 		}
 		modelStack.PopMatrix();
+
+		RenderPathway();
 
 		/*
 		========================================

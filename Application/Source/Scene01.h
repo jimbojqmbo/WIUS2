@@ -44,6 +44,7 @@ public:
 
 		GEO_GRASS,
 		GEO_ABANDONEDHOUSE,
+		GREYGROUND,
 
 		GEO_FLASHLIGHT,
 
@@ -136,6 +137,8 @@ private:
 
 	void RenderText(Mesh* mesh, std::string text, glm::vec3 color);
 	void RenderTextOnScreen(Mesh* mesh, std::string text, glm::vec3 color, float size, float x, float y);
+
+	void RenderPathway();
 
 	glm::vec3 change;
 
