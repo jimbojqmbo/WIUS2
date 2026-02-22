@@ -148,6 +148,9 @@ void Scene02::Init()
 	meshList[GEO_GUI] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_GUI]->textureID = LoadTGA("Images//blackblack.tga");
 
+	meshList[GEO_BLASTER] = MeshBuilder::GenerateOBJMTL("Blaster", "Models//Blaster.obj", "Models//Blaster.mtl");
+	meshList[GEO_BLASTER]->textureID = LoadTGA("Images//Blaster.tga");
+
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
 
@@ -178,6 +181,11 @@ void Scene02::Init()
 
 	enableLight = true;
 	enableHitbox = false;
+	wasMousePressed = false;
+	blasterAnimating = false;
+	blasterMovingUp = false;
+
+	blasterAngle = 0.f;
 
 	m_parameters[U_TEXT_ENABLED] = glGetUniformLocation(m_programID, "textEnabled");
 	m_parameters[U_TEXT_COLOR] = glGetUniformLocation(m_programID, "textColor");
@@ -190,10 +198,10 @@ void Scene02::Init()
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+	MouseController::GetInstance()->SetKeepMouseCentered(true);
 }
 
-void Scene02::HandleMouseInput() 
+void Scene02::HandleMouseInput(double dt) 
 {
 
 	double mouseX = MouseController::GetInstance()->GetMousePositionX();
@@ -251,9 +259,9 @@ void Scene02::HandleMouseInput()
 	{
 		PhysicsObject ball;
 
-		ball.sizeX = 0.5f;
-		ball.sizeY = 0.5f;
-		ball.sizeZ = 0.5f;
+		ball.sizeX = 0.3f;
+		ball.sizeY = 0.3f;
+		ball.sizeZ = 0.3f;
 
 		glm::vec3 forward = glm::normalize(camera.target - camera.position);
 		glm::vec3 right = glm::normalize(glm::cross(forward, camera.up));
@@ -262,7 +270,7 @@ void Scene02::HandleMouseInput()
 		float spawnOffset = 5.0f;
 
 		ball.pos = camera.position
-			+ forward * 1.5f
+			+ forward * 2.5f
 			+ right * 1.0f
 			- up * 1.f;
 
@@ -272,6 +280,11 @@ void Scene02::HandleMouseInput()
 		ball.mass = 1.f;
 
 		projectiles.push_back(ball);
+
+		blasterAngle = 0.f;
+
+		blasterAnimating = true;
+		blasterMovingUp = true;
 	}
 
 	// Update previous state
@@ -309,7 +322,7 @@ void Scene02::Update(double dt)
 		camera.Init(camera.position, camera.target, camera.up);
 	}
 
-	HandleMouseInput();
+	HandleMouseInput(dt);
 
 	for (size_t i = 0; i < projectiles.size(); i++) {
 		PhysicsObject& ball = projectiles[i];
@@ -330,6 +343,32 @@ void Scene02::Update(double dt)
 		{
 			projectiles.erase(projectiles.begin() + i);
 			i--;
+		}
+	}
+
+	if (blasterAnimating == true)
+	{
+		if (blasterMovingUp)
+		{
+			if (blasterAngle < 15.f)
+			{
+				blasterAngle += 100.f * dt;
+			}
+			else {
+				blasterAngle = 15.f;
+				blasterMovingUp = false;
+			}
+		}
+
+		else {
+			if (blasterAngle > 0.f)
+			{
+				blasterAngle -= 100.f * dt;
+			}
+			else {
+				blasterAngle = 0.f;
+				blasterAnimating = false;
+			}
 		}
 	}
 }
@@ -577,7 +616,38 @@ void Scene02::Render()
 	}
 	modelStack.PopMatrix();
 
-	meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_BLASTER]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_BLASTER]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_BLASTER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+	meshList[GEO_BLASTER]->material.kShininess = 5.0f;
+
+	glm::vec3 forward = glm::normalize(camera.target - camera.position);
+	glm::vec3 right = glm::normalize(glm::cross(forward, camera.up));
+	glm::vec3 up = glm::normalize(camera.up);
+
+	glm::vec3 blasterPos =
+		camera.position
+		+ forward * 2.f
+		+ right * 1.f
+		- up * 1.f;
+
+	glm::mat4 rot(1.0f);
+	rot[0] = glm::vec4(right, 0.f);
+	rot[1] = glm::vec4(up, 0.f);
+	rot[2] = glm::vec4(-forward, 0.f);
+
+	modelStack.PushMatrix();
+	modelStack.Translate(blasterPos.x, blasterPos.y, blasterPos.z);
+
+	modelStack.MultMatrix(rot);
+	modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+	modelStack.Rotate(-blasterAngle, 1.f, 0.f, 0.f);
+	modelStack.Scale(0.4f, 0.5f, 0.5f);
+
+	RenderMesh(meshList[GEO_BLASTER], true);
+	modelStack.PopMatrix();
+
+	meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
 	meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
 	meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 	meshList[GEO_SPHERE]->material.kShininess = 5.0f;

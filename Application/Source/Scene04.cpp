@@ -220,10 +220,6 @@ void Scene04::Update(double dt)
 		camera.Init(camera.position, camera.target, camera.up);
 	}
 
-	if (OverlapCircle2OBB(player, ball_radius, floor, floor_space, floor_height, floor_space, cd)) {
-		std::cout << "collided with wall" << std::endl;
-	}
-
 	camera.Update(dt);
 
 	
@@ -238,15 +234,15 @@ void Scene04::balls_update(double dt) {
 		// ball against ball
 		for (int j = i + 1; j < ball_num; j++) {
 			if (OverlapCircle2Circle(ball[i], ball_radius, ball[j], ball_radius, cd)) {
-				ResolveCollision(cd);
+				ResolveCollisionBall(cd);
 			}
 		}
 		//ball agaisnt player test
 		if (OverlapCircle2Circle(ball[i], ball_radius, player, ball_radius, cd)) {
-			ResolveCollision(cd);
+			ResolveCollisionBall(cd);
 		}
 		//ball against floor
-		if (OverlapCircle2OBB(ball[i],ball_radius,floor,floor_space,floor_height,floor_space,cd)) {
+		if (OverlapCircle2AABB(ball[i], ball_radius , floor, glm::vec3 (floor_space, floor_height, floor_space),cd)) {
 			ResolveCollision(cd);
 			std::cout << "ball collide with floor" << std::endl;
 		}
@@ -254,13 +250,8 @@ void Scene04::balls_update(double dt) {
 	}
 	for (int i = 0; i < ball_num; i++) {
 		//gravity 
-		//ball[i].AddForce(glm::vec3(0, gravity, 0));
-		ball[i].vel = glm::vec3(0, gravity, 0);
-		/*
-		if (not(ball[i].pos.y <= 0 + ball_radius)) {
-			ball[i].pos.y = ball_radius + 2;
-		}
-		*/
+		ball[i].AddForce(glm::vec3(0, gravity, 0));
+
 		//resolve collision
 		ball[i].UpdatePhysics(dt);
 	}
@@ -801,7 +792,7 @@ bool Scene04::OverlapCircle2CYLINDER(const glm::vec3& pos1, float r1, const glm:
 	return lengthSq <= rsum * rsum;
 }
 
-void Scene04::ResolveCollision(CollisionData cd) {
+void Scene04::ResolveCollisionBall(CollisionData cd) {
 	PhysicsObject&  o1 = *cd.pObj1;
 	PhysicsObject& o2 = *cd.pObj2;
 
@@ -811,7 +802,7 @@ void Scene04::ResolveCollision(CollisionData cd) {
 	oc.y = oc.y / 2;
 	oc.z = oc.z / 2;
 
-	if (o2.mass > 0.f) {
+    if (o2.mass > 0.f) {
 		o2.pos += oc;
 		o2.AddImpulse(cd.collisionNormal * (1 + o2.bounciness));
 	}

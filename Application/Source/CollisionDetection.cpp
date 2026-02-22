@@ -375,6 +375,7 @@ void ResolveCircle2StaticLine(PhysicsObject& ball, float radius, const glm::vec3
 		ball.vel -= normal * vn;
 	}
 }
+
 bool OverlapCircle2AABB(glm::vec3 circlePos, float radius, glm::vec3 boxPos, glm::vec3 box_daimension)
 {
 
@@ -401,4 +402,112 @@ bool OverlapCircle2AABB(glm::vec3 circlePos, float radius, glm::vec3 boxPos, glm
 	int disty = circlePos.y - neary;
 
 	return (distx * distx + disty * disty) <= (radius * radius);
+}
+
+bool OverlapCircle2AABB(PhysicsObject& circle, float radius, PhysicsObject& box, glm::vec3 box_daimension,CollisionData &cd)
+{
+	/*
+	glm::vec3 circlePos;
+	circlePos = circle.pos;
+	glm::vec3 boxPos;
+	boxPos = box.pos;
+	glm::vec3 min;
+	min = glm::vec3(boxPos.x - (box_daimension.x / 2), boxPos.y - (box_daimension.y / 2), boxPos.z - (box_daimension.z / 2));
+	glm::vec3 max;
+	max = glm::vec3(boxPos.x + (box_daimension.x / 2), boxPos.y + (box_daimension.y / 2), boxPos.z + (box_daimension.z / 2));
+
+	glm::vec3 closestPoint;
+	closestPoint.x = glm::clamp(circlePos.x, min.x, max.x);
+	closestPoint.y = glm::clamp(circlePos.y, min.y, max.y);
+	closestPoint.z = glm::clamp(circlePos.z, min.z, max.z);
+
+	glm::vec3 n = circlePos - closestPoint;
+	float dist2 = glm::dot(n, n);
+
+	if (dist2 > radius * radius)
+		return false;
+
+	float dist = std::sqrt(dist2);
+
+	cd.pObj1 = &circle;
+	cd.pObj2 = &box;
+	cd.collisionNormal = (dist > 1e-8f) ? n / dist : glm::vec3(1.f, 0.f, 0.f);
+	cd.penetration = radius - dist;
+	cd.contactPoint = closestPoint;
+	
+
+	return true;
+	*/
+	glm::vec3 spherePos = circle.pos;
+
+	glm::vec3 boxMin;
+	boxMin = glm::vec3(box.pos.x - (box_daimension.x / 2), box.pos.y - (box_daimension.y / 2), box.pos.z - (box_daimension.z / 2));
+	glm::vec3 boxMax;
+	boxMax = glm::vec3(box.pos.x + (box_daimension.x / 2), box.pos.y + (box_daimension.y / 2), box.pos.z + (box_daimension.z / 2));
+
+	// Prepare to store the closest collision
+	float minPenetration = FLT_MAX;
+	glm::vec3 bestNormal(0.f);
+	glm::vec3 bestContact(0.f);
+	bool collided = false;
+
+	// Define each face (normal and plane coordinate)
+	struct Face { glm::vec3 normal; glm::vec3 point; };
+	Face faces[6] = {
+		{ glm::vec3(1, 0, 0), boxMax }, // +X
+		{ glm::vec3(-1, 0, 0), boxMin }, // -X
+		{ glm::vec3(0, 1, 0), boxMax }, // +Y
+		{ glm::vec3(0,-1, 0), boxMin }, // -Y
+		{ glm::vec3(0, 0, 1), boxMax }, // +Z
+		{ glm::vec3(0, 0,-1), boxMin }  // -Z
+	};
+
+	// Check each face
+	for (int i = 0; i < 6; ++i)
+	{
+		Face f = faces[i];
+
+		// Project sphere center onto the face plane (clamp to face bounds)
+		glm::vec3 closest = spherePos;
+		if (f.normal.x != 0) {
+			closest.x = f.point.x;
+			closest.y = glm::clamp(spherePos.y, boxMin.y, boxMax.y);
+			closest.z = glm::clamp(spherePos.z, boxMin.z, boxMax.z);
+		}
+		if (f.normal.y != 0) {
+			closest.y = f.point.y;
+			closest.x = glm::clamp(spherePos.x, boxMin.x, boxMax.x);
+			closest.z = glm::clamp(spherePos.z, boxMin.z, boxMax.z);
+		}
+		if (f.normal.z != 0) {
+			closest.z = f.point.z;
+			closest.x = glm::clamp(spherePos.x, boxMin.x, boxMax.x);
+			closest.y = glm::clamp(spherePos.y, boxMin.y, boxMax.y);
+		}
+
+		glm::vec3 diff = spherePos - closest;
+		float distSquared = glm::dot(diff, diff);
+
+		if (distSquared <= radius * radius)
+		{
+			float penetration = radius - sqrt(distSquared);
+			if (penetration < minPenetration)
+			{
+				minPenetration = penetration;
+				bestNormal = f.normal;
+				bestContact = closest;
+				collided = true;
+			}
+		}
+	}
+
+	if (collided)
+	{
+		cd.pObj1 = &circle;
+		cd.pObj2 = &box;
+		cd.collisionNormal = bestNormal;
+		cd.penetration = minPenetration;
+		cd.contactPoint = bestContact;
+		return true;
+	}
 }

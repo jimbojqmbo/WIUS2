@@ -177,6 +177,7 @@ void Application::Run()
 			if (sceneNum == SCENE_GUI) {
 				scene1->Exit();
 				scene2->Init();
+				PlaySound(NULL, 0, 0);
 				scene = scene2;
 				sceneNum = SCENE_01;
 			}
@@ -191,6 +192,7 @@ void Application::Run()
 			if (sceneNum == SCENE_GUI) {
 				scene1->Exit();
 				scene3->Init();
+				PlaySound(NULL, 0, 0);
 				scene = scene3;
 				sceneNum = SCENE_02;
 			}
@@ -205,6 +207,7 @@ void Application::Run()
 			if (sceneNum == SCENE_GUI) {
 				scene1->Exit();
 				scene4->Init();
+				PlaySound(NULL, 0, 0);
 				scene = scene4;
 				sceneNum = SCENE_03;
 			}
@@ -219,6 +222,7 @@ void Application::Run()
 			if (sceneNum == SCENE_GUI) {
 				scene1->Exit();
 				scene5->Init();
+				PlaySound(NULL, 0, 0);
 				scene = scene5;
 				sceneNum = SCENE_04;
 			}
@@ -233,6 +237,7 @@ void Application::Run()
 			if (sceneNum == SCENE_01) {
 				scene2->Exit();
 				scene1->Init();
+				PlaySound(NULL, 0, 0);
 				scene = scene1;
 				sceneNum = SCENE_04;
 

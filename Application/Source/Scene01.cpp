@@ -22,6 +22,7 @@
 #include "LoadTGA.h"
 #include "MouseController.h"
 #include <iostream>
+#include <iomanip>
 #include <cmath> // for atan2, etc.
 
 // repo cloning text test
@@ -194,6 +195,27 @@ void Scene01::Init()
 	meshList[FOREST] = MeshBuilder::GenerateOBJMTL("bumper car", "Models//forest//forest.obj", "Models//forest//forest.mtl");
 	meshList[FOREST]->textureID = LoadTGA("Images//forest//forest_baseColor.tga");
 
+	meshList[EXITBUTTON] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[EXITBUTTON]->textureID = LoadTGA("Images//exitScene01button.tga");
+
+	meshList[PAUSEMENU] = MeshBuilder::GenerateQuad("pause", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[PAUSEMENU]->textureID = LoadTGA("Images//scene01pausemenuv2.tga");
+
+	{
+		// PLAYER INDICATOR
+		meshList[PLAYER1INDICATORUI] = MeshBuilder::GenerateQuad("player1", glm::vec3(1.f, 1.f, 1.f), 1.f);
+		meshList[PLAYER1INDICATORUI]->textureID = LoadTGA("Images//scene01 UI//scene01player1_indicatorUI.tga");
+
+		meshList[PLAYER2INDICATORUI] = MeshBuilder::GenerateQuad("player2", glm::vec3(1.f, 1.f, 1.f), 1.f);
+		meshList[PLAYER2INDICATORUI]->textureID = LoadTGA("Images//scene01 UI//scene01player2_indicatorUI.tga");
+	}
+
+	{
+		// GROUND
+		meshList[GREYGROUND] = MeshBuilder::GenerateQuad("grey ground", glm::vec3(1.f, 1.f, 1.f), 1.f);
+		meshList[GREYGROUND]->textureID = LoadTGA("Images//scene01_ground//greyground.tga");
+	}
+
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
 
@@ -230,6 +252,8 @@ void Scene01::Init()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	player1InCar = false;
+	player2InCar = false;
 }
 
 void Scene01::HandleMouseInput(FPCamera& cam) {
@@ -302,57 +326,124 @@ void Scene01::Update(double dt)
 		light[0].position.y += static_cast<float>(dt) * 5.f;
 	*/
 
-	glm::vec3 prevPos1 = camera1.position;
-	glm::vec3 prevPos2 = camera2.position;
-
-	HandleKeyPress1(camera1, dt);
-	HandleKeyPress2(camera2, dt);
-
-	HandleMouseInput(camera1);
-
-	if (dt > 0.0)
+	if (!player1InCar)
 	{
-		// Cap speeds before integrating
-		float s1 = glm::length(glm::vec2(cameraVelocity1.x, cameraVelocity1.z));
-		if (s1 > maxSpeed) cameraVelocity1 = cameraVelocity1 * (maxSpeed / s1);
-		float s2 = glm::length(glm::vec2(cameraVelocity2.x, cameraVelocity2.z));
-		if (s2 > maxSpeed) cameraVelocity2 = cameraVelocity2 * (maxSpeed / s2);
+		// Prevent camera from going below ground after camera updates
+		if (camera1.position.y < 3.0f) {
+			camera1.position.y = 3.0f;
+			if (camera1.target.y < 3.0f)
+				camera1.target.y = 3.0f;
+			camera1.Init(camera1.position, camera1.target, camera1.up);
+		}
 
-		// Integrate position and target so camera moves and looks in same direction
-		glm::vec3 delta1 = cameraVelocity1 * static_cast<float>(dt);
-		camera1.position += delta1;
-		camera1.target += delta1;
-
-		glm::vec3 delta2 = cameraVelocity2 * static_cast<float>(dt);
-		camera2.position += delta2;
-		camera2.target += delta2;
-
-		// Resolve collisions — this modifies velocities and performs positional correction
-		ResolveCameraCollisionsWithBounce(camera1, cameraVelocity1, camera2, cameraVelocity2, dt);
-
-		// Apply simple damping (friction) so cars slow after bouncing
-		float damp = std::exp(-linearDamping * static_cast<float>(dt));
-		cameraVelocity1 *= damp;
-		cameraVelocity2 *= damp;
+		HandleKeyPress1(camera1, dt);
+		HandleMouseInput(camera1);
 	}
 
-	// Prevent camera from going below ground after camera updates
-	if (camera1.position.y < 3.0f) {
-		camera1.position.y = 3.0f;
-		if (camera1.target.y < 3.0f)
-			camera1.target.y = 3.0f;
-		camera1.Init(camera1.position, camera1.target, camera1.up);
+	if (!player2InCar)
+	{
+		// Prevent camera from going below ground after camera updates
+		if (camera2.position.y < 3.0f) {
+			camera2.position.y = 3.0f;
+			if (camera2.target.y < 3.0f)
+				camera2.target.y = 3.0f;
+			camera2.Init(camera2.position, camera2.target, camera2.up);
+		}
+
+		HandleKeyPress2(camera2, dt);
 	}
 
-	if (camera2.position.y < 3.0f) {
-		camera2.position.y = 3.0f;
-		if (camera2.target.y < 3.0f)
-			camera2.target.y = 3.0f;
-		camera2.Init(camera2.position, camera2.target, camera2.up);
+	if (player1InCar)
+	{
+		glm::vec3 prevPos1 = camera1.position;
+
+		HandleKeyPress1(camera1, dt);
+
+		HandleMouseInput(camera1);
+
+		if (dt > 0.0)
+		{
+			// Cap speeds before integrating
+			float s1 = glm::length(glm::vec2(cameraVelocity1.x, cameraVelocity1.z));
+			if (s1 > maxSpeed) cameraVelocity1 = cameraVelocity1 * (maxSpeed / s1);
+			float s2 = glm::length(glm::vec2(cameraVelocity2.x, cameraVelocity2.z));
+			if (s2 > maxSpeed) cameraVelocity2 = cameraVelocity2 * (maxSpeed / s2);
+
+			// Integrate position and target so camera moves and looks in same direction
+			glm::vec3 delta1 = cameraVelocity1 * static_cast<float>(dt);
+			camera1.position += delta1;
+			camera1.target += delta1;
+
+			glm::vec3 delta2 = cameraVelocity2 * static_cast<float>(dt);
+			camera2.position += delta2;
+			camera2.target += delta2;
+
+			// Resolve collisions — this modifies velocities and performs positional correction
+			ResolveCameraCollisionsWithBounce(camera1, cameraVelocity1, camera2, cameraVelocity2, dt);
+
+			// Apply simple damping (friction) so cars slow after bouncing
+			float damp = std::exp(-linearDamping * static_cast<float>(dt));
+			cameraVelocity1 *= damp;
+			cameraVelocity2 *= damp;
+		}
+
+		// Prevent camera from going below ground after camera updates
+		if (camera1.position.y < 3.0f) {
+			camera1.position.y = 3.0f;
+			if (camera1.target.y < 3.0f)
+				camera1.target.y = 3.0f;
+			camera1.Init(camera1.position, camera1.target, camera1.up);
+		}
+	}
+
+	if (player2InCar)
+	{
+		glm::vec3 prevPos2 = camera2.position;
+
+		HandleKeyPress2(camera2, dt);
+
+		if (dt > 0.0)
+		{
+			// Cap speeds before integrating
+			float s1 = glm::length(glm::vec2(cameraVelocity1.x, cameraVelocity1.z));
+			if (s1 > maxSpeed) cameraVelocity1 = cameraVelocity1 * (maxSpeed / s1);
+			float s2 = glm::length(glm::vec2(cameraVelocity2.x, cameraVelocity2.z));
+			if (s2 > maxSpeed) cameraVelocity2 = cameraVelocity2 * (maxSpeed / s2);
+
+			// Integrate position and target so camera moves and looks in same direction
+			glm::vec3 delta1 = cameraVelocity1 * static_cast<float>(dt);
+			camera1.position += delta1;
+			camera1.target += delta1;
+
+			glm::vec3 delta2 = cameraVelocity2 * static_cast<float>(dt);
+			camera2.position += delta2;
+			camera2.target += delta2;
+
+			// Resolve collisions — this modifies velocities and performs positional correction
+			ResolveCameraCollisionsWithBounce(camera1, cameraVelocity1, camera2, cameraVelocity2, dt);
+
+			// Apply simple damping (friction) so cars slow after bouncing
+			float damp = std::exp(-linearDamping * static_cast<float>(dt));
+			cameraVelocity1 *= damp;
+			cameraVelocity2 *= damp;
+		}
+
+		if (camera2.position.y < 3.0f) {
+			camera2.position.y = 3.0f;
+			if (camera2.target.y < 3.0f)
+				camera2.target.y = 3.0f;
+			camera2.Init(camera2.position, camera2.target, camera2.up);
+		}
 	}
 
 	float temp = 1.f / dt;
 	fps = glm::round(temp * 100.f) / 100.f;
+
+	// Output camera positions for debugging (Scene01 only)
+	std::cout << std::fixed << std::setprecision(2)
+		<< "Camera1 Pos: (" << camera1.position.x << ", " << camera1.position.y << ", " << camera1.position.z << ")  "
+		<< "Camera2 Pos: (" << camera2.position.x << ", " << camera2.position.y << ", " << camera2.position.z << ")  "
+		<< "FPS: " << fps << std::endl;
 }
 
 void Scene01::RenderSkybox()
@@ -410,11 +501,71 @@ void Scene01::RenderSkybox()
 	modelStack.PopMatrix();
 }
 
+void Scene01::RenderPathway()
+{
+	// Render the pathway as a smooth curved strip built from identical GREYGROUND quads.
+	// Each tile keeps the same scale used previously so visual scale remains unchanged.
+	const int segments = 64; // increase for a smoother curve
+	const glm::vec3 p0(-100.f, 0.3f, 25.f);  // start
+	const glm::vec3 p1(-40.f, 0.3f, 60.f);   // control 1
+	const glm::vec3 p2(40.f, 0.3f, -10.f);   // control 2
+	const glm::vec3 p3(100.f, 0.3f, 25.f);   // end
+
+	auto cubicBezier = [](float t, const glm::vec3& a, const glm::vec3& b, const glm::vec3& c, const glm::vec3& d) {
+		float u = 1.0f - t;
+		return u * u * u * a + 3.0f * u * u * t * b + 3.0f * u * t * t * c + t * t * t * d;
+		};
+	auto cubicBezierDeriv = [](float t, const glm::vec3& a, const glm::vec3& b, const glm::vec3& c, const glm::vec3& d) {
+		float u = 1.0f - t;
+		return 3.0f * u * u * (b - a) + 6.0f * u * t * (c - b) + 3.0f * t * t * (d - c);
+		};
+
+	// Material for the path (keeps same visual as before)
+	meshList[GREYGROUND]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GREYGROUND]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GREYGROUND]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+	meshList[GREYGROUND]->material.kShininess = 5.0f;
+
+	// Tweak this to change path width. Original X-scale was 100.f — reduce to make path narrower.
+	const float pathWidth = 40;    // <-- adjust this value
+	const float pathHeightScale = 50;
+	const float pathDepthScale = 5;
+
+	for (int i = 0; i < segments; ++i)
+	{
+		// center each segment on its parametric midpoint for nicer overlap
+		float t = (i + 0.5f) / static_cast<float>(segments);
+		glm::vec3 pos = cubicBezier(t, p0, p1, p2, p3);
+		glm::vec3 tangent = cubicBezierDeriv(t, p0, p1, p2, p3);
+
+		// Compute yaw so the quad aligns with the path tangent (XZ plane)
+		float yaw = glm::degrees(atan2(tangent.z, tangent.x));
+
+		modelStack.PushMatrix();
+		// Position on the curve
+		modelStack.Translate(pos.x, pos.y, pos.z);
+
+		// Align tile along curve's heading
+		modelStack.Rotate(yaw, 0.f, 1.f, 0.f);
+
+		// Orient the quad flat on the ground and flip to match original orientation
+		modelStack.Rotate(90.f, 1.f, 0.f, 0.f);
+		modelStack.Rotate(180.f, 1.f, 0.f, 0.f);
+
+		// Keep tile scale but use narrower width (X)
+		modelStack.Scale(pathWidth, pathHeightScale, pathDepthScale);
+
+		// Render without lighting (same as original pathway)
+		RenderMesh(meshList[GREYGROUND], false);
+		modelStack.PopMatrix();
+	}
+}
+
 void Scene01::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey)
 {
 	glDisable(GL_DEPTH_TEST);
 
-	glm::mat4 ortho = glm::ortho(0.f, 800.f, 0.f, 600.f, -1000.f, 1000.f); // dimension of screen UI
+	glm::mat4 ortho = glm::ortho(0.f, 1600.f, 0.f, 900.f, 0.f, 100.f); // dimension of screen UI
 
 	projectionStack.PushMatrix();
 	projectionStack.LoadMatrix(ortho);
@@ -429,11 +580,14 @@ void Scene01::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, floa
 	modelStack.Translate(x, y, 0);
 
 	// To do: Use modelStack to scale the GUI
-	modelStack.Scale(10000, 10000, 1);
+	modelStack.Scale(1600, 900, 1);
+
+	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
 
 	RenderMesh(mesh, false); //UI should not have light
 
-	RenderMesh(meshList[GEO_GUI], false);
+	RenderMesh(meshList[PAUSEMENU], false);
+	RenderMesh(meshList[PLAYER1INDICATORUI], false);
 
 	projectionStack.PopMatrix();
 	viewStack.PopMatrix();
@@ -513,7 +667,7 @@ void Scene01::RenderTextOnScreen(Mesh* mesh, std::string
 
 	for (unsigned i = 0; i < text.length(); ++i)
 	{
-		glm::mat4 characterSpacing = glm::translate(glm::mat4(1.f), glm::vec3(0.5f + i * 0.6f, 0.4f, 0));
+		glm::mat4 characterSpacing = glm::translate(glm::mat4(1.f), glm::vec3(0.6f + i * 0.6f, 0.4f, 0));
 		glm::mat4 MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top() * characterSpacing;
 		glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, glm::value_ptr(MVP));
 		mesh->Render((unsigned)text[i] * 6, 6);
@@ -533,201 +687,319 @@ void Scene01::RenderTextOnScreen(Mesh* mesh, std::string
 
 void Scene01::RenderSceneFromCamera(FPCamera& cam)
 {
-	bool isCamera1 = (&cam == &camera1);
-	bool isCamera2 = (&cam == &camera2);
-
-	viewStack.LoadIdentity();
-	viewStack.LookAt(
-		cam.position.x, cam.position.y, cam.position.z,
-		cam.target.x, cam.target.y, cam.target.z,
-		cam.up.x, cam.up.y, cam.up.z
-	);
-
-	// Load identity matrix into the model stack
-	modelStack.LoadIdentity();
-
-	if (light[0].type == Light::LIGHT_DIRECTIONAL)
+	if (!pausemenu)
 	{
-		glm::vec3 lightDir(light[0].position.x, light[0].position.y, light[0].position.z);
-		glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
-		glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
-	}
-	else if (light[0].type == Light::LIGHT_SPOT)
-	{
-		glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[0].position, 1);
-		glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-		glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[0].spotDirection, 0);
-		glUniform3fv(m_parameters[U_LIGHT0_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
-	}
-	else {
-		// Calculate the light position in camera space
-		glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[0].position, 1);
-		glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-	}
+		bool isCamera1 = (&cam == &camera1);
+		bool isCamera2 = (&cam == &camera2);
 
-	// ---- RENDER EVERYTHING BELOW ----
+		viewStack.LoadIdentity();
+		viewStack.LookAt(
+			cam.position.x, cam.position.y, cam.position.z,
+			cam.target.x, cam.target.y, cam.target.z,
+			cam.up.x, cam.up.y, cam.up.z
+		);
 
-	// Render light sphere - isolated transformations
-	modelStack.PushMatrix();
-	modelStack.Translate(cam.position.x, 15.f, cam.position.z);
-	modelStack.Scale(0.1f, 0.1f, 0.1f);
-	meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
-	meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-	meshList[GEO_SPHERE]->material.kShininess = 5.0f;
-	RenderMesh(meshList[GEO_SPHERE], true);
-	modelStack.PopMatrix();
+		// Load identity matrix into the model stack
+		modelStack.LoadIdentity();
 
-	// Skybox - now renders at world origin without accumulated transforms
-	RenderSkybox();
-
-	// grass tiled from -100 to 100 on X and Z, keep existing scale (5,1,5)
-	modelStack.PushMatrix();
-	{
-		// spacing chosen to match the previous manual placement (50 units)
-		const float start = -250.f;
-		const float end = 250.f;
-		const float step = 50.f;
-		for (float x = start; x <= end; x += step)
+		if (light[0].type == Light::LIGHT_DIRECTIONAL)
 		{
-			for (float z = start; z <= end; z += step)
+			glm::vec3 lightDir(light[0].position.x, light[0].position.y, light[0].position.z);
+			glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
+			glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
+		}
+		else if (light[0].type == Light::LIGHT_SPOT)
+		{
+			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[0].position, 1);
+			glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+			glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[0].spotDirection, 0);
+			glUniform3fv(m_parameters[U_LIGHT0_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
+		}
+		else {
+			// Calculate the light position in camera space
+			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[0].position, 1);
+			glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+		}
+
+		// ---- RENDER EVERYTHING BELOW ----
+
+		// Render light sphere - isolated transformations
+		modelStack.PushMatrix();
+		modelStack.Translate(cam.position.x, 15.f, cam.position.z);
+		modelStack.Scale(0.1f, 0.1f, 0.1f);
+		meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+		meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
+		meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[GEO_SPHERE]->material.kShininess = 5.0f;
+		RenderMesh(meshList[GEO_SPHERE], true);
+		modelStack.PopMatrix();
+
+		// Skybox - now renders at world origin without accumulated transforms
+		RenderSkybox();
+
+		// grass tiled from -100 to 100 on X and Z, keep existing scale (5,1,5)
+		modelStack.PushMatrix();
+		{
+			// spacing chosen to match the previous manual placement (50 units)
+			const float start = -250.f;
+			const float end = 250.f;
+			const float step = 50.f;
+			for (float x = start; x <= end; x += step)
+			{
+				for (float z = start; z <= end; z += step)
+				{
+					modelStack.PushMatrix();
+					modelStack.Translate(x, 0.f, z);
+					modelStack.Scale(5.f, 1.f, 5.f);
+					// keep original rotations so the tile faces the same way as before
+					modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+					modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+					RenderMesh(meshList[GEO_GRASS], true);
+					modelStack.PopMatrix();
+				}
+			}
+			// keep the ambient material tweak from original code
+			meshList[GEO_GRASS]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
+		}
+		modelStack.PopMatrix();
+
+		RenderPathway();
+
+		/*
+		========================================
+		FOREST
+		========================================
+		*/
+		{
+
+			modelStack.PushMatrix();
+			modelStack.Translate(250, -2, 0.f);
+			modelStack.Scale(10, 10, 10);
+			meshList[FOREST]->material.kAmbient = glm::vec3(0, 0, 0);
+			RenderMesh(meshList[FOREST], false);
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(250, -2, 150);
+			modelStack.Scale(10, 10, 10);
+			meshList[FOREST]->material.kAmbient = glm::vec3(0, 0, 0);
+			RenderMesh(meshList[FOREST], false);
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(250, -2, -150);
+			modelStack.Scale(10, 10, 10);
+			meshList[FOREST]->material.kAmbient = glm::vec3(0, 0, 0);
+			RenderMesh(meshList[FOREST], false);
+			modelStack.PopMatrix();
+
+		}
+
+		{
+
+			modelStack.PushMatrix();
+			modelStack.Translate(30.f, 0.f, -10.f);
+			modelStack.Scale(0.5, 0.5, 0.5);
+			modelStack.Rotate(75.f, 0.f, 1.f, 0.f);
+			meshList[GEO_ABANDONEDHOUSE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+			meshList[GEO_ABANDONEDHOUSE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+			meshList[GEO_ABANDONEDHOUSE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+			meshList[GEO_ABANDONEDHOUSE]->material.kShininess = 5.0f;
+			RenderMesh(meshList[GEO_ABANDONEDHOUSE], true);
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(10.f, 0.f, -10.f);
+			modelStack.Scale(0.5, 0.5, 0.5);
+			modelStack.Rotate(-75.f, 0.f, 1.f, 0.f);
+			meshList[GEO_ABANDONEDHOUSE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+			meshList[GEO_ABANDONEDHOUSE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+			meshList[GEO_ABANDONEDHOUSE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+			meshList[GEO_ABANDONEDHOUSE]->material.kShininess = 5.0f;
+			RenderMesh(meshList[GEO_ABANDONEDHOUSE], true);
+			modelStack.PopMatrix();
+		}
+
+		modelStack.PushMatrix();
+		modelStack.Translate(0.f, 0.f, -10.f);
+		modelStack.Scale(0.1, 0.1, 0.1);
+		meshList[TALLTREE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+		meshList[TALLTREE]->material.kDiffuse = glm::vec3(1, 1, 1);
+		meshList[TALLTREE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[TALLTREE]->material.kShininess = 5.0f;
+		RenderMesh(meshList[TALLTREE], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(0.f, 0.f, -25.f);
+		modelStack.Scale(2, 2, 2);
+		meshList[JEFFREYEPSTEIN]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+		meshList[JEFFREYEPSTEIN]->material.kDiffuse = glm::vec3(1, 1, 1);
+		meshList[JEFFREYEPSTEIN]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[JEFFREYEPSTEIN]->material.kShininess = 5.0f;
+		RenderMesh(meshList[JEFFREYEPSTEIN], false);
+		modelStack.PopMatrix();
+
+		if (!player1InCar)
+		{
+			modelStack.PushMatrix();
+			modelStack.Translate(25, 0, -25);
+			modelStack.Scale(3, 3, 3);
+			meshList[BUMPERCAR]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+			meshList[BUMPERCAR]->material.kDiffuse = glm::vec3(1, 1, 1);
+			meshList[BUMPERCAR]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+			meshList[BUMPERCAR]->material.kShininess = 5.0f;
+			RenderMesh(meshList[BUMPERCAR], true);
+			modelStack.PopMatrix();
+
+			// ----- Render Player 1 Model -----
+			if (!isCamera1)  // If current view is NOT camera1
 			{
 				modelStack.PushMatrix();
-				modelStack.Translate(x, 0.f, z);
-				modelStack.Scale(5.f, 1.f, 5.f);
-				// keep original rotations so the tile faces the same way as before
-				modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+				modelStack.Translate(camera1.position.x, 0.5f, camera1.position.z);
+				modelStack.Scale(2, 2, 2);
 				modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
-				RenderMesh(meshList[GEO_GRASS], true);
+
+				// Make the model face the direction camera1 is facing:
+				{
+					glm::vec3 pForward = glm::normalize(camera1.target - camera1.position);
+					// Yaw in degrees from X axis
+					float yaw = glm::degrees(atan2(pForward.z, pForward.x));
+					// Rotate the model around world Y so it faces the same horizontal direction
+					modelStack.Rotate(yaw, 0.f, -1.f, 0.f);
+				}
+
+				meshList[JEFFREYEPSTEIN]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[JEFFREYEPSTEIN]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[JEFFREYEPSTEIN]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+				meshList[JEFFREYEPSTEIN]->material.kShininess = 5.0f;
+				RenderMesh(meshList[JEFFREYEPSTEIN], true);
 				modelStack.PopMatrix();
 			}
 		}
-		// keep the ambient material tweak from original code
-		meshList[GEO_GRASS]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
-		meshList[GEO_ABANDONEDHOUSE]->material.kDiffuse = glm::vec3(1, 1, 1);
-		meshList[GEO_ABANDONEDHOUSE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-	}
-	modelStack.PopMatrix();
 
-	/*
-	========================================
-	FOREST
-	========================================
-	*/
-	{
-
-		modelStack.PushMatrix();
-		modelStack.Translate(250, -2, 0.f);
-		modelStack.Scale(10, 10, 10);
-		meshList[FOREST]->material.kAmbient = glm::vec3(0, 0, 0);
-		RenderMesh(meshList[FOREST], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(250, -2, 150);
-		modelStack.Scale(10, 10, 10);
-		meshList[FOREST]->material.kAmbient = glm::vec3(0, 0, 0);
-		RenderMesh(meshList[FOREST], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(250, -2, -150);
-		modelStack.Scale(10, 10, 10);
-		meshList[FOREST]->material.kAmbient = glm::vec3(0, 0, 0);
-		RenderMesh(meshList[FOREST], true);
-		modelStack.PopMatrix();
-
-	}
-
-	{
-
-		modelStack.PushMatrix();
-		modelStack.Translate(30.f, 0.f, -10.f);
-		modelStack.Scale(0.5, 0.5, 0.5);
-		modelStack.Rotate(75.f, 0.f, 1.f, 0.f);
-		meshList[GEO_ABANDONEDHOUSE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
-		meshList[GEO_ABANDONEDHOUSE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-		meshList[GEO_ABANDONEDHOUSE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-		meshList[GEO_ABANDONEDHOUSE]->material.kShininess = 5.0f;
-		RenderMesh(meshList[GEO_ABANDONEDHOUSE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(10.f, 0.f, -10.f);
-		modelStack.Scale(0.5, 0.5, 0.5);
-		modelStack.Rotate(-75.f, 0.f, 1.f, 0.f);
-		meshList[GEO_ABANDONEDHOUSE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
-		meshList[GEO_ABANDONEDHOUSE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-		meshList[GEO_ABANDONEDHOUSE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-		meshList[GEO_ABANDONEDHOUSE]->material.kShininess = 5.0f;
-		RenderMesh(meshList[GEO_ABANDONEDHOUSE], true);
-		modelStack.PopMatrix();
-	}
-
-	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 0.f, -10.f);
-	modelStack.Scale(0.1, 0.1, 0.1);
-	meshList[TALLTREE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList[TALLTREE]->material.kDiffuse = glm::vec3(1, 1, 1);
-	meshList[TALLTREE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-	meshList[TALLTREE]->material.kShininess = 5.0f;
-	RenderMesh(meshList[TALLTREE], false);
-	modelStack.PopMatrix();
-
-	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 0.f, -25.f);
-	modelStack.Scale(2, 2, 2);
-	meshList[JEFFREYEPSTEIN]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList[JEFFREYEPSTEIN]->material.kDiffuse = glm::vec3(1, 1, 1);
-	meshList[JEFFREYEPSTEIN]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-	meshList[JEFFREYEPSTEIN]->material.kShininess = 5.0f;
-	RenderMesh(meshList[JEFFREYEPSTEIN], false);
-	modelStack.PopMatrix();
-
-	// ----- Render Player 1 Model -----
-	if (!isCamera1)  // If current view is NOT camera1
-	{
-		modelStack.PushMatrix();
-		modelStack.Translate(camera1.position.x, 0.5f, camera1.position.z);
-		modelStack.Scale(3.f, 3.f, 3.f);
-
-		// Make the model face the direction camera1 is facing:
+		if (!player2InCar)
 		{
-			glm::vec3 pForward = glm::normalize(camera1.target - camera1.position);
-			// Yaw in degrees from X axis
-			float yaw = glm::degrees(atan2(pForward.z, pForward.x));
-			// Rotate the model around world Y so it faces the same horizontal direction
-			modelStack.Rotate(yaw, 0.f, -1.f, 0.f);
+			modelStack.PushMatrix();
+			modelStack.Translate(25, 0, -45);
+			modelStack.Scale(3, 3, 3);
+			meshList[BUMPERCAR]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+			meshList[BUMPERCAR]->material.kDiffuse = glm::vec3(1, 1, 1);
+			meshList[BUMPERCAR]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+			meshList[BUMPERCAR]->material.kShininess = 5.0f;
+			RenderMesh(meshList[BUMPERCAR], true);
+			modelStack.PopMatrix();
+
+			// ----- Render Player 2 Model -----
+			if (isCamera1)  // If current view IS camera1
+			{
+				modelStack.PushMatrix();
+				modelStack.Translate(camera2.position.x, 0.5f, camera2.position.z);
+				modelStack.Scale(2, 2, 2);
+				modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+
+				// Make the model face the direction camera2 is facing:
+				{
+					glm::vec3 pForward = glm::normalize(camera2.target - camera2.position);
+					float yaw = glm::degrees(atan2(pForward.z, pForward.x));
+					modelStack.Rotate(yaw, 0.f, -1.f, 0.f);
+				}
+
+				meshList[JEFFREYEPSTEIN]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[JEFFREYEPSTEIN]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[JEFFREYEPSTEIN]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+				meshList[JEFFREYEPSTEIN]->material.kShininess = 5.0f;
+				RenderMesh(meshList[JEFFREYEPSTEIN], true);
+				modelStack.PopMatrix();
+			}
 		}
 
-		meshList[BUMPERCAR]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
-		meshList[BUMPERCAR]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-		meshList[BUMPERCAR]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-		meshList[BUMPERCAR]->material.kShininess = 5.0f;
-		RenderMesh(meshList[BUMPERCAR], true);
-		modelStack.PopMatrix();
-	}
-
-	// ----- Render Player 2 Model -----
-	if (isCamera1)  // If current view IS camera1
-	{
-		modelStack.PushMatrix();
-		modelStack.Translate(camera2.position.x, 0.5f, camera2.position.z);
-		modelStack.Scale(3.f, 3.f, 3.f);
-
-		// Make the model face the direction camera2 is facing:
+		if (player1InCar)
 		{
-			glm::vec3 pForward = glm::normalize(camera2.target - camera2.position);
-			float yaw = glm::degrees(atan2(pForward.z, pForward.x));
-			modelStack.Rotate(yaw, 0.f, -1.f, 0.f);
-		}
+			// ----- Render Player 1 Model -----
+			if (!isCamera1)  // If current view is NOT camera1
+			{
+				modelStack.PushMatrix();
+				modelStack.Translate(camera1.position.x, 0.5f, camera1.position.z);
+				modelStack.Scale(3.f, 3.f, 3.f);
 
-		meshList[BUMPERCAR]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
-		meshList[BUMPERCAR]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-		meshList[BUMPERCAR]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-		meshList[BUMPERCAR]->material.kShininess = 5.0f;
-		RenderMesh(meshList[BUMPERCAR], true);
-		modelStack.PopMatrix();
+				// Make the model face the direction camera1 is facing:
+				{
+					glm::vec3 pForward = glm::normalize(camera1.target - camera1.position);
+					// Yaw in degrees from X axis
+					float yaw = glm::degrees(atan2(pForward.z, pForward.x));
+					// Rotate the model around world Y so it faces the same horizontal direction
+					modelStack.Rotate(yaw, 0.f, -1.f, 0.f);
+				}
+
+				meshList[BUMPERCAR]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[BUMPERCAR]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[BUMPERCAR]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+				meshList[BUMPERCAR]->material.kShininess = 5.0f;
+				RenderMesh(meshList[BUMPERCAR], true);
+				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(camera1.position.x, 0.f, camera1.position.z);
+				modelStack.Scale(2.f, 2.f, 2.f);
+				modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+				// Make the model face the direction camera1 is facing:
+				{
+					glm::vec3 pForward = glm::normalize(camera1.target - camera1.position);
+					// Yaw in degrees from X axis
+					float yaw = glm::degrees(atan2(pForward.z, pForward.x));
+					// Rotate the model around world Y so it faces the same horizontal direction
+					modelStack.Rotate(yaw, 0.f, -1.f, 0.f);
+				}
+				meshList[JEFFREYEPSTEIN]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[JEFFREYEPSTEIN]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[JEFFREYEPSTEIN]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+				meshList[JEFFREYEPSTEIN]->material.kShininess = 5.0f;
+				RenderMesh(meshList[JEFFREYEPSTEIN], true);
+				modelStack.PopMatrix();
+			}
+		}
+		if (player2InCar)
+		{
+			// ----- Render Player 2 Model -----
+			if (isCamera1)  // If current view IS camera1
+			{
+				modelStack.PushMatrix();
+				modelStack.Translate(camera2.position.x, 0.5f, camera2.position.z);
+				modelStack.Scale(3.f, 3.f, 3.f);
+
+				// Make the model face the direction camera2 is facing:
+				{
+					glm::vec3 pForward = glm::normalize(camera2.target - camera2.position);
+					float yaw = glm::degrees(atan2(pForward.z, pForward.x));
+					modelStack.Rotate(yaw, 0.f, -1.f, 0.f);
+				}
+
+				meshList[BUMPERCAR]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[BUMPERCAR]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[BUMPERCAR]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+				meshList[BUMPERCAR]->material.kShininess = 5.0f;
+				RenderMesh(meshList[BUMPERCAR], true);
+				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(camera2.position.x, 0.f, camera2.position.z);
+				modelStack.Scale(2.f, 2.f, 2.f);
+				modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+				// Make the model face the direction camera2 is facing:
+				{
+					glm::vec3 pForward = glm::normalize(camera2.target - camera2.position);
+					float yaw = glm::degrees(atan2(pForward.z, pForward.x));
+					modelStack.Rotate(yaw, 0.f, -1.f, 0.f);
+				}
+				meshList[JEFFREYEPSTEIN]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[JEFFREYEPSTEIN]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[JEFFREYEPSTEIN]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+				meshList[JEFFREYEPSTEIN]->material.kShininess = 5.0f;
+				RenderMesh(meshList[JEFFREYEPSTEIN], true);
+				modelStack.PopMatrix();
+			}
+		}
 	}
 }
 
@@ -737,45 +1009,63 @@ void Scene01::Render()
 	// Clear color buffer every frame
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	int width = 900;
-	int height = 1600;
-	glfwGetFramebufferSize(glfwGetCurrentContext(), &width, &height);
+	if (!pausemenu)
+	{
 
-	// LEFT SCREEN
-	glViewport(0, 0, width / 2, height);
-	glClear(GL_DEPTH_BUFFER_BIT);
+		int width = 900;
+		int height = 1600;
+		glfwGetFramebufferSize(glfwGetCurrentContext(), &width, &height);
 
-	projectionStack.LoadMatrix(
-		glm::perspective(
-			glm::radians(45.f),
-			(float)(width / 2) / (float)height,
-			0.1f,
-			1000.f
-		)
-	);
+		// LEFT SCREEN
+		glViewport(0, 0, width / 2, height);
+		glClear(GL_DEPTH_BUFFER_BIT);
 
-	RenderSceneFromCamera(camera1);
+		projectionStack.LoadMatrix(
+			glm::perspective(
+				glm::radians(45.f),
+				(float)(width / 2) / (float)height,
+				0.1f,
+				1000.f
+			)
+		);
 
-	// RIGHT SCREEN
-	glViewport(width / 2, 0, width / 2, height);
-	glClear(GL_DEPTH_BUFFER_BIT);
+		RenderSceneFromCamera(camera1);
 
-	projectionStack.LoadMatrix(
-		glm::perspective(
-			glm::radians(45.f),
-			(float)(width / 2) / (float)height,
-			0.1f,
-			1000.f
-		)
-	);
+		std::string temp("FPS:" + std::to_string(fps));
+		RenderTextOnScreen(meshList[GEO_TEXT], temp.substr(0, 9), glm::vec3(1, 1, 1), 25, 5, 45);
 
-	RenderSceneFromCamera(camera2);
+		RenderTextOnScreen(meshList[GEO_TEXT], "Z to open menu", glm::vec3(1, 1, 1), 25, 5, 15);
 
-	std::string temp("FPS:" + std::to_string(fps));
-	RenderTextOnScreen(meshList[GEO_TEXT], temp.substr(0, 9), glm::vec3(1, 1, 1), 25, 0, 120);
+		/*
+		modelStack.PushMatrix();
+		RenderMeshOnScreen(meshList[PLAYER1INDICATORUI], 3, 5, 0.2, 0.2);
+		modelStack.PopMatrix();
+		*/
 
-	// Render objects
-	//RenderMesh(meshList[GEO_AXES], false);
+		// RIGHT SCREEN
+		glViewport(width / 2, 0, width / 2, height);
+		glClear(GL_DEPTH_BUFFER_BIT);
+
+		projectionStack.LoadMatrix(
+			glm::perspective(
+				glm::radians(45.f),
+				(float)(width / 2) / (float)height,
+				0.1f,
+				1000.f
+			)
+		);
+
+		RenderSceneFromCamera(camera2);
+
+		// Render objects
+		//RenderMesh(meshList[GEO_AXES], false);
+	}
+
+	if (pausemenu)
+	{
+		glViewport(0, 0, 1600, 900);
+		RenderMeshOnScreen(meshList[PAUSEMENU], 800, 450, 1600, 900);
+	}
 }
 
 void Scene01::RenderMesh(Mesh* mesh, bool enableLight)
@@ -851,6 +1141,8 @@ void Scene01::ResolveCameraCollisionsWithBounce(FPCamera& a, glm::vec3& velA, FP
 			velA.z += impulse.y * invMassA;
 			velB.x -= impulse.x * invMassB;
 			velB.z -= impulse.y * invMassB;
+
+			PlaySound(TEXT("Sounds//fah.wav"), NULL, SND_FILENAME | SND_ASYNC);
 		}
 
 		// Positional correction to prevent sinking (split by mass)
@@ -958,38 +1250,121 @@ void Scene01::HandleKeyPress1(FPCamera& cam, double dt)
 	glm::vec3 forward = glm::normalize(cam.target - cam.position);
 	glm::vec3 right = glm::normalize(glm::cross(forward, cam.up));
 
-	// Use IsKeyDown for continuous movement while holding the key
-	glm::vec3 inputAccel(0.0f);
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_W)) inputAccel += forward;
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_S)) inputAccel -= forward;
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_A)) inputAccel -= right;
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_D)) inputAccel += right;
-
-	float accelScale = driveAcceleration;
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT_SHIFT))
-		accelScale *= 1.5f;
-
-	if (glm::length(glm::vec2(inputAccel.x, inputAccel.z)) > 0.001f)
+	if (!player1InCar)
 	{
-		// normalize across XZ and apply acceleration magnitude (keep Y zero)
-		glm::vec3 dir = glm::normalize(glm::vec3(inputAccel.x, 0.0f, inputAccel.z));
-		(*pVel) += dir * (accelScale * static_cast<float>(dt));
+		// Use IsKeyDown for continuous movement while holding the key
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_W))
+		{
+			// Move forward
+			float movement = moveSpeed * static_cast<float>(dt);
+			cam.position += forward * movement;
+			cam.target += forward * movement;
+		}
+
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_S))
+		{
+			// Move backward
+			float movement = moveSpeed * static_cast<float>(dt);
+			cam.position -= forward * movement;
+			cam.target -= forward * movement;
+		}
+
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_A))
+		{
+			// Move left (strafe)
+			float movement = moveSpeed * static_cast<float>(dt);
+			cam.position -= right * movement;
+			cam.target -= right * movement;
+		}
+
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_D))
+		{
+			// Move right (strafe)
+			float movement = moveSpeed * static_cast<float>(dt);
+			cam.position += right * movement;
+			cam.target += right * movement;
+		}
+
+		// Clamp camera height to adjusted limits
+		if (cam.position.y < 3.3f) {
+			cam.position.y = 3.3f;
+			if (cam.target.y < 3.3f)
+				cam.target.y = 3.3f;
+		}
+		if (cam.position.y > 3.5f) {
+			cam.position.y = 3.5f;
+			if (cam.target.y > 3.5f)
+				cam.target.y = 3.5f;
+		}
 	}
 
-	// Clamp camera height to adjusted limits
-	if (cam.position.y < 3.3f) {
-		cam.position.y = 3.3f;
-		if (cam.target.y < 3.3f)
-			cam.target.y = 3.3f;
-	}
-	if (cam.position.y > 3.5f) {
-		cam.position.y = 3.5f;
-		if (cam.target.y > 3.5f)
-			cam.target.y = 3.5f;
+	if (player1InCar)
+	{
+		// Use IsKeyDown for continuous movement while holding the key
+		glm::vec3 inputAccel(0.0f);
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_W)) inputAccel += forward;
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_S)) inputAccel -= forward;
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_A)) inputAccel -= right;
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_D)) inputAccel += right;
+
+		float accelScale = driveAcceleration;
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT_SHIFT))
+			accelScale *= 1.5f;
+
+		if (glm::length(glm::vec2(inputAccel.x, inputAccel.z)) > 0.001f)
+		{
+			// normalize across XZ and apply acceleration magnitude (keep Y zero)
+			glm::vec3 dir = glm::normalize(glm::vec3(inputAccel.x, 0.0f, inputAccel.z));
+			(*pVel) += dir * (accelScale * static_cast<float>(dt));
+		}
+
+		// Clamp camera height to adjusted limits
+		if (cam.position.y < 3.3f) {
+			cam.position.y = 3.3f;
+			if (cam.target.y < 3.3f)
+				cam.target.y = 3.3f;
+		}
+		if (cam.position.y > 3.5f) {
+			cam.position.y = 3.5f;
+			if (cam.target.y > 3.5f)
+				cam.target.y = 3.5f;
+		}
+
+		// Ensure FPCamera internal vectors are recalculated after manual changes
+		cam.Init(cam.position, cam.target, cam.up);
 	}
 
-	// Ensure FPCamera internal vectors are recalculated after manual changes
-	cam.Init(cam.position, cam.target, cam.up);
+	// pause menu
+	{
+		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_Z))
+		{
+			if (!pausemenu)
+			{
+				pausemenu = true;
+			}
+			else
+			{
+				pausemenu = false;
+			}
+		}
+	}
+
+	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_E))
+	{
+		const glm::vec3 minPos(22, -1, -27);
+		const glm::vec3 maxPos(27, 5, -22);
+
+		auto isInsideBox = [](const glm::vec3& p, const glm::vec3& mn, const glm::vec3& mx) {
+			return (p.x >= mn.x && p.x <= mx.x) &&
+				(p.y >= mn.y && p.y <= mx.y) &&
+				(p.z >= mn.z && p.z <= mx.z);
+			};
+
+		if (isInsideBox(cam.position, minPos, maxPos))
+		{
+			player1InCar = true;
+		}
+	}
 }
 
 void Scene01::HandleKeyPress2(FPCamera& cam, double dt)
@@ -1017,28 +1392,42 @@ void Scene01::HandleKeyPress2(FPCamera& cam, double dt)
 		glUniform1i(m_parameters[U_LIGHT0_TYPE], light[0].type);
 	}
 
-	// --- ROTATION (azimuth / altitude) first ---
-	const float rotationSpeed = 90.0f; // degrees per second
-
-	bool rotated = false;
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_I)) { cam.altitude += rotationSpeed * static_cast<float>(dt); rotated = true; }
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_K)) { cam.altitude -= rotationSpeed * static_cast<float>(dt); rotated = true; }
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_J)) { cam.azimuth -= rotationSpeed * static_cast<float>(dt); rotated = true; }
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_L)) { cam.azimuth += rotationSpeed * static_cast<float>(dt); rotated = true; }
-
-	if (rotated)
+	if (!player2InCar)
 	{
-		if (cam.altitude > 89.0f) cam.altitude = 89.0f;
-		if (cam.altitude < -89.0f) cam.altitude = -89.0f;
+		// 1. Use actual delta time from your engine/timer
+		// float dt = Timer::GetDeltaTime(); 
+		float dt = 0.016f; // Placeholder for ~60fps
+
+		const float rotationSpeed = 50.0f; // Adjusted for real dt
+		float turnAmount = rotationSpeed * dt;
+
+		// 2. Update Angles (The Source of Truth)
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_I)) cam.altitude += turnAmount;
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_K)) cam.altitude -= turnAmount;
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_L)) cam.azimuth += turnAmount;
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_J)) cam.azimuth -= turnAmount;
+
+		// 3. Clamp and Wrap
+		cam.altitude = glm::clamp(cam.altitude, -89.0f, 89.0f);
 		cam.azimuth = fmod(cam.azimuth + 360.0f, 360.0f);
 
+		// 4. Convert to Direction
 		float az = glm::radians(cam.azimuth);
 		float alt = glm::radians(cam.altitude);
+
 		glm::vec3 dir;
 		dir.x = cosf(alt) * cosf(az);
 		dir.y = sinf(alt);
 		dir.z = cosf(alt) * sinf(az);
-		cam.target = cam.position + glm::normalize(dir);
+
+		// 5. Update Camera
+		cam.target = cam.position + dir; // dir is already unit length via trig
+
+		// Use a standard Up vector to prevent tilt/roll
+		cam.Init(cam.position, cam.target, glm::vec3(0.0f, 1.0f, 0.0f));
+
+		// REMOVED: The block that re-calculates altitude/azimuth from the vector.
+		// It is unnecessary and is what's causing your "snapping" to horizontal.
 	}
 
 	glm::vec3* pVel = (&cam == &camera1) ? &cameraVelocity1 : &cameraVelocity2;
@@ -1047,30 +1436,98 @@ void Scene01::HandleKeyPress2(FPCamera& cam, double dt)
 	glm::vec3 forward = glm::normalize(cam.target - cam.position);
 	glm::vec3 right = glm::normalize(glm::cross(forward, cam.up));
 
-	glm::vec3 inputAccel(0.0f);
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_UP)) inputAccel += forward;
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_DOWN)) inputAccel -= forward;
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT)) inputAccel -= right;
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_RIGHT)) inputAccel += right;
-
-	float accelScale = driveAcceleration;
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_RIGHT_SHIFT)) accelScale *= 1.5f;
-
-	if (glm::length(glm::vec2(inputAccel.x, inputAccel.z)) > 0.001f)
+	if (!player2InCar)
 	{
-		glm::vec3 dir = glm::normalize(glm::vec3(inputAccel.x, 0.0f, inputAccel.z));
-		(*pVel) += dir * (accelScale * static_cast<float>(dt));
+		float movement = moveSpeed * static_cast<float>(dt);
+
+		// 1. Calculate Movement
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_UP))    cam.position += forward * movement;
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_DOWN))  cam.position -= forward * movement;
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT))  cam.position -= right * movement;
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_RIGHT)) cam.position += right * movement;
+
+		// 2. Clamp only the Position
+		cam.position.y = glm::clamp(cam.position.y, 3.3f, 3.5f);
+
+		// 3. RE-CALCULATE target based on current position + stored angles
+		// This prevents the "snap" to horizontal level.
+		float az = glm::radians(cam.azimuth);
+		float alt = glm::radians(cam.altitude);
+
+		glm::vec3 dir;
+		dir.x = cosf(alt) * cosf(az);
+		dir.y = sinf(alt);
+		dir.z = cosf(alt) * sinf(az);
+
+		cam.target = cam.position + dir;
+
+		// 4. Update internal camera vectors
+		cam.Init(cam.position, cam.target, glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 
-	// After movement, update azimuth/altitude to match forward direction
+	if (player2InCar)
 	{
-		glm::vec3 newForward = glm::normalize(cam.target - cam.position);
-		float altRad = asin(glm::clamp(newForward.y, -1.0f, 1.0f));
-		float azRad = atan2(newForward.z, newForward.x);
-		cam.altitude = glm::degrees(altRad);
-		cam.azimuth = glm::degrees(azRad);
+		// --- 1. ROTATION (Update the Master Angles) ---
+		const float rotationSpeed = 90.0f;
+
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_I)) cam.altitude += rotationSpeed * dt;
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_K)) cam.altitude -= rotationSpeed * dt;
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_J)) cam.azimuth -= rotationSpeed * dt;
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_L)) cam.azimuth += rotationSpeed * dt;
+
+		// Clamp altitude to stay horizontal-ish and wrap azimuth
+		cam.altitude = glm::clamp(cam.altitude, -89.0f, 89.0f);
 		cam.azimuth = fmod(cam.azimuth + 360.0f, 360.0f);
+
+		// --- 2. MOVEMENT (Update Velocity/Position) ---
+		glm::vec3 inputAccel(0.0f);
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_UP))    inputAccel += forward;
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_DOWN))  inputAccel -= forward;
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT))  inputAccel -= right;
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_RIGHT)) inputAccel += right;
+
+		float accelScale = driveAcceleration;
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_RIGHT_SHIFT)) accelScale *= 1.5f;
+
+		if (glm::length(glm::vec2(inputAccel.x, inputAccel.z)) > 0.001f)
+		{
+			glm::vec3 moveDir = glm::normalize(glm::vec3(inputAccel.x, 0.0f, inputAccel.z));
+			(*pVel) += moveDir * (accelScale * static_cast<float>(dt));
+		}
+
+		// --- 3. FINAL TARGET SYNC ---
+		// Now that the car has potentially moved (changing cam.position), 
+		// we force the target to stay at the correct angle relative to the new position.
+
+		float azRad = glm::radians(cam.azimuth);
+		float altRad = glm::radians(cam.altitude);
+
+		glm::vec3 lookDir;
+		lookDir.x = cosf(altRad) * cosf(azRad);
+		lookDir.y = sinf(altRad);
+		lookDir.z = cosf(altRad) * sinf(azRad);
+
+		// This ensures the camera looks where the ANGLES say it should look,
+		// regardless of how the car turned.
+		cam.target = cam.position + lookDir;
+
+		cam.Init(cam.position, cam.target, glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 
-	// Do not call cam.Init here (we do once in Update()).
+	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_C))
+	{
+		const glm::vec3 minPos(22, -1, -47);
+		const glm::vec3 maxPos(27, 5, -42);
+
+		auto isInsideBox = [](const glm::vec3& p, const glm::vec3& mn, const glm::vec3& mx) {
+			return (p.x >= mn.x && p.x <= mx.x) &&
+				(p.y >= mn.y && p.y <= mx.y) &&
+				(p.z >= mn.z && p.z <= mx.z);
+			};
+
+		if (isInsideBox(cam.position, minPos, maxPos))
+		{
+			player2InCar = true;
+		}
+	}
 }
