@@ -10,6 +10,7 @@
 #include "Light.h"
 #include "FPCamera.h"
 
+
 class Scene04 : public Scene
 {
 public:

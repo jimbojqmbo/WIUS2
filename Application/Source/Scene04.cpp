@@ -18,6 +18,8 @@
 #include "LoadTGA.h"
 #include "MouseController.h"
 #include <iostream>
+#include <cmath>
+#include <algorithm>
 
 // repo cloning text test
 
@@ -183,7 +185,7 @@ void Scene04::Init()
 		ball[i].mass = 2;
 		ball[i].bounciness = 1;
 		ball[i].pos.y = 10;
-		ball[i].pos.x = 10*i;
+		ball[i].pos.x = 2*i;
 	}
 	player.mass = 0;
 	player.bounciness = 1;
@@ -227,22 +229,23 @@ void Scene04::Update(double dt)
 }
 
 void Scene04::balls_update(double dt) {
+	float br = ball_radius * 1.5;
 
 	for (int i = 0; i < ball_num; i++) {
 		
 		//collisions
 		// ball against ball
 		for (int j = i + 1; j < ball_num; j++) {
-			if (OverlapCircle2Circle(ball[i], ball_radius, ball[j], ball_radius, cd)) {
+			if (OverlapCircle2Circle(ball[i], br/2, ball[j], br, cd)) {
 				ResolveCollisionBall(cd);
 			}
 		}
 		//ball agaisnt player test
-		if (OverlapCircle2Circle(ball[i], ball_radius, player, ball_radius, cd)) {
+		if (OverlapCircle2Circle(ball[i], br, player, br, cd)) {
 			ResolveCollisionBall(cd);
 		}
 		//ball against floor
-		if (OverlapCircle2AABB(ball[i], ball_radius , floor, glm::vec3 (floor_space, floor_height, floor_space),cd)) {
+		if (OverlapCircle2AABB(ball[i], br , floor, glm::vec3 (floor_space, floor_height, floor_space),cd)) {
 			ResolveCollision(cd);
 			std::cout << "ball collide with floor" << std::endl;
 		}
@@ -355,8 +358,12 @@ void Scene04::balls_render() {
 
 void Scene04::walls_render(){
 	modelStack.PushMatrix();
+	meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.f, 0.f, 1.f);
+	meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+	meshList[GEO_SPHERE]->material.kShininess = 5.0f;
 	modelStack.Translate(floor.pos.x, floor.pos.y, floor.pos.z);
-	modelStack.Scale(floor_space, floor_height, floor_space);
+	modelStack.Scale(floor_space/9, floor_height, floor_space/9);
 	modelStack.Rotate(0, 1.f, 1.f, 1.f);
 	RenderMesh(meshList[GEO_CUBE], true);
 	modelStack.PopMatrix();
@@ -793,6 +800,7 @@ bool Scene04::OverlapCircle2CYLINDER(const glm::vec3& pos1, float r1, const glm:
 }
 
 void Scene04::ResolveCollisionBall(CollisionData cd) {
+
 	PhysicsObject&  o1 = *cd.pObj1;
 	PhysicsObject& o2 = *cd.pObj2;
 
@@ -810,4 +818,25 @@ void Scene04::ResolveCollisionBall(CollisionData cd) {
 		o1.pos -= oc;
 		o1.AddImpulse(-(cd.collisionNormal * (1 + o1.bounciness)));
 	}
+	/*
+	float invMass1 = (o1.mass > 0.f) ? 1.0f / o1.mass : 0.f;
+	float invMass2 = (o2.mass > 0.f) ? 1.0f / o2.mass : 0.f;
+	float totalInvMass = invMass1 + invMass2;
+
+	glm::vec3 correction = cd.collisionNormal * (cd.penetration / totalInvMass);
+	if (o1.mass > 0.f) o1.pos -= correction * invMass1;
+	if (o2.mass > 0.f) o2.pos += correction * invMass2;
+
+	glm::vec3 relVel = o2.vel - o1.vel;
+	float velAlongNormal = glm::dot(relVel, cd.collisionNormal);
+
+	if (velAlongNormal > 0) return; // already separating
+
+	float e = (std::fmin(o1.bounciness, o2.bounciness)); // restitution
+	float j = -(1 + e) * velAlongNormal / (invMass1 + invMass2);
+
+	glm::vec3 impulse = j * cd.collisionNormal;
+	if (o1.mass > 0.f) o1.AddImpulse(-impulse * invMass1);
+	if (o2.mass > 0.f) o2.AddImpulse(impulse * invMass2);
+	*/
 }
