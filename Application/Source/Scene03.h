@@ -44,6 +44,7 @@ public:
 		GEO_GRASS,
 		GEO_BASKETBALL,
 		GEO_HOOP,
+		GEO_TORUS,
 		NUM_GEOMETRY,
 	};
 
@@ -139,8 +140,13 @@ private:
 
 	bool mousePreviouslyDown = false;
 
+	float rimbigR = 1.1f * 0.5f;
+	float rimsmallR = 0.08f * 0.5f;
+	float ballRadius = 0.4f;
 	glm::vec3 hoopPosition = glm::vec3(0.f, 0.f, 0.f);
-	float hoopSpeed = 0.f;
+	glm::vec3 rimOffset = glm::vec3(0.f, 6.37f, 3.2f);
+	glm::vec3 rimPosition = hoopPosition + rimOffset;
+	float hoopSpeed = 0.3f;
 	int hoopDirection = 1;   // 1 = right, -1 = left
 	float hoopLimit = 5.f;  // how far left/right it can move
 
