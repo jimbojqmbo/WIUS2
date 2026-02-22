@@ -247,20 +247,27 @@ void Scene04::balls_update(double dt) {
 		//ball against floor
 		if (OverlapCircle2AABB(ball[i], br , floor, glm::vec3 (floor_space, floor_height, floor_space),cd)) {
 			ResolveCollision(cd);
-			std::cout << "ball collide with floor" << std::endl;
+			//std::cout << "ball collide with floor" << std::endl;
 		}
 		
 	}
 	for (int i = 0; i < ball_num; i++) {
 		//gravity 
 		ball[i].AddForce(glm::vec3(0, gravity, 0));
-
+		//mouse
+		if (MouseController::GetInstance()->IsButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
+			if (i == ball_select) {
+				std::cout << "mouse pressed";
+				//camera.target
+				glm::vec3 direction = camera.target - camera.position;
+				direction = glm::normalize(direction);
+				ball[i].pos = camera.position;
+				ball[i].AddImpulse(direction*5.f);
+			}
+		}
 		//resolve collision
 		ball[i].UpdatePhysics(dt);
 	}
-	player.AddForce(glm::vec3(0, gravity, 0));
-	player.UpdatePhysics(dt);
-	
 }
 
 void Scene04::Render()
@@ -630,14 +637,14 @@ void Scene04::HandleKeyPress(double dt)
 
 	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_0))
 	{
-		// Toggle light on or off
-	/*	enableLight = !enableLight;*/
+		//Toggle light on or off
+	   /*enableLight = !enableLight;*/
 
-		if (light[0].power <= 0.1f)
-			light[0].power = 1.f;
-		else
-			light[0].power = 0.1f;
-		glUniform1f(m_parameters[U_LIGHT0_POWER], light[0].power);
+		//if (light[0].power <= 0.1f)
+			//light[0].power = 1.f;
+		//else
+			///light[0].power = 0.1f;
+		//glUniform1f(m_parameters[U_LIGHT0_POWER], light[0].power);
 	}
 
 	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_TAB))
@@ -714,6 +721,8 @@ void Scene04::HandleKeyPress(double dt)
 	}
 	*/
 
+	
+
 	if (KeyboardController::GetInstance()->IsKeyDown('I'))
 		light[0].position.z -= static_cast<float>(dt) * 5.f;
 	if (KeyboardController::GetInstance()->IsKeyDown('K'))
@@ -738,6 +747,7 @@ void Scene04::HandleKeyPress(double dt)
 		if (camera.target.y > 3.8f)
 			camera.target.y = 3.8f;
 	}
+
 }
 
 void Scene04::HandleMouseInput() {
