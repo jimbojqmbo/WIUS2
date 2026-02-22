@@ -10,6 +10,7 @@
 #include "Light.h"
 #include "FPCamera.h"
 #include "PhysicsObject.h"
+#include "DuckTarget.h"
 #include <vector>
 
 class Scene02 : public Scene
@@ -96,6 +97,8 @@ private:
 	void RenderText(Mesh* mesh, std::string text, glm::vec3 color);
 	void RenderTextOnScreen(Mesh* mesh, std::string text, glm::vec3 color, float size, float x, float y);
 
+	void SpawnTarget(glm::vec3 startingPosition, glm::vec3 endingPosition, glm::vec3 size, float speed, int repeats, int value);
+
 	unsigned m_vertexArrayID;
 	Mesh* meshList[NUM_GEOMETRY];
 
@@ -125,14 +128,19 @@ private:
 	// Objects
 	std::vector<PhysicsObject> projectiles;
 	std::vector<PhysicsObject> walls;
+	std::vector<DuckTarget*> targets;
 
 	bool enableHitbox;
 	float fps;
 	bool wasMousePressed;
 
+	bool wasKeyPressed;
+
 	bool blasterAnimating;
 	bool blasterMovingUp;
 	float blasterAngle;
+
+	float score;
 	
 };
 

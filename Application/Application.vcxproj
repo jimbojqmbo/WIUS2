@@ -150,6 +150,7 @@
     <ClCompile Include="Source\AltAzCamera.cpp" />
     <ClCompile Include="Source\Application.cpp" />
     <ClCompile Include="Source\CollisionDetection.cpp" />
+    <ClCompile Include="Source\DuckTarget.cpp" />
     <ClCompile Include="Source\evochat.cpp" />
     <ClCompile Include="Source\FPCamera.cpp" />
     <ClCompile Include="Source\LoadOBJ.cpp" />
@@ -177,6 +178,7 @@
     <ClInclude Include="Source\AltAzCamera.h" />
     <ClInclude Include="Source\Application.h" />
     <ClInclude Include="Source\CollisionDetection.h" />
+    <ClInclude Include="Source\DuckTarget.h" />
     <ClInclude Include="Source\evochat.h" />
     <ClInclude Include="Source\FPCamera.h" />
     <ClInclude Include="Source\Light.h" />
