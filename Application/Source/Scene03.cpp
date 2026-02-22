@@ -148,6 +148,8 @@ void Scene03::Init()
 	meshList[GEO_HOOP] = MeshBuilder::GenerateOBJMTL("hoop", "Models//hoop.obj", "Models//hoop.mtl");
 	meshList[GEO_HOOP]->textureID = LoadTGA("Images//hoop.tga");
 
+	meshList[GEO_TORUS] = MeshBuilder::GenerateTorus("Torus", glm::vec3(1, 1, 1), 0.08, 1.1);
+
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
 
@@ -293,11 +295,7 @@ void Scene03::Update(double dt)
 
 	//camera.position.y = 1.f;
 
-	//height of backboard is 3
-	//-2.2, 5.5, 2.3
-	//2.2, 8.5, 2.3
-
-	//std::cout << camera.position.x << ", " << camera.position.y << ", " << camera.position.z << std::endl;
+	std::cout << camera.position.x << ", " << camera.position.y << ", " << camera.position.z << std::endl;
 
 	HandleKeyPress(dt);
 
@@ -346,7 +344,7 @@ void Scene03::Update(double dt)
 
 		balls.push_back(newBall);
 
-		PlaySound(TEXT("Sounds//fah.wav"), NULL, SND_FILENAME | SND_ASYNC);
+		//PlaySound(TEXT("Sounds//fah.wav"), NULL, SND_FILENAME | SND_ASYNC);
 	}
 
 	mousePreviouslyDown = mouseCurrentlyDown;
@@ -368,8 +366,6 @@ void Scene03::Update(double dt)
 			if (abs(ball.vel.x) < 0.05f) ball.vel.x = 0.f;
 			if (abs(ball.vel.z) < 0.05f) ball.vel.z = 0.f;
 		}
-
-		float radius = 0.4f;   // approximate basketball radius
 
 		//// -------- BACKBOARD COLLISION --------
 		//if (ball.pos.z >= boardZ - radius &&
@@ -403,15 +399,48 @@ void Scene03::Update(double dt)
 			ball.pos.y <= boardMaxY)
 		{
 			// Check crossing from either side
-			if (abs(ball.pos.z - boardZ) <= radius)
+			if (abs(ball.pos.z - boardZ) <= ballRadius)
 			{
 				float direction = (ball.pos.z > boardZ) ? 1.f : -1.f;
 
-				ball.pos.z = boardZ + direction * radius;
+				ball.pos.z = boardZ + direction * ballRadius;
 
 				ball.vel.z = -ball.vel.z * 0.4f;
 			}
 
+		}
+
+		glm::vec3 toBall = ball.pos - rimPosition;
+
+		// Project onto XZ plane (rim plane)
+		glm::vec3 flat = glm::vec3(toBall.x, 0.f, toBall.z);
+
+		// Distance from rim center
+		float distToCenter = glm::length(flat);
+
+		if (distToCenter > 0.0001f)
+		{
+			// Closest point on rim center circle
+			glm::vec3 closestCirclePoint = rimPosition + glm::normalize(flat) * rimbigR;
+
+			// Now check distance from ball to tube
+			float distToTube = glm::length(ball.pos - closestCirclePoint);
+
+			if (distToTube <= (rimsmallR + ballRadius))
+			{
+				// -------- COLLISION --------
+
+				glm::vec3 normal = glm::normalize(ball.pos - closestCirclePoint);
+
+				// Push ball out
+				ball.pos = closestCirclePoint + normal * (rimsmallR + ballRadius);
+
+				// Reflect velocity
+				ball.vel = ball.vel - 2.f * glm::dot(ball.vel, normal) * normal;
+
+				// Energy loss
+				ball.vel *= 0.7f;
+			}
 		}
 	}
 
@@ -420,6 +449,9 @@ void Scene03::Update(double dt)
 
 	// Move hoop left/right
 	hoopPosition.x += hoopDirection * hoopSpeed * static_cast<float>(dt);
+
+	// Update rim position to follow hoop
+	rimPosition = hoopPosition + glm::vec3(0.f, 6.37f, 3.2f);
 
 	// Reverse direction when reaching limit
 	if (hoopPosition.x > hoopLimit)
@@ -712,6 +744,12 @@ void Scene03::Render()
 		meshList[GEO_SPHERE]->material.kShininess = 5.0f;
 	}
 	modelStack.PopMatrix();
+
+	//modelStack.PushMatrix();
+	//modelStack.Translate(rimPosition.x, rimPosition.y, rimPosition.z);
+	//modelStack.Scale(0.5f, 0.5f, 0.5f);
+	//RenderMesh(meshList[GEO_TORUS], false);
+	//modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
 	modelStack.Scale(1.f, 1.f, 1.f);
