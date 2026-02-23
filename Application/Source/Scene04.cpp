@@ -433,6 +433,7 @@ void Scene04::RenderSkybox()
 	modelStack.PopMatrix();
 	*/
 	//top
+	/*
 	modelStack.PushMatrix();
 	modelStack.Translate(camerapos.x, camerapos.y + skyboxscale.y / 2, camerapos.z);
 	modelStack.Rotate(90, 1.f, 0.f, 0.f);
@@ -481,6 +482,7 @@ void Scene04::RenderSkybox()
 	modelStack.Scale(skyboxscale.x, skyboxscale.y, 0.f);
 	RenderMesh(meshList[GEO_SKYBOXNIGHT_LEFT], false);
 	modelStack.PopMatrix();
+	*/
 }
 
 void Scene04::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey)
