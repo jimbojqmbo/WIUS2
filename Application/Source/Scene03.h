@@ -140,8 +140,8 @@ private:
 
 	bool mousePreviouslyDown = false;
 
-	float rimbigR = 1.1f * 0.5f;
-	float rimsmallR = 0.08f * 0.5f;
+	float rimbigR = 0.55f;
+	float rimsmallR = 0.01f;
 	float ballRadius = 0.4f;
 	glm::vec3 hoopPosition = glm::vec3(0.f, 0.f, 0.f);
 	glm::vec3 rimOffset = glm::vec3(0.f, 6.37f, 3.2f);
@@ -155,6 +155,11 @@ private:
 	float boardMinY = 5.5f;
 	float boardMaxY = 8.5f;
 	float boardZ = 2.3f;
+
+	float playerYVelocity = 0.f;
+	bool isGrounded = true;
+	float jumpForce = 8.f;
+	float playerHeight = 2.f;
 };
 
 #endif

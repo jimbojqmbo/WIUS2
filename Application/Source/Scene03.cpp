@@ -148,7 +148,7 @@ void Scene03::Init()
 	meshList[GEO_HOOP] = MeshBuilder::GenerateOBJMTL("hoop", "Models//hoop.obj", "Models//hoop.mtl");
 	meshList[GEO_HOOP]->textureID = LoadTGA("Images//hoop.tga");
 
-	meshList[GEO_TORUS] = MeshBuilder::GenerateTorus("Torus", glm::vec3(1, 1, 1), 0.08, 1.1);
+	meshList[GEO_TORUS] = MeshBuilder::GenerateTorus("Torus", glm::vec3(1, 1, 1), 0.02, 1.1);
 
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
@@ -323,6 +323,23 @@ void Scene03::Update(double dt)
 	}*/
 
 	HandleMouseInput();
+
+	if (KeyboardController::GetInstance()->IsKeyPressed(VK_SPACE) && isGrounded)
+	{
+		playerYVelocity = jumpForce;
+		isGrounded = false;
+	}
+
+	playerYVelocity -= gravity * dt;
+	camera.position.y += playerYVelocity * dt;
+	camera.target.y += playerYVelocity * dt;
+
+	if (camera.position.y <= 2.f)
+	{
+		camera.position.y = 2.f;
+		playerYVelocity = 0.f;
+		isGrounded = true;
+	}
 
 	bool mouseCurrentlyDown = MouseController::GetInstance()->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT);
 
@@ -745,11 +762,11 @@ void Scene03::Render()
 	}
 	modelStack.PopMatrix();
 
-	//modelStack.PushMatrix();
-	//modelStack.Translate(rimPosition.x, rimPosition.y, rimPosition.z);
-	//modelStack.Scale(0.5f, 0.5f, 0.5f);
-	//RenderMesh(meshList[GEO_TORUS], false);
-	//modelStack.PopMatrix();
+	modelStack.PushMatrix();
+	modelStack.Translate(rimPosition.x, rimPosition.y, rimPosition.z);
+	modelStack.Scale(0.5f, 0.5f, 0.5f);
+	RenderMesh(meshList[GEO_TORUS], false);
+	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
 	modelStack.Scale(1.f, 1.f, 1.f);
