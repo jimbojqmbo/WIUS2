@@ -320,7 +320,7 @@ void Scene04::Render()
 	modelStack.PopMatrix();
 
 	// Skybox - now renders at world origin without accumulated transforms
-	RenderSkybox(skyboxscale);
+	RenderSkybox(skyboxscale,camera.position);
 
 	// grass tiled from -100 to 100 on X and Z, keep existing scale (5,1,5)
 	modelStack.PushMatrix();
@@ -376,7 +376,7 @@ void Scene04::walls_render(){
 	modelStack.PopMatrix();
 }
 
-void Scene04::RenderSkybox(float scale)
+void Scene04::RenderSkybox(float scale,glm::vec3 camerapos)
 {
 	/*
 	// Front face (no rotation needed if quad faces -Z by default)
@@ -434,42 +434,48 @@ void Scene04::RenderSkybox(float scale)
 	*/
 	modelStack.PushMatrix();
 	// Offset in Z direction by -50 units
-	modelStack.Translate(0.f, 0.f, -50.f);
+	modelStack.Translate(camerapos.x , camerapos.y, camerapos.z -(50*scale));
+	modelStack.Scale(scale,scale,scale);
 	meshList[GEO_FRONT]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
 	RenderMesh(meshList[GEO_FRONT], false);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
 	// Offset in Z direction by -50 units
-	modelStack.Translate(0.f, 0.f, 50.f);
+	modelStack.Translate(camerapos.x , camerapos.y, camerapos.z +(50*scale));
+	modelStack.Scale(scale, scale, scale);
 	modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
 	meshList[GEO_BACK]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
 	RenderMesh(meshList[GEO_BACK], false);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	modelStack.Translate(-50.f, 0.f, 0.f);
+	modelStack.Translate(camerapos.x - (50 * scale), camerapos.y, camerapos.z);
+	modelStack.Scale(scale, scale, scale);
 	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
 	meshList[GEO_LEFT]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
 	RenderMesh(meshList[GEO_LEFT], false);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	modelStack.Translate(50.f, 0.f, 0.f);
+	modelStack.Translate(camerapos.x + (50 * scale), camerapos.y, camerapos.z);
+	modelStack.Scale(scale, scale, scale);
 	modelStack.Rotate(90.f, 0.f, -1.f, 0.f);
 	meshList[GEO_RIGHT]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
 	RenderMesh(meshList[GEO_RIGHT], false);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 50.f, 0.f);
+	modelStack.Translate(camerapos.x , camerapos.y + (50 * scale), camerapos.z);
+	modelStack.Scale(scale, scale, scale);
 	modelStack.Rotate(90.f, 1.f, 0.f, 0.f);
 	meshList[GEO_TOP]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
 	RenderMesh(meshList[GEO_TOP], false);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, -50.f, 0.f);
+	modelStack.Translate(camerapos.x, camerapos.y - (50 * scale), camerapos.z);
+	modelStack.Scale(scale, scale, scale);
 	modelStack.Rotate(90.f, -1.f, 0.f, 0.f);
 	meshList[GEO_BOTTOM]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
 	RenderMesh(meshList[GEO_BOTTOM], false);
