@@ -13,6 +13,8 @@
 #include <vector>
 #include <windows.h>
 #include "mmsystem.h"
+#include <chrono>
+#include <string>
 #pragma comment(lib, "winmm.lib")
 
 class Scene03 : public Scene
@@ -161,8 +163,12 @@ private:
 	PhysicsObject ball;
 	bool hasBall = true;
 	bool ballThrown = false;
-	float pickupDistance = 1.5f;
+	float pickupDistance = 2.5f;
 
+	float totalElapsedTime = 0.f;
+    std::string elapsedTimeText;
+	bool timerStarted = false;
+	bool timerEnded = false;
 };
 
 #endif

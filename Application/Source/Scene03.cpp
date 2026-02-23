@@ -285,6 +285,30 @@ bool Scene03::OverlapCircle2AABB(glm::vec3 circlePos, float radius, glm::vec3 bo
 
 void Scene03::Update(double dt)
 {
+	// Get total elapsed time from Application's m_timer
+	if (timerStarted && !timerEnded)
+	{
+		totalElapsedTime += dt;
+
+		if (totalElapsedTime >= 5.f)
+		{
+			totalElapsedTime = 5.f;
+			timerEnded = true;
+			std::cout << "Timer ended \n";
+		}
+	}
+
+	// Convert to minutes and seconds
+	int minutes = static_cast<int>(totalElapsedTime) / 60;
+	int seconds = static_cast<int>(totalElapsedTime) % 60;
+
+	// Format text
+	char buffer[16];
+	sprintf_s(buffer, "%02d:%02d", minutes, seconds);
+	elapsedTimeText = std::string(buffer);
+
+	// std::cout << "Time: " << elapsedTimeText << std::endl;
+
 	float boardMinX = hoopPosition.x - 2.2f;
 	float boardMaxX = hoopPosition.x + 2.2f;
 
@@ -293,9 +317,9 @@ void Scene03::Update(double dt)
 
 	float boardZ = hoopPosition.z + 2.3f;
 
-	//camera.position.y = 1.f;
+	camera.position.y = 3.f;
 
-	std::cout << camera.position.x << ", " << camera.position.y << ", " << camera.position.z << std::endl;
+	//std::cout << camera.position.x << ", " << camera.position.y << ", " << camera.position.z << std::endl;
 
 	HandleKeyPress(dt);
 
@@ -363,6 +387,11 @@ void Scene03::Update(double dt)
 		ballThrown = true;
 
 		//PlaySound(TEXT("Sounds//fah.wav"), NULL, SND_FILENAME | SND_SYNC);
+		
+		if (!timerStarted)
+		{
+			timerStarted = true;
+		}
 	}
 
 	mousePreviouslyDown = mouseCurrentlyDown;
