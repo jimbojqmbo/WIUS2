@@ -122,6 +122,8 @@ private:
 	void RenderText(Mesh* mesh, std::string text, glm::vec3 color);
 	void RenderTextOnScreen(Mesh* mesh, std::string text, glm::vec3 color, float size, float x, float y);
 
+	void HandleMouseInput();
+
 	glm::vec3 change;
 
 	// Mouse control

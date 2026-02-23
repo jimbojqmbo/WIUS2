@@ -211,12 +211,53 @@ void SceneGUI::Init()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	//PlaySound(TEXT("Sounds//topgeartheme.wav"), NULL, SND_FILENAME | SND_ASYNC);
-	PlaySound(TEXT("Sounds//fah.wav"), NULL, SND_FILENAME | SND_ASYNC);
+	//PlaySound(TEXT("Sounds//fah.wav"), NULL, SND_FILENAME | SND_ASYNC);
+}
+
+void SceneGUI::HandleMouseInput() {
+	static bool isLeftUp = false;
+	static bool isRightUp = false;
+	int mouseX = MouseController::GetInstance()->GetMousePositionX();
+	int mouseY = MouseController::GetInstance()->GetMousePositionY();
+	//std::cout << mouseX << ", " << mouseY << std::endl;
+	if (!isLeftUp && MouseController::GetInstance() -> IsButtonDown(GLFW_MOUSE_BUTTON_LEFT))
+	{
+		isLeftUp = true;
+
+		//ominous runners
+		if (mouseX > 84 && mouseX < 426 && mouseY > 296 && mouseY < 876) {
+			std::cout << "bumper car" << std::endl;
+		}
+		//ominous runners
+
+		//duck pewpew
+		if (mouseX > 446 && mouseX < 788 && mouseY > 296 && mouseY < 876) {
+			std::cout << "duck pewpew" << std::endl;
+		}
+		//duck pewpew
+
+		//lebron
+		if (mouseX > 810 && mouseX < 1152 && mouseY > 296 && mouseY < 876) {
+			std::cout << "lebron" << std::endl;
+		}
+		//lebron
+
+		//cow tossing
+		if (mouseX > 1169 && mouseX < 1514 && mouseY > 296 && mouseY < 876) {
+			std::cout << "kyberneighbour" << std::endl;
+		}
+		//cow tossing
+	}
+	else if (isLeftUp && MouseController::GetInstance() -> IsButtonUp(GLFW_MOUSE_BUTTON_LEFT))
+	{
+		isLeftUp = false;
+	}
 }
 
 void SceneGUI::Update(double dt)
 {
 	HandleKeyPress(dt);
+	HandleMouseInput();
 
 	if (KeyboardController::GetInstance()->IsKeyDown('I'))
 		light[0].position.z -= static_cast<float>(dt) * 5.f;
@@ -239,6 +280,7 @@ void SceneGUI::Update(double dt)
 	{
 		Scene01LoadingScreen = false;
 	}
+	
 }
 
 void SceneGUI::RenderSkybox()

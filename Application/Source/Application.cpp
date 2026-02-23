@@ -180,6 +180,7 @@ void Application::Run()
 				PlaySound(NULL, 0, 0);
 				scene = scene2;
 				sceneNum = SCENE_01;
+				//PlaySound(TEXT("Sounds//fah.wav"), NULL, SND_FILENAME | SND_ASYNC);
 			}
 			isEnterUp = true;
 		}
@@ -195,6 +196,7 @@ void Application::Run()
 				PlaySound(NULL, 0, 0);
 				scene = scene3;
 				sceneNum = SCENE_02;
+				//PlaySound(TEXT("Sounds//fah.wav"), NULL, SND_FILENAME | SND_ASYNC);
 			}
 			isEnterUp = true;
 		}
@@ -210,6 +212,7 @@ void Application::Run()
 				PlaySound(NULL, 0, 0);
 				scene = scene4;
 				sceneNum = SCENE_03;
+				//PlaySound(TEXT("Sounds//fah.wav"), NULL, SND_FILENAME | SND_ASYNC);
 			}
 			isEnterUp = true;
 		}
@@ -225,6 +228,7 @@ void Application::Run()
 				PlaySound(NULL, 0, 0);
 				scene = scene5;
 				sceneNum = SCENE_04;
+				//PlaySound(TEXT("Sounds//fah.wav"), NULL, SND_FILENAME | SND_ASYNC);
 			}
 			isEnterUp = true;
 		}
