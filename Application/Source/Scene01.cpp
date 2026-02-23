@@ -129,34 +129,34 @@ void Scene01::Init()
 	//meshList[GEO_CUBE] = MeshBuilder::GenerateCube("Arm", glm::vec3(0.5f, 0.5f, 0.5f), 1.f);
 
 	meshList[GEO_LEFT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	//meshList[GEO_LEFT]->textureID = LoadTGA("Images//blackblack.tga");
-	meshList[GEO_LEFT]->textureID = LoadTGA("Images//whitesky//whiteskyleft.tga");
+	meshList[GEO_LEFT]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Left.tga");
+	//meshList[GEO_LEFT]->textureID = LoadTGA("Images//whitesky//whiteskyleft.tga");
 	//meshList[GEO_LEFT]->textureID = LoadTGA("Images//left.tga");
 
 	meshList[GEO_RIGHT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	//meshList[GEO_RIGHT]->textureID = LoadTGA("Images//blackblack.tga");
-	meshList[GEO_RIGHT]->textureID = LoadTGA("Images//whitesky//whiteskyright.tga");
+	meshList[GEO_RIGHT]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Right.tga");
+	//meshList[GEO_RIGHT]->textureID = LoadTGA("Images//whitesky//whiteskyright.tga");
 	//meshList[GEO_RIGHT]->textureID = LoadTGA("Images//right.tga");
 
 	meshList[GEO_BACK] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	//meshList[GEO_BACK]->textureID = LoadTGA("Images//blackblack.tga");
-	meshList[GEO_BACK]->textureID = LoadTGA("Images//whitesky//whiteskyback.tga");
+	meshList[GEO_BACK]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Back.tga");
+	//meshList[GEO_BACK]->textureID = LoadTGA("Images//whitesky//whiteskyback.tga");
 	//meshList[GEO_BACK]->textureID = LoadTGA("Images//back.tga");
 
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	//meshList[GEO_FRONT]->textureID = LoadTGA("Images//blackblack.tga");
-	meshList[GEO_FRONT]->textureID = LoadTGA("Images//whitesky//whiteskyfront.tga");
+	meshList[GEO_FRONT]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Front.tga");
+	//meshList[GEO_FRONT]->textureID = LoadTGA("Images//whitesky//whiteskyfront.tga");
 	//meshList[GEO_FRONT]->textureID = LoadTGA("Images//front.tga");
 
 	meshList[GEO_TOP] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
 	//meshList[GEO_TOP]->textureID = LoadTGA("Images//saharatop.tga");
 	//meshList[GEO_TOP]->textureID = LoadTGA("Images//top.tga");
-	meshList[GEO_TOP]->textureID = LoadTGA("Images//whitesky//whiteskytop.tga");
-	//meshList[GEO_TOP]->textureID = LoadTGA("Images//bigblackmoon.tga");
+	//meshList[GEO_TOP]->textureID = LoadTGA("Images//whitesky//whiteskytop.tga");
+	meshList[GEO_TOP]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Top.tga");
 
 	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	//meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//blackblack.tga");
-	meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//whitesky//whiteskybottom.tga");
+	meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Bottom.tga");
+	//meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//whitesky//whiteskybottom.tga");
 	//meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//bottom.tga");
 
 	//meshList[GEO_QUAD]->textureID = LoadTGA("Images//NYP.tga");
@@ -166,6 +166,9 @@ void Scene01::Init()
 
 	meshList[GEO_GRASS] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
 	meshList[GEO_GRASS]->textureID = LoadTGA("Images//coast_sand_rocks_02 copy.tga");
+
+	meshList[SOLIDGREENGRASS] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
+	meshList[SOLIDGREENGRASS]->textureID = LoadTGA("Images//solidgreengrass.tga");
 
 	//meshList[GEO_GUI] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	//meshList[GEO_GUI]->textureID = LoadTGA("Images//color.tga");
@@ -202,6 +205,12 @@ void Scene01::Init()
 	meshList[PAUSEMENU]->textureID = LoadTGA("Images//scene01pausemenuv2.tga");
 
 	{
+		// LOW POLY BUILDING
+		meshList[LOWPOLYBUILDING] = MeshBuilder::GenerateOBJMTL("building", "Models//low poly building//low_poly_building.obj", "Models//low poly building//low_poly_building.mtl");
+		meshList[LOWPOLYBUILDING]->textureID = LoadTGA("Images//low poly building//lowpolybuilding_baseColor.tga");
+	}
+
+	{
 		// PLAYER INDICATOR
 		meshList[PLAYER1INDICATORUI] = MeshBuilder::GenerateQuad("player1", glm::vec3(1.f, 1.f, 1.f), 1.f);
 		meshList[PLAYER1INDICATORUI]->textureID = LoadTGA("Images//scene01 UI//scene01player1_indicatorUI.tga");
@@ -214,6 +223,18 @@ void Scene01::Init()
 		// GROUND
 		meshList[GREYGROUND] = MeshBuilder::GenerateQuad("grey ground", glm::vec3(1.f, 1.f, 1.f), 1.f);
 		meshList[GREYGROUND]->textureID = LoadTGA("Images//scene01_ground//greyground.tga");
+	}
+
+	{
+		// LOW POLY TREE
+		meshList[BLOXBURGTREE] = MeshBuilder::GenerateOBJMTL("tree", "Models//bloxburg tree//low_poly_tree_concept.obj", "Models//bloxburg tree//low_poly_tree_concept.mtl");
+		meshList[BLOXBURGTREE]->textureID = LoadTGA("Images//bloxburg tree//initialShadingGroup_baseColor.tga");
+	}
+
+	{
+		// LOW POLY FENCE
+		meshList[CARTOONFENCE] = MeshBuilder::GenerateOBJMTL("cartoonfence", "Models//low poly fence//low_poly_fence.obj", "Models//low poly fence//low_poly_fence.mtl");
+		meshList[CARTOONFENCE]->textureID = LoadTGA("Images//low poly fence//lowpolyfence.tga");
 	}
 
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
@@ -440,10 +461,13 @@ void Scene01::Update(double dt)
 	fps = glm::round(temp * 100.f) / 100.f;
 
 	// Output camera positions for debugging (Scene01 only)
-	std::cout << std::fixed << std::setprecision(2)
-		<< "Camera1 Pos: (" << camera1.position.x << ", " << camera1.position.y << ", " << camera1.position.z << ")  "
-		<< "Camera2 Pos: (" << camera2.position.x << ", " << camera2.position.y << ", " << camera2.position.z << ")  "
-		<< "FPS: " << fps << std::endl;
+	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_LEFT_CONTROL))
+	{
+		std::cout << std::fixed << std::setprecision(2)
+			<< "Camera1 Pos: (" << camera1.position.x << ", " << camera1.position.y << ", " << camera1.position.z << ")  "
+			<< "Camera2 Pos: (" << camera2.position.x << ", " << camera2.position.y << ", " << camera2.position.z << ")  "
+			<< "FPS: " << fps << std::endl;
+	}
 }
 
 void Scene01::RenderSkybox()
@@ -452,14 +476,14 @@ void Scene01::RenderSkybox()
 	modelStack.PushMatrix();
 	modelStack.Translate(0.f, 0.f, -500.f);
 	modelStack.Scale(10.f, 10.f, 10.f);
-	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+	//modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
 	RenderMesh(meshList[GEO_FRONT], false);
 	modelStack.PopMatrix();
 
 	// Back face (rotate 180 degrees around Y)
 	modelStack.PushMatrix();
 	modelStack.Translate(0.f, 0.f, 500.f);
-	modelStack.Rotate(-180.f, 1.f, 1.f, 0.f);
+	modelStack.Rotate(180.f, 0, 1.f, 0.f);
 	modelStack.Scale(10.f, 10.f, 10.f);
 	RenderMesh(meshList[GEO_BACK], false);
 	modelStack.PopMatrix();
@@ -468,7 +492,7 @@ void Scene01::RenderSkybox()
 	modelStack.PushMatrix();
 	modelStack.Translate(-500.f, 0.f, 0.f);
 	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
-	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+	//modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
 	modelStack.Scale(10.f, 10.f, 10.f);
 	RenderMesh(meshList[GEO_LEFT], false);
 	modelStack.PopMatrix();
@@ -477,7 +501,7 @@ void Scene01::RenderSkybox()
 	modelStack.PushMatrix();
 	modelStack.Translate(500.f, 0.f, 0.f);
 	modelStack.Rotate(-90.f, 0.f, 1.f, 0.f);
-	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+	//modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
 	modelStack.Scale(10.f, 10.f, 10.f);
 	RenderMesh(meshList[GEO_RIGHT], false);
 	modelStack.PopMatrix();
@@ -486,7 +510,7 @@ void Scene01::RenderSkybox()
 	modelStack.PushMatrix();
 	modelStack.Translate(0.f, 500.f, 0.f);
 	modelStack.Rotate(90.f, 1.f, 0.f, 0.f);
-	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+	//modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
 	modelStack.Scale(10.f, 10.f, 10.f);
 	RenderMesh(meshList[GEO_TOP], false);
 	modelStack.PopMatrix();
@@ -496,7 +520,7 @@ void Scene01::RenderSkybox()
 	modelStack.Translate(0.f, -500.f, 0.f);
 	modelStack.Scale(10.f, 10.f, 10.f); // CHANGE TO 10
 	modelStack.Rotate(-90.f, 1.f, 0.f, 0.f);
-	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+	//modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
 	RenderMesh(meshList[GEO_BOTTOM], false);
 	modelStack.PopMatrix();
 }
@@ -587,7 +611,7 @@ void Scene01::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, floa
 	RenderMesh(mesh, false); //UI should not have light
 
 	RenderMesh(meshList[PAUSEMENU], false);
-	RenderMesh(meshList[PLAYER1INDICATORUI], false);
+	//RenderMesh(meshList[PLAYER1INDICATORUI], false);
 
 	projectionStack.PopMatrix();
 	viewStack.PopMatrix();
@@ -754,12 +778,12 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 					// keep original rotations so the tile faces the same way as before
 					modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
 					modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
-					RenderMesh(meshList[GEO_GRASS], true);
+					RenderMesh(meshList[SOLIDGREENGRASS], true);
 					modelStack.PopMatrix();
 				}
 			}
 			// keep the ambient material tweak from original code
-			meshList[GEO_GRASS]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
+			meshList[SOLIDGREENGRASS]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
 		}
 		modelStack.PopMatrix();
 
@@ -796,6 +820,275 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 		}
 
 		{
+			{
+				// front of fence
+				modelStack.PushMatrix();
+				modelStack.Translate(76, 0, -42);
+				modelStack.Scale(0.02, 0.02, 0.02);
+				modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+				meshList[CARTOONFENCE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[CARTOONFENCE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[CARTOONFENCE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+				meshList[CARTOONFENCE]->material.kShininess = 5.0f;
+				RenderMesh(meshList[CARTOONFENCE], true);
+				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(62, 0, -42);
+				modelStack.Scale(0.02, 0.02, 0.02);
+				modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+				meshList[CARTOONFENCE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[CARTOONFENCE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[CARTOONFENCE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+				meshList[CARTOONFENCE]->material.kShininess = 5.0f;
+				RenderMesh(meshList[CARTOONFENCE], true);
+				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(48, 0, -42);
+				modelStack.Scale(0.02, 0.02, 0.02);
+				modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+				meshList[CARTOONFENCE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[CARTOONFENCE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[CARTOONFENCE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+				meshList[CARTOONFENCE]->material.kShininess = 5.0f;
+				RenderMesh(meshList[CARTOONFENCE], true);
+				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(20, 0, -42);
+				modelStack.Scale(0.02, 0.02, 0.02);
+				modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+				meshList[CARTOONFENCE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[CARTOONFENCE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[CARTOONFENCE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+				meshList[CARTOONFENCE]->material.kShininess = 5.0f;
+				RenderMesh(meshList[CARTOONFENCE], true);
+				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(6, 0, -42);
+				modelStack.Scale(0.02, 0.02, 0.02);
+				modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+				meshList[CARTOONFENCE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[CARTOONFENCE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[CARTOONFENCE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+				meshList[CARTOONFENCE]->material.kShininess = 5.0f;
+				RenderMesh(meshList[CARTOONFENCE], true);
+				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(-8, 0, -42);
+				modelStack.Scale(0.02, 0.02, 0.02);
+				modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+				meshList[CARTOONFENCE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[CARTOONFENCE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[CARTOONFENCE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+				meshList[CARTOONFENCE]->material.kShininess = 5.0f;
+				RenderMesh(meshList[CARTOONFENCE], true);
+				modelStack.PopMatrix();
+			}
+
+			{
+				// left of fence
+				modelStack.PushMatrix();
+				modelStack.Translate(-22, 0, -42);
+				modelStack.Scale(0.02, 0.02, 0.02);
+				modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+				meshList[CARTOONFENCE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[CARTOONFENCE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[CARTOONFENCE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+				meshList[CARTOONFENCE]->material.kShininess = 5.0f;
+				RenderMesh(meshList[CARTOONFENCE], true);
+				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(-22, 0, -56);
+				modelStack.Scale(0.02, 0.02, 0.02);
+				modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+				meshList[CARTOONFENCE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[CARTOONFENCE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[CARTOONFENCE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+				meshList[CARTOONFENCE]->material.kShininess = 5.0f;
+				RenderMesh(meshList[CARTOONFENCE], true);
+				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(-22, 0, -70);
+				modelStack.Scale(0.02, 0.02, 0.02);
+				modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+				meshList[CARTOONFENCE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[CARTOONFENCE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[CARTOONFENCE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+				meshList[CARTOONFENCE]->material.kShininess = 5.0f;
+				RenderMesh(meshList[CARTOONFENCE], true);
+				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(-22, 0, -84);
+				modelStack.Scale(0.02, 0.02, 0.02);
+				modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+				meshList[CARTOONFENCE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[CARTOONFENCE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[CARTOONFENCE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+				meshList[CARTOONFENCE]->material.kShininess = 5.0f;
+				RenderMesh(meshList[CARTOONFENCE], true);
+				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(-22, 0, -98);
+				modelStack.Scale(0.02, 0.02, 0.02);
+				modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+				meshList[CARTOONFENCE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[CARTOONFENCE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[CARTOONFENCE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+				meshList[CARTOONFENCE]->material.kShininess = 5.0f;
+				RenderMesh(meshList[CARTOONFENCE], true);
+				modelStack.PopMatrix();
+			}
+
+			{
+				// back of fence
+				modelStack.PushMatrix();
+				modelStack.Translate(76, 0, -112);
+				modelStack.Scale(0.02, 0.02, 0.02);
+				modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+				meshList[CARTOONFENCE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[CARTOONFENCE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[CARTOONFENCE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+				meshList[CARTOONFENCE]->material.kShininess = 5.0f;
+				RenderMesh(meshList[CARTOONFENCE], true);
+				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(62, 0, -112);
+				modelStack.Scale(0.02, 0.02, 0.02);
+				modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+				meshList[CARTOONFENCE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[CARTOONFENCE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[CARTOONFENCE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+				meshList[CARTOONFENCE]->material.kShininess = 5.0f;
+				RenderMesh(meshList[CARTOONFENCE], true);
+				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(48, 0, -112);
+				modelStack.Scale(0.02, 0.02, 0.02);
+				modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+				meshList[CARTOONFENCE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[CARTOONFENCE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[CARTOONFENCE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+				meshList[CARTOONFENCE]->material.kShininess = 5.0f;
+				RenderMesh(meshList[CARTOONFENCE], true);
+				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(34, 0, -112);
+				modelStack.Scale(0.02, 0.02, 0.02);
+				modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+				meshList[CARTOONFENCE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[CARTOONFENCE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[CARTOONFENCE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+				meshList[CARTOONFENCE]->material.kShininess = 5.0f;
+				RenderMesh(meshList[CARTOONFENCE], true);
+				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(20, 0, -112);
+				modelStack.Scale(0.02, 0.02, 0.02);
+				modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+				meshList[CARTOONFENCE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[CARTOONFENCE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[CARTOONFENCE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+				meshList[CARTOONFENCE]->material.kShininess = 5.0f;
+				RenderMesh(meshList[CARTOONFENCE], true);
+				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(6, 0, -112);
+				modelStack.Scale(0.02, 0.02, 0.02);
+				modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+				meshList[CARTOONFENCE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[CARTOONFENCE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[CARTOONFENCE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+				meshList[CARTOONFENCE]->material.kShininess = 5.0f;
+				RenderMesh(meshList[CARTOONFENCE], true);
+				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(-8, 0, -112);
+				modelStack.Scale(0.02, 0.02, 0.02);
+				modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+				meshList[CARTOONFENCE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[CARTOONFENCE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[CARTOONFENCE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+				meshList[CARTOONFENCE]->material.kShininess = 5.0f;
+				RenderMesh(meshList[CARTOONFENCE], true);
+				modelStack.PopMatrix();
+			}
+
+			{
+				// right of fence
+				modelStack.PushMatrix();
+				modelStack.Translate(76, 0, -42);
+				modelStack.Scale(0.02, 0.02, 0.02);
+				modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+				meshList[CARTOONFENCE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[CARTOONFENCE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[CARTOONFENCE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+				meshList[CARTOONFENCE]->material.kShininess = 5.0f;
+				RenderMesh(meshList[CARTOONFENCE], true);
+				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(76, 0, -56);
+				modelStack.Scale(0.02, 0.02, 0.02);
+				modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+				meshList[CARTOONFENCE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[CARTOONFENCE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[CARTOONFENCE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+				meshList[CARTOONFENCE]->material.kShininess = 5.0f;
+				RenderMesh(meshList[CARTOONFENCE], true);
+				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(76, 0, -70);
+				modelStack.Scale(0.02, 0.02, 0.02);
+				modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+				meshList[CARTOONFENCE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[CARTOONFENCE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[CARTOONFENCE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+				meshList[CARTOONFENCE]->material.kShininess = 5.0f;
+				RenderMesh(meshList[CARTOONFENCE], true);
+				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(76, 0, -84);
+				modelStack.Scale(0.02, 0.02, 0.02);
+				modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+				meshList[CARTOONFENCE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[CARTOONFENCE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[CARTOONFENCE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+				meshList[CARTOONFENCE]->material.kShininess = 5.0f;
+				RenderMesh(meshList[CARTOONFENCE], true);
+				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(76, 0, -98);
+				modelStack.Scale(0.02, 0.02, 0.02);
+				modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+				meshList[CARTOONFENCE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[CARTOONFENCE]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+				meshList[CARTOONFENCE]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+				meshList[CARTOONFENCE]->material.kShininess = 5.0f;
+				RenderMesh(meshList[CARTOONFENCE], true);
+				modelStack.PopMatrix();
+			}
+			
+		}
+
+
+		{
 
 			modelStack.PushMatrix();
 			modelStack.Translate(30.f, 0.f, -10.f);
@@ -820,15 +1113,95 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 			modelStack.PopMatrix();
 		}
 
-		modelStack.PushMatrix();
-		modelStack.Translate(0.f, 0.f, -10.f);
-		modelStack.Scale(0.1, 0.1, 0.1);
-		meshList[TALLTREE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-		meshList[TALLTREE]->material.kDiffuse = glm::vec3(1, 1, 1);
-		meshList[TALLTREE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[TALLTREE]->material.kShininess = 5.0f;
-		RenderMesh(meshList[TALLTREE], false);
-		modelStack.PopMatrix();
+		{
+
+			modelStack.PushMatrix();
+			modelStack.Translate(-30, 0.f, 66);
+			modelStack.Scale(3, 3, 3);
+			modelStack.Rotate(100, 0.f, 1.f, 0.f);
+			meshList[LOWPOLYBUILDING]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+			meshList[LOWPOLYBUILDING]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+			meshList[LOWPOLYBUILDING]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+			meshList[LOWPOLYBUILDING]->material.kShininess = 5.0f;
+			RenderMesh(meshList[LOWPOLYBUILDING], true);
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(0, 0.f, 61);
+			modelStack.Scale(3, 3, 3);
+			modelStack.Rotate(100, 0.f, 1.f, 0.f);
+			meshList[LOWPOLYBUILDING]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+			meshList[LOWPOLYBUILDING]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+			meshList[LOWPOLYBUILDING]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+			meshList[LOWPOLYBUILDING]->material.kShininess = 5.0f;
+			RenderMesh(meshList[LOWPOLYBUILDING], true);
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(19, 0.f, 55);
+			modelStack.Scale(3, 3, 3);
+			modelStack.Rotate(100, 0.f, 1.f, 0.f);
+			meshList[LOWPOLYBUILDING]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+			meshList[LOWPOLYBUILDING]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+			meshList[LOWPOLYBUILDING]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+			meshList[LOWPOLYBUILDING]->material.kShininess = 5.0f;
+			RenderMesh(meshList[LOWPOLYBUILDING], true);
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(51, 0.f, 48);
+			modelStack.Scale(3, 3, 3);
+			modelStack.Rotate(100, 0.f, 1.f, 0.f);
+			meshList[LOWPOLYBUILDING]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+			meshList[LOWPOLYBUILDING]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+			meshList[LOWPOLYBUILDING]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+			meshList[LOWPOLYBUILDING]->material.kShininess = 5.0f;
+			RenderMesh(meshList[LOWPOLYBUILDING], true);
+			modelStack.PopMatrix();
+		}
+
+		{
+			modelStack.PushMatrix();
+			modelStack.Translate(48, 0.5, 57);
+			modelStack.Scale(5, 5, 5);
+			meshList[BLOXBURGTREE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+			meshList[BLOXBURGTREE]->material.kDiffuse = glm::vec3(1, 1, 1);
+			meshList[BLOXBURGTREE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+			meshList[BLOXBURGTREE]->material.kShininess = 5.0f;
+			RenderMesh(meshList[BLOXBURGTREE], true);
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(18, 0, 60);
+			modelStack.Scale(2, 2, 2);
+			meshList[BLOXBURGTREE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+			meshList[BLOXBURGTREE]->material.kDiffuse = glm::vec3(1, 1, 1);
+			meshList[BLOXBURGTREE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+			meshList[BLOXBURGTREE]->material.kShininess = 5.0f;
+			RenderMesh(meshList[BLOXBURGTREE], true);
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(-8, 0, 67);
+			modelStack.Scale(2, 2, 2);
+			meshList[BLOXBURGTREE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+			meshList[BLOXBURGTREE]->material.kDiffuse = glm::vec3(1, 1, 1);
+			meshList[BLOXBURGTREE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+			meshList[BLOXBURGTREE]->material.kShininess = 5.0f;
+			RenderMesh(meshList[BLOXBURGTREE], true);
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(-37, 0, 70);
+			modelStack.Rotate(180, 1, 0, 0);
+			modelStack.Scale(2, 2, 2);
+			meshList[BLOXBURGTREE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+			meshList[BLOXBURGTREE]->material.kDiffuse = glm::vec3(1, 1, 1);
+			meshList[BLOXBURGTREE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+			meshList[BLOXBURGTREE]->material.kShininess = 5.0f;
+			RenderMesh(meshList[BLOXBURGTREE], true);
+			modelStack.PopMatrix();
+		}
 
 		modelStack.PushMatrix();
 		modelStack.Translate(0.f, 0.f, -25.f);
@@ -843,7 +1216,7 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 		if (!player1InCar)
 		{
 			modelStack.PushMatrix();
-			modelStack.Translate(25, 0, -25);
+			modelStack.Translate(-11, 0, -90);
 			modelStack.Scale(3, 3, 3);
 			meshList[BUMPERCAR]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
 			meshList[BUMPERCAR]->material.kDiffuse = glm::vec3(1, 1, 1);
@@ -852,11 +1225,18 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 			RenderMesh(meshList[BUMPERCAR], true);
 			modelStack.PopMatrix();
 
+			modelStack.PushMatrix();
+			modelStack.Translate(-11, 6, -85);
+			modelStack.Scale(1, 1, 1);
+			modelStack.Rotate(90, 0, 1, 0);
+			RenderText(meshList[GEO_TEXT], "Player 1's car!", glm::vec3(1, 0, 0));
+			modelStack.PopMatrix();
+
 			// ----- Render Player 1 Model -----
 			if (!isCamera1)  // If current view is NOT camera1
 			{
 				modelStack.PushMatrix();
-				modelStack.Translate(camera1.position.x, 0.5f, camera1.position.z);
+				modelStack.Translate(camera1.position.x, 0.5, camera1.position.z);
 				modelStack.Scale(2, 2, 2);
 				modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
 
@@ -881,13 +1261,20 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 		if (!player2InCar)
 		{
 			modelStack.PushMatrix();
-			modelStack.Translate(25, 0, -45);
+			modelStack.Translate(-11, 0, -60);
 			modelStack.Scale(3, 3, 3);
 			meshList[BUMPERCAR]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
 			meshList[BUMPERCAR]->material.kDiffuse = glm::vec3(1, 1, 1);
 			meshList[BUMPERCAR]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 			meshList[BUMPERCAR]->material.kShininess = 5.0f;
 			RenderMesh(meshList[BUMPERCAR], true);
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(-11, 6, -55);
+			modelStack.Scale(1, 1, 1);
+			modelStack.Rotate(90, 0, 1, 0);
+			RenderText(meshList[GEO_TEXT], "Player 2's car!", glm::vec3(1, 0, 0));
 			modelStack.PopMatrix();
 
 			// ----- Render Player 2 Model -----
@@ -920,7 +1307,7 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 			if (!isCamera1)  // If current view is NOT camera1
 			{
 				modelStack.PushMatrix();
-				modelStack.Translate(camera1.position.x, 0.5f, camera1.position.z);
+				modelStack.Translate(camera1.position.x, 0.5, camera1.position.z);
 				modelStack.Scale(3.f, 3.f, 3.f);
 
 				// Make the model face the direction camera1 is facing:
@@ -940,7 +1327,7 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 				modelStack.PopMatrix();
 
 				modelStack.PushMatrix();
-				modelStack.Translate(camera1.position.x, 0.f, camera1.position.z);
+				modelStack.Translate(camera1.position.x, 1.f, camera1.position.z);
 				modelStack.Scale(2.f, 2.f, 2.f);
 				modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
 				// Make the model face the direction camera1 is facing:
@@ -965,7 +1352,7 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 			if (isCamera1)  // If current view IS camera1
 			{
 				modelStack.PushMatrix();
-				modelStack.Translate(camera2.position.x, 0.5f, camera2.position.z);
+				modelStack.Translate(camera2.position.x, 0.5, camera2.position.z);
 				modelStack.Scale(3.f, 3.f, 3.f);
 
 				// Make the model face the direction camera2 is facing:
@@ -983,7 +1370,7 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 				modelStack.PopMatrix();
 
 				modelStack.PushMatrix();
-				modelStack.Translate(camera2.position.x, 0.f, camera2.position.z);
+				modelStack.Translate(camera2.position.x, 1, camera2.position.z);
 				modelStack.Scale(2.f, 2.f, 2.f);
 				modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
 				// Make the model face the direction camera2 is facing:
@@ -1351,8 +1738,8 @@ void Scene01::HandleKeyPress1(FPCamera& cam, double dt)
 
 	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_E))
 	{
-		const glm::vec3 minPos(22, -1, -27);
-		const glm::vec3 maxPos(27, 5, -22);
+		const glm::vec3 minPos(-21, -1, -100);
+		const glm::vec3 maxPos(-1, 5, -80);
 
 		auto isInsideBox = [](const glm::vec3& p, const glm::vec3& mn, const glm::vec3& mx) {
 			return (p.x >= mn.x && p.x <= mx.x) &&
@@ -1516,8 +1903,8 @@ void Scene01::HandleKeyPress2(FPCamera& cam, double dt)
 
 	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_C))
 	{
-		const glm::vec3 minPos(22, -1, -47);
-		const glm::vec3 maxPos(27, 5, -42);
+		const glm::vec3 minPos(-21, -1, -70);
+		const glm::vec3 maxPos(-1, 5, -50);
 
 		auto isInsideBox = [](const glm::vec3& p, const glm::vec3& mn, const glm::vec3& mx) {
 			return (p.x >= mn.x && p.x <= mx.x) &&
