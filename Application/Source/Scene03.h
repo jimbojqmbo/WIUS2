@@ -2,7 +2,6 @@
 #define SCENE_03_H
 
 #include "CollisionDetection.h"
-
 #include "Scene.h"
 #include "Mesh.h"
 #include "AltAzCamera.h"
@@ -24,8 +23,6 @@ public:
 		bool active;
 		bool hitBoard;
 	};
-
-	std::vector<PhysicsObject> balls;
 
 	enum GEOMETRY_TYPE
 	{
@@ -158,8 +155,14 @@ private:
 
 	float playerYVelocity = 0.f;
 	bool isGrounded = true;
+	bool spacePressed = false;
 	float jumpForce = 8.f;
-	float playerHeight = 2.f;
+
+	PhysicsObject ball;
+	bool hasBall = true;
+	bool ballThrown = false;
+	float pickupDistance = 1.5f;
+
 };
 
 #endif

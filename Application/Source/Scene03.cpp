@@ -324,10 +324,13 @@ void Scene03::Update(double dt)
 
 	HandleMouseInput();
 
-	if (KeyboardController::GetInstance()->IsKeyPressed(VK_SPACE) && isGrounded)
-	{
-		playerYVelocity = jumpForce;
-		isGrounded = false;
+	/*if (spacePressed == false) {
+		if (KeyboardController::GetInstance()->IsKeyPressed(VK_SPACE) && isGrounded && spacePressed == false)
+		{
+			spacePressed = true;
+			playerYVelocity = jumpForce;
+			isGrounded = false;
+		}
 	}
 
 	playerYVelocity -= gravity * dt;
@@ -341,136 +344,116 @@ void Scene03::Update(double dt)
 		isGrounded = true;
 	}
 
+	if (isGrounded == true) {
+		spacePressed == false;
+	}*/
+
 	bool mouseCurrentlyDown = MouseController::GetInstance()->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT);
 
-	if (mouseCurrentlyDown && !mousePreviouslyDown)
+	if (mouseCurrentlyDown && !mousePreviouslyDown && hasBall)
 	{
-		PhysicsObject newBall;
-
 		glm::vec3 forward = glm::normalize(camera.target - camera.position);
 
-		newBall.pos = camera.position + forward * 2.0f; // spawn in front
+		ball.pos = camera.position + forward * 2.0f;
+		ball.vel = forward * 25.f;
+		ball.vel.y = 14.f;
+		ball.accel.y = -gravity;
 
-		float throwForce = 25.f;     // adjust strength
-		float upwardForce = 14.f;    // small arc
+		hasBall = false;
+		ballThrown = true;
 
-		newBall.vel = forward * throwForce;
-		newBall.vel.y = upwardForce;
-
-		newBall.accel.y = -gravity; //how fast ball drops
-
-		balls.push_back(newBall);
-
-		//PlaySound(TEXT("Sounds//fah.wav"), NULL, SND_FILENAME | SND_ASYNC);
+		//PlaySound(TEXT("Sounds//fah.wav"), NULL, SND_FILENAME | SND_SYNC);
 	}
 
 	mousePreviouslyDown = mouseCurrentlyDown;
 
-	for (auto& ball : balls) {
+	if (ballThrown)
+	{
 		ball.UpdatePhysics(dt);
+
 		if (ball.pos.y <= 0.4f)
 		{
 			ball.pos.y = 0.4f;
 			ball.vel.y *= -0.7f;
 
-			// Apply ground friction
-			float friction = 0.98f;  // lower = stops faster
-
+			float friction = 0.98f;
 			ball.vel.x *= friction;
 			ball.vel.z *= friction;
 
-			// Stop completely when very slow
 			if (abs(ball.vel.x) < 0.05f) ball.vel.x = 0.f;
 			if (abs(ball.vel.z) < 0.05f) ball.vel.z = 0.f;
 		}
 
-		//// -------- BACKBOARD COLLISION --------
-		//if (ball.pos.z >= boardZ - radius &&
-		//	ball.pos.z <= boardZ + radius &&
-		//	ball.pos.x >= boardMinX &&
-		//	ball.pos.x <= boardMaxX &&
-		//	ball.pos.y >= boardMinY &&
-		//	ball.pos.y <= boardMaxY)
-		//{
-		//	// Move ball slightly in front of board
-		//	ball.pos.z = boardZ - radius;
-
-		//	// Reflect Z velocity (bounce backward)
-		//	ball.vel.z *= -0.6f;  // 60% bounce
-
-		//	// Optional small dampening
-		//	ball.vel.x *= 0.9f;
-		//	ball.vel.y *= 0.9f;
-		//}
-		
 		float boardMinX = hoopPosition.x - 2.2f;
 		float boardMaxX = hoopPosition.x + 2.2f;
 		float boardMinY = hoopPosition.y + 5.5f;
 		float boardMaxY = hoopPosition.y + 8.5f;
 		float boardZ = hoopPosition.z + 2.3f;
 
-		// Check collision
 		if (ball.pos.x >= boardMinX &&
 			ball.pos.x <= boardMaxX &&
 			ball.pos.y >= boardMinY &&
 			ball.pos.y <= boardMaxY)
 		{
-			// Check crossing from either side
 			if (abs(ball.pos.z - boardZ) <= ballRadius)
 			{
 				float direction = (ball.pos.z > boardZ) ? 1.f : -1.f;
-
 				ball.pos.z = boardZ + direction * ballRadius;
-
 				ball.vel.z = -ball.vel.z * 0.4f;
 			}
-
 		}
 
 		glm::vec3 toBall = ball.pos - rimPosition;
-
-		// Project onto XZ plane (rim plane)
 		glm::vec3 flat = glm::vec3(toBall.x, 0.f, toBall.z);
-
-		// Distance from rim center
 		float distToCenter = glm::length(flat);
 
 		if (distToCenter > 0.0001f)
 		{
-			// Closest point on rim center circle
-			glm::vec3 closestCirclePoint = rimPosition + glm::normalize(flat) * rimbigR;
+			glm::vec3 closestCirclePoint =
+				rimPosition + glm::normalize(flat) * rimbigR;
 
-			// Now check distance from ball to tube
-			float distToTube = glm::length(ball.pos - closestCirclePoint);
+			float distToTube =
+				glm::length(ball.pos - closestCirclePoint);
 
 			if (distToTube <= (rimsmallR + ballRadius))
 			{
-				// -------- COLLISION --------
+				glm::vec3 normal =
+					glm::normalize(ball.pos - closestCirclePoint);
 
-				glm::vec3 normal = glm::normalize(ball.pos - closestCirclePoint);
+				float penetration =
+					(rimsmallR + ballRadius) - distToTube;
 
-				// Push ball out
-				ball.pos = closestCirclePoint + normal * (rimsmallR + ballRadius);
+				ball.pos += normal * penetration;
 
-				// Reflect velocity
-				ball.vel = ball.vel - 2.f * glm::dot(ball.vel, normal) * normal;
+				if (glm::dot(ball.vel, normal) < 0.f)
+				{
+					ball.vel = glm::reflect(ball.vel, normal);
+					ball.vel *= 0.7f;
+				}
+			}
+		}
 
-				// Energy loss
-				ball.vel *= 0.7f;
+		float distanceToPlayer = glm::length(ball.pos - camera.position);
+
+	/*	if (distanceToPlayer < pickupDistance && glm::length(ball.vel) < 1.0f)
+		{
+
+			if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_E)) {
+				ballThrown = false;
+				hasBall = true;
+			}
+		}*/
+
+		if (OverlapCircle2Circle(camera.position, pickupDistance, ball.pos, ballRadius)) {
+			if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_E)) {
+				ballThrown = false;
+				hasBall = true;
 			}
 		}
 	}
 
-	float temp = 1.f / dt;
-	fps = glm::round(temp * 100.f) / 100.f;
-
-	// Move hoop left/right
 	hoopPosition.x += hoopDirection * hoopSpeed * static_cast<float>(dt);
 
-	// Update rim position to follow hoop
-	rimPosition = hoopPosition + glm::vec3(0.f, 6.37f, 3.2f);
-
-	// Reverse direction when reaching limit
 	if (hoopPosition.x > hoopLimit)
 	{
 		hoopPosition.x = hoopLimit;
@@ -481,6 +464,11 @@ void Scene03::Update(double dt)
 		hoopPosition.x = -hoopLimit;
 		hoopDirection = 1;
 	}
+
+	rimPosition = hoopPosition + glm::vec3(0.f, 6.37f, 3.2f);
+
+	float temp = 1.f / dt;
+	fps = glm::round(temp * 100.f) / 100.f;
 }
 
 void Scene03::RenderSkybox() {
@@ -717,10 +705,36 @@ void Scene03::Render()
 	RenderMesh(meshList[GEO_BASKETBALL], false);
 	modelStack.PopMatrix();*/
 
-	for (auto& ball : balls)
+	/*for (auto& ball : balls)
 	{
 		modelStack.PushMatrix();
 		modelStack.Translate(ball.pos.x, ball.pos.y, ball.pos.z);
+		modelStack.Scale(0.008f, 0.008f, 0.008f);
+		RenderMesh(meshList[GEO_BASKETBALL], false);
+		modelStack.PopMatrix();
+	}*/
+
+	if (ballThrown)
+	{
+		modelStack.PushMatrix();
+		modelStack.Translate(ball.pos.x, ball.pos.y, ball.pos.z);
+		modelStack.Scale(0.008f, 0.008f, 0.008f);
+		RenderMesh(meshList[GEO_BASKETBALL], false);
+		modelStack.PopMatrix();
+	}
+	else if (hasBall)
+	{
+		// render in front of camera
+		glm::vec3 forward = glm::normalize(camera.target - camera.position);
+		glm::vec3 right = glm::normalize(glm::cross(forward, camera.up));
+		glm::vec3 up = glm::normalize(camera.up);
+
+		glm::vec3 offset = forward * 1.5f + right * 0.7f + up * -0.6f;
+
+		modelStack.PushMatrix();
+		modelStack.Translate(camera.position.x + offset.x,
+			camera.position.y + offset.y,
+			camera.position.z + offset.z);
 		modelStack.Scale(0.008f, 0.008f, 0.008f);
 		RenderMesh(meshList[GEO_BASKETBALL], false);
 		modelStack.PopMatrix();
@@ -772,6 +786,13 @@ void Scene03::Render()
 	modelStack.Scale(1.f, 1.f, 1.f);
 	RenderTextOnScreen(meshList[GEO_TEXT], "+", glm::vec3(0, 1, 1), 40, 392, 282);
 	modelStack.PopMatrix();
+
+	if (OverlapCircle2Circle(camera.position, pickupDistance, ball.pos, ballRadius)) {
+		modelStack.PushMatrix();
+		modelStack.Scale(1.f, 1.f, 1.f);
+		RenderTextOnScreen(meshList[GEO_TEXT], "Press E to pick up", glm::vec3(0, 1, 1), 20, 392, 200);
+		modelStack.PopMatrix();
+	}
 
 	std::string temp("FPS:" + std::to_string(fps));
 	RenderTextOnScreen(meshList[GEO_TEXT], temp.substr(0, 9), glm::vec3(0, 1, 0), 40, 0, 560);
