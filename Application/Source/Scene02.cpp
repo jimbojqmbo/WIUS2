@@ -186,6 +186,7 @@ void Scene02::Init()
 	blasterMovingUp = false;
 
 	blasterAngle = 0.f;
+	score = 0.f;
 
 	m_parameters[U_TEXT_ENABLED] = glGetUniformLocation(m_programID, "textEnabled");
 	m_parameters[U_TEXT_COLOR] = glGetUniformLocation(m_programID, "textColor");
@@ -193,8 +194,17 @@ void Scene02::Init()
 	// Create Invis Walls
 	{
 		//walls.push_back(PhysicsObject(500.f, 5.f, 500.f, glm::vec3(0.f, -2.f, 0.f), 0.f, 0.5f));
-		walls.push_back(PhysicsObject(1.f, 10.f, 10.f, glm::vec3(0.f, 0.f, 0.f), 0.f, 0.5f));
+		//walls.push_back(PhysicsObject(1.f, 10.f, 100.f, glm::vec3(0.f, 0.f, 0.f), 0.f, 0.5f));
 	}
+
+	// Test Create Targets
+	/*{
+		targets.push_back(new DuckTarget(glm::vec3(20.f, 10.f, -20.f), glm::vec3(-20.f, 10.f, -20.f),glm::vec3(2.f,5.f,2.f), 15.f, 5.f));
+
+		targets.push_back(new DuckTarget(glm::vec3(20.f, 18.f, -30.f), glm::vec3(-20.f, 18.f, -30.f), glm::vec3(2.f, 5.f, 2.f), 10.f, 5.f));
+
+		targets.push_back(new DuckTarget(glm::vec3(20.f, 26.f, -40.f), glm::vec3(-20.f, 26.f, -40.f), glm::vec3(2.f, 5.f, 2.f), 5.f, 5.f));
+	}*/
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -308,6 +318,36 @@ void Scene02::Update(double dt)
 	if (KeyboardController::GetInstance()->IsKeyDown('P'))
 		light[0].position.y += static_cast<float>(dt) * 5.f;
 
+	bool isKeyPressed = KeyboardController::GetInstance()->IsKeyDown('B');
+	if (isKeyPressed && !wasKeyPressed)
+	{
+		glm::vec3 startPos = glm::vec3(20.f, 10.f, -20.f);
+		glm::vec3 endPos = glm::vec3(-20.f, 10.f, -20.f);
+		glm::vec3 size = glm::vec3(2.f, 5.f, 2.f);
+		float speed = 15.f;
+		int repeats = 5;
+
+		SpawnTarget(startPos, endPos, size, speed, repeats, 5);
+
+		startPos = glm::vec3(20.f, 18.f, -20.f);
+		endPos = glm::vec3(-20.f, 18.f, -20.f);
+		size = glm::vec3(2.f, 5.f, 2.f);
+		speed = 10.f;
+		repeats = 5;
+
+		SpawnTarget(startPos, endPos, size, speed, repeats, 10);
+
+		startPos = glm::vec3(20.f, 26.f, -20.f);
+		endPos = glm::vec3(-20.f, 26.f, -20.f);
+		size = glm::vec3(2.f, 5.f, 2.f);
+		speed = 5.f;
+		repeats = 5;
+
+		SpawnTarget(startPos, endPos, size, speed, repeats, -5);
+	}
+
+	wasKeyPressed = isKeyPressed;
+
 	camera.Update(dt);
 
 	camera.position.y = 3.3f;
@@ -324,14 +364,27 @@ void Scene02::Update(double dt)
 
 	HandleMouseInput(dt);
 
-	for (size_t i = 0; i < projectiles.size(); i++) {
+	for (int i = 0; i < projectiles.size(); i++) {
 		PhysicsObject& ball = projectiles[i];
 
-		for (int i = 0; i < walls.size(); i++) {
-			PhysicsObject& wall = walls[i];
+		for (int j = 0; j < walls.size(); j++) {
+			PhysicsObject& wall = walls[j];
 			CollisionData cd;
 			if (OverlapSphere2AABB(ball, wall, cd))
 			{
+				ResolveCollision(cd);
+			}
+		}
+
+		for (int j = 0; j < targets.size(); j++) {
+			CollisionData cd;
+			if (OverlapSphere2AABB(ball, *targets[j], cd))
+			{
+				if (targets[j]->OnHit())
+				{
+					int points = targets[j]->GetScoreValue();
+					score += points;
+				}
 				ResolveCollision(cd);
 			}
 		}
@@ -342,6 +395,19 @@ void Scene02::Update(double dt)
 		if (ball.pos.y < -10.f)
 		{
 			projectiles.erase(projectiles.begin() + i);
+			i--;
+		}
+	}
+
+	for (int i=0;i<targets.size();i++)
+	{
+		if (targets[i]->IsActive())
+		{
+			targets[i]->Update(dt);
+		}
+		else if (!targets[i]->IsActive() || targets[i]->pos.y < -20.f) {
+			delete targets[i];
+			targets.erase(targets.begin() + i);
 			i--;
 		}
 	}
@@ -538,6 +604,11 @@ void Scene02::RenderTextOnScreen(Mesh* mesh, std::string text, glm::vec3 color, 
 	glDisable(GL_BLEND);
 }
 
+void Scene02::SpawnTarget(glm::vec3 startingPosition, glm::vec3 endingPosition, glm::vec3 size, float speed, int repeats, int value)
+{
+	targets.push_back(new DuckTarget(startingPosition, endingPosition, size, speed, repeats, value));
+}
+
 void Scene02::Render()
 {
 	// Clear color buffer every frame
@@ -652,6 +723,11 @@ void Scene02::Render()
 	meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 	meshList[GEO_SPHERE]->material.kShininess = 5.0f;
 
+	meshList[GEO_WALL]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_WALL]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_WALL]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+	meshList[GEO_WALL]->material.kShininess = 5.0f;
+
 	// Render Projectiles
 	for (int i=0;i<projectiles.size();i++) {
 		PhysicsObject& ball = projectiles[i];
@@ -675,10 +751,31 @@ void Scene02::Render()
 		}
 	}
 
+	// Render Targets
+	for (int i = 0; i < targets.size(); i++) {
+		DuckTarget* target = targets[i];
+		modelStack.PushMatrix();
+		modelStack.Translate(target->pos.x, target->pos.y, target->pos.z);
+		modelStack.Scale(target->sizeX, target->sizeY, target->sizeZ);
+		meshList[GEO_WALL]->material.kAmbient = glm::vec3(1.f, 1.f, 0.f);
+		if (targets[i]->GetScoreValue() < 0)
+		{
+			meshList[GEO_WALL]->material.kAmbient = glm::vec3(1.f, 0.f, 0.f);
+		}
+		RenderMesh(meshList[GEO_WALL], true);
+		modelStack.PopMatrix();
+	}
+
 	// FPS COUNTER
 	{
 		std::string temp("FPS:" + std::to_string(fps));
 		RenderTextOnScreen(meshList[GEO_TEXT], temp.substr(0, 9), glm::vec3(0, 1, 0), 20, 0, 580);
+	}
+
+	// SCORE COUNTER
+	{
+		std::string temp("Score:" + std::to_string(score));
+		RenderTextOnScreen(meshList[GEO_TEXT], temp.substr(0, 9), glm::vec3(1, 0, 0), 20, 0, 540);
 	}
 }
 
