@@ -378,6 +378,7 @@ void Scene04::walls_render(){
 
 void Scene04::RenderSkybox()
 {
+	/*
 	// Front face (no rotation needed if quad faces -Z by default)
 	modelStack.PushMatrix();
 	modelStack.Translate(0.f, 0.f, -500.f);
@@ -429,6 +430,56 @@ void Scene04::RenderSkybox()
 	modelStack.Rotate(-90.f, 1.f, 0.f, 0.f);
 	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
 	RenderMesh(meshList[GEO_BOTTOM], false);
+	modelStack.PopMatrix();
+	*/
+	//top
+	modelStack.PushMatrix();
+	modelStack.Translate(camerapos.x, camerapos.y + skyboxscale.y / 2, camerapos.z);
+	modelStack.Rotate(90, 1.f, 0.f, 0.f);
+	modelStack.Rotate(90, 0.f, 0.f, 1.f);
+	modelStack.Scale(skyboxscale.x, skyboxscale.y, 0.f);
+	RenderMesh(meshList[GEO_SKYBOXNIGHT_TOP], false);
+	modelStack.PopMatrix();
+
+	//bottom
+	modelStack.PushMatrix();
+	modelStack.Translate(camerapos.x, camerapos.y + (-skyboxscale.y / 2), camerapos.z);
+	modelStack.Rotate(270, 1.f, 0.f, 0.f);
+	modelStack.Rotate(270, 0.f, 0.f, 1.f);
+	modelStack.Scale(skyboxscale.x, skyboxscale.y, 0.f);
+	RenderMesh(meshList[GEO_SKYBOXNIGHT_BOTTOM], false);
+	modelStack.PopMatrix();
+
+	//front
+	modelStack.PushMatrix();
+	modelStack.Translate(camerapos.x + (skyboxscale.x / 2), camerapos.y, camerapos.z);
+	modelStack.Rotate(270, 0.f, 1.f, 0.f);
+	modelStack.Scale(skyboxscale.x, skyboxscale.y, 0.f);
+	RenderMesh(meshList[GEO_SKYBOXNIGHT_FRONT], false);
+	modelStack.PopMatrix();
+
+	//back
+	modelStack.PushMatrix();
+	modelStack.Translate(camerapos.x + (-skyboxscale.x / 2), camerapos.y, camerapos.z);
+	modelStack.Rotate(90, 0.f, 1.f, 0.f);
+
+	modelStack.Scale(skyboxscale.x, skyboxscale.y, 0.f);
+	RenderMesh(meshList[GEO_SKYBOXNIGHT_BACK], false);
+	modelStack.PopMatrix();
+
+	//right
+	modelStack.PushMatrix();
+	modelStack.Translate(camerapos.x, camerapos.y, camerapos.z + (skyboxscale.z / 2));
+	modelStack.Rotate(180, 1.f, 0.f, 0.f);
+	modelStack.Rotate(180, 0.f, 0.f, 1.f);
+	modelStack.Scale(skyboxscale.x, skyboxscale.y, 0.f);
+	RenderMesh(meshList[GEO_SKYBOXNIGHT_RIGHT], false);
+	modelStack.PopMatrix();
+	//left
+	modelStack.PushMatrix();
+	modelStack.Translate(camerapos.x, camerapos.y, camerapos.z + (-skyboxscale.z / 2));
+	modelStack.Scale(skyboxscale.x, skyboxscale.y, 0.f);
+	RenderMesh(meshList[GEO_SKYBOXNIGHT_LEFT], false);
 	modelStack.PopMatrix();
 }
 
