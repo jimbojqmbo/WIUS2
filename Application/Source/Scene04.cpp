@@ -109,24 +109,24 @@ void Scene04::Init()
 	meshList[GEO_SPHERE] = MeshBuilder::GenerateSphere("Sun", glm::vec3(1.f, 1.f, 1.f), 1.f, 16, 16);
 	//meshList[GEO_CUBE] = MeshBuilder::GenerateCube("Arm", glm::vec3(0.5f, 0.5f, 0.5f), 1.f);
 
-	//skybox
+	//SKYBOX
 	meshList[GEO_LEFT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_LEFT]->textureID = LoadTGA("Images//redleft copy.tga");
+	meshList[GEO_LEFT]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Left.tga");
 
 	meshList[GEO_RIGHT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_RIGHT]->textureID = LoadTGA("Images//redright copy.tga");
+	meshList[GEO_RIGHT]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Right.tga");
 
 	meshList[GEO_BACK] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_BACK]->textureID = LoadTGA("Images//redback copy.tga");
+	meshList[GEO_BACK]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Back.tga");
 
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_FRONT]->textureID = LoadTGA("Images//redfront copy.tga");
+	meshList[GEO_FRONT]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Front.tga");
 
 	meshList[GEO_TOP] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_TOP]->textureID = LoadTGA("Images//redtop copy.tga");
+	meshList[GEO_TOP]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Top.tga");
 
 	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//redbottom copy.tga");
+	meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Bottom.tga");
 
 	
 	//shapes
@@ -320,7 +320,7 @@ void Scene04::Render()
 	modelStack.PopMatrix();
 
 	// Skybox - now renders at world origin without accumulated transforms
-	RenderSkybox();
+	RenderSkybox(skyboxscale);
 
 	// grass tiled from -100 to 100 on X and Z, keep existing scale (5,1,5)
 	modelStack.PushMatrix();
@@ -376,7 +376,7 @@ void Scene04::walls_render(){
 	modelStack.PopMatrix();
 }
 
-void Scene04::RenderSkybox()
+void Scene04::RenderSkybox(float scale)
 {
 	/*
 	// Front face (no rotation needed if quad faces -Z by default)
@@ -432,57 +432,48 @@ void Scene04::RenderSkybox()
 	RenderMesh(meshList[GEO_BOTTOM], false);
 	modelStack.PopMatrix();
 	*/
-	//top
-	/*
 	modelStack.PushMatrix();
-	modelStack.Translate(camerapos.x, camerapos.y + skyboxscale.y / 2, camerapos.z);
-	modelStack.Rotate(90, 1.f, 0.f, 0.f);
-	modelStack.Rotate(90, 0.f, 0.f, 1.f);
-	modelStack.Scale(skyboxscale.x, skyboxscale.y, 0.f);
-	RenderMesh(meshList[GEO_SKYBOXNIGHT_TOP], false);
+	// Offset in Z direction by -50 units
+	modelStack.Translate(0.f, 0.f, -50.f);
+	meshList[GEO_FRONT]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
+	RenderMesh(meshList[GEO_FRONT], false);
 	modelStack.PopMatrix();
 
-	//bottom
 	modelStack.PushMatrix();
-	modelStack.Translate(camerapos.x, camerapos.y + (-skyboxscale.y / 2), camerapos.z);
-	modelStack.Rotate(270, 1.f, 0.f, 0.f);
-	modelStack.Rotate(270, 0.f, 0.f, 1.f);
-	modelStack.Scale(skyboxscale.x, skyboxscale.y, 0.f);
-	RenderMesh(meshList[GEO_SKYBOXNIGHT_BOTTOM], false);
+	// Offset in Z direction by -50 units
+	modelStack.Translate(0.f, 0.f, 50.f);
+	modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+	meshList[GEO_BACK]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
+	RenderMesh(meshList[GEO_BACK], false);
 	modelStack.PopMatrix();
 
-	//front
 	modelStack.PushMatrix();
-	modelStack.Translate(camerapos.x + (skyboxscale.x / 2), camerapos.y, camerapos.z);
-	modelStack.Rotate(270, 0.f, 1.f, 0.f);
-	modelStack.Scale(skyboxscale.x, skyboxscale.y, 0.f);
-	RenderMesh(meshList[GEO_SKYBOXNIGHT_FRONT], false);
+	modelStack.Translate(-50.f, 0.f, 0.f);
+	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+	meshList[GEO_LEFT]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
+	RenderMesh(meshList[GEO_LEFT], false);
 	modelStack.PopMatrix();
 
-	//back
 	modelStack.PushMatrix();
-	modelStack.Translate(camerapos.x + (-skyboxscale.x / 2), camerapos.y, camerapos.z);
-	modelStack.Rotate(90, 0.f, 1.f, 0.f);
-
-	modelStack.Scale(skyboxscale.x, skyboxscale.y, 0.f);
-	RenderMesh(meshList[GEO_SKYBOXNIGHT_BACK], false);
+	modelStack.Translate(50.f, 0.f, 0.f);
+	modelStack.Rotate(90.f, 0.f, -1.f, 0.f);
+	meshList[GEO_RIGHT]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
+	RenderMesh(meshList[GEO_RIGHT], false);
 	modelStack.PopMatrix();
 
-	//right
 	modelStack.PushMatrix();
-	modelStack.Translate(camerapos.x, camerapos.y, camerapos.z + (skyboxscale.z / 2));
-	modelStack.Rotate(180, 1.f, 0.f, 0.f);
-	modelStack.Rotate(180, 0.f, 0.f, 1.f);
-	modelStack.Scale(skyboxscale.x, skyboxscale.y, 0.f);
-	RenderMesh(meshList[GEO_SKYBOXNIGHT_RIGHT], false);
+	modelStack.Translate(0.f, 50.f, 0.f);
+	modelStack.Rotate(90.f, 1.f, 0.f, 0.f);
+	meshList[GEO_TOP]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
+	RenderMesh(meshList[GEO_TOP], false);
 	modelStack.PopMatrix();
-	//left
+
 	modelStack.PushMatrix();
-	modelStack.Translate(camerapos.x, camerapos.y, camerapos.z + (-skyboxscale.z / 2));
-	modelStack.Scale(skyboxscale.x, skyboxscale.y, 0.f);
-	RenderMesh(meshList[GEO_SKYBOXNIGHT_LEFT], false);
+	modelStack.Translate(0.f, -50.f, 0.f);
+	modelStack.Rotate(90.f, -1.f, 0.f, 0.f);
+	meshList[GEO_BOTTOM]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
+	RenderMesh(meshList[GEO_BOTTOM], false);
 	modelStack.PopMatrix();
-	*/
 }
 
 void Scene04::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey)
