@@ -35,6 +35,9 @@ public:
 
 		GEO_GRASS,
 
+		GEO_DUCKTARGET,
+		GEO_PAPER,
+
 		GEO_BLASTER,
 
 		NUM_GEOMETRY,
@@ -141,6 +144,12 @@ private:
 	float blasterAngle;
 
 	float score;
+
+	glm::vec3 targetHitboxSize;
+	glm::vec3 targetSize;
+
+	double totalElapsedTime;
+	std::string elapsedTimeText;
 	
 };
 

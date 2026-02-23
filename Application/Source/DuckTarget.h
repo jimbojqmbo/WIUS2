@@ -19,6 +19,8 @@ private:
     int maxRepeats = 3;
     int currentRepeats = 0;
 
+    float rotationY = 0.f;
+
     // Hit behavior
     bool wasHit = false;
     float hitImpulseStrength;
@@ -33,5 +35,6 @@ public:
     bool IsActive();
 
     int GetScoreValue();
+    float GetRotation();
 };
 

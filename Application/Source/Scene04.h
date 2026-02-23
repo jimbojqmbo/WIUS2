@@ -115,7 +115,7 @@ private:
 	Light light[NUM_LIGHTS];
 	bool enableLight;
 
-	void RenderSkybox();
+	void RenderSkybox(float scale);
 
 	void RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey);
 
@@ -153,6 +153,8 @@ private:
 
 	float floor_space = 10;
 	float floor_height = 0.25;
+
+	float skyboxscale = 100 ;
 	//unspecified
 	int ball_select = 0;
 	//functions

@@ -9,4 +9,4 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 1
-map_Kd toy-blaster/source/Архив WinRAR/pewpew_DefaultMaterial_BaseColor.png
+map_Kd ../Images/Blaster.tga

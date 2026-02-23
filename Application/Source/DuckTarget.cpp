@@ -30,6 +30,9 @@ void DuckTarget::Update(float dt)
     {
         movingToEnd = !movingToEnd;
 
+        rotationY += 180.f;
+        if (rotationY >= 360.f) rotationY -= 360.f;
+
         if (!movingToEnd)
         {
             repeatsRemaining--;
@@ -68,4 +71,9 @@ bool DuckTarget::IsActive()
 int DuckTarget::GetScoreValue()
 {
     return scoreValue;
+}
+
+float DuckTarget::GetRotation()
+{
+    return rotationY;
 }

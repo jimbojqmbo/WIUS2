@@ -151,6 +151,12 @@ void Scene02::Init()
 	meshList[GEO_BLASTER] = MeshBuilder::GenerateOBJMTL("Blaster", "Models//Blaster.obj", "Models//Blaster.mtl");
 	meshList[GEO_BLASTER]->textureID = LoadTGA("Images//Blaster.tga");
 
+	meshList[GEO_DUCKTARGET] = MeshBuilder::GenerateOBJMTL("Target", "Models//DuckTarget.obj", "Models//DuckTarget.mtl");
+	meshList[GEO_DUCKTARGET]->textureID = LoadTGA("Images//DuckTarget.tga");
+
+	meshList[GEO_PAPER] = MeshBuilder::GenerateOBJMTL("Target", "Models//DuckTargetInvalid.obj", "Models//DuckTargetInvalid.mtl");
+	meshList[GEO_PAPER]->textureID = LoadTGA("Images//DuckTarget.tga");
+
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
 
@@ -187,6 +193,9 @@ void Scene02::Init()
 
 	blasterAngle = 0.f;
 	score = 0.f;
+
+	targetHitboxSize = glm::vec3(4.f, 4.f, 0.3f);
+	targetSize = glm::vec3(1.f, 1.f, 1.f);
 
 	m_parameters[U_TEXT_ENABLED] = glGetUniformLocation(m_programID, "textEnabled");
 	m_parameters[U_TEXT_COLOR] = glGetUniformLocation(m_programID, "textColor");
@@ -303,6 +312,18 @@ void Scene02::HandleMouseInput(double dt)
 
 void Scene02::Update(double dt)
 {
+	// Get total elapsed time from Application's m_timer
+	totalElapsedTime += dt;
+
+	// Convert to minutes and seconds
+	int minutes = static_cast<int>(totalElapsedTime) / 60;
+	int seconds = static_cast<int>(totalElapsedTime) % 60;
+
+	// Format text
+	char buffer[16];
+	sprintf_s(buffer, "%02d:%02d", minutes, seconds);
+	elapsedTimeText = std::string(buffer);
+
 	HandleKeyPress(dt);
 
 	if (KeyboardController::GetInstance()->IsKeyDown('I'))
@@ -323,27 +344,24 @@ void Scene02::Update(double dt)
 	{
 		glm::vec3 startPos = glm::vec3(20.f, 10.f, -20.f);
 		glm::vec3 endPos = glm::vec3(-20.f, 10.f, -20.f);
-		glm::vec3 size = glm::vec3(2.f, 5.f, 2.f);
 		float speed = 15.f;
 		int repeats = 5;
 
-		SpawnTarget(startPos, endPos, size, speed, repeats, 5);
+		SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 5);
 
 		startPos = glm::vec3(20.f, 18.f, -20.f);
 		endPos = glm::vec3(-20.f, 18.f, -20.f);
-		size = glm::vec3(2.f, 5.f, 2.f);
 		speed = 10.f;
 		repeats = 5;
 
-		SpawnTarget(startPos, endPos, size, speed, repeats, 10);
+		SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 10);
 
 		startPos = glm::vec3(20.f, 26.f, -20.f);
 		endPos = glm::vec3(-20.f, 26.f, -20.f);
-		size = glm::vec3(2.f, 5.f, 2.f);
 		speed = 5.f;
 		repeats = 5;
 
-		SpawnTarget(startPos, endPos, size, speed, repeats, -5);
+		SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, -5);
 	}
 
 	wasKeyPressed = isKeyPressed;
@@ -687,7 +705,7 @@ void Scene02::Render()
 	}
 	modelStack.PopMatrix();
 
-	meshList[GEO_BLASTER]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_BLASTER]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
 	meshList[GEO_BLASTER]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
 	meshList[GEO_BLASTER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 	meshList[GEO_BLASTER]->material.kShininess = 5.0f;
@@ -751,18 +769,42 @@ void Scene02::Render()
 		}
 	}
 
+	meshList[GEO_DUCKTARGET]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_DUCKTARGET]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_DUCKTARGET]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+	meshList[GEO_DUCKTARGET]->material.kShininess = 5.0f;
+
+	meshList[GEO_PAPER]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_PAPER]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_PAPER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+	meshList[GEO_PAPER]->material.kShininess = 5.0f;
+
 	// Render Targets
 	for (int i = 0; i < targets.size(); i++) {
 		DuckTarget* target = targets[i];
 		modelStack.PushMatrix();
 		modelStack.Translate(target->pos.x, target->pos.y, target->pos.z);
-		modelStack.Scale(target->sizeX, target->sizeY, target->sizeZ);
-		meshList[GEO_WALL]->material.kAmbient = glm::vec3(1.f, 1.f, 0.f);
-		if (targets[i]->GetScoreValue() < 0)
 		{
-			meshList[GEO_WALL]->material.kAmbient = glm::vec3(1.f, 0.f, 0.f);
+			modelStack.PushMatrix();
+			modelStack.Rotate(target->GetRotation(), 0.f, 1.f, 0.f);
+			modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+			modelStack.Scale(targetSize.x,targetSize.y,targetSize.z);
+			RenderMesh(meshList[GEO_DUCKTARGET], true);
+			modelStack.PopMatrix();
+
+			if (targets[i]->GetScoreValue() < 0)
+			{
+				modelStack.PushMatrix();
+				modelStack.Rotate(-90.f, 0.f, 1.f, 0.f);
+				modelStack.Scale(targetSize.x, targetSize.y, targetSize.z);
+				RenderMesh(meshList[GEO_PAPER], true);
+				modelStack.PopMatrix();
+			}
 		}
-		RenderMesh(meshList[GEO_WALL], true);
+		modelStack.Scale(target->sizeX, target->sizeY, target->sizeZ);
+		if (enableHitbox) {
+			RenderMesh(meshList[GEO_WALL], false);
+		}
 		modelStack.PopMatrix();
 	}
 
@@ -776,6 +818,11 @@ void Scene02::Render()
 	{
 		std::string temp("Score:" + std::to_string(score));
 		RenderTextOnScreen(meshList[GEO_TEXT], temp.substr(0, 9), glm::vec3(1, 0, 0), 20, 0, 540);
+	}
+
+	// TIME COUNTER
+	{
+		RenderTextOnScreen(meshList[GEO_TEXT], "Time: " + elapsedTimeText, glm::vec3(1.f, 1.f, 0.f), 20, 0, 500);
 	}
 }
 
