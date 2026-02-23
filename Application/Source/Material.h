@@ -14,6 +14,7 @@ struct Material
 	glm::vec3 kSpecular;
 	float kShininess;
 	unsigned size; // Add this member to track the number of faces using this material
+
 	Material() :
 		kAmbient(0.0f, 0.0f, 0.0f), kDiffuse(0.0f, 0.0f, 0.0f), kSpecular(0.0f, 0.0f, 0.0f),
 		kShininess(1.f),
