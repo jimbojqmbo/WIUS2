@@ -670,28 +670,27 @@ Mesh* MeshBuilder::GenerateOBJ(const std::string& meshName, const
 Mesh* MeshBuilder::GenerateOBJMTL(const std::string& meshName,
 	const std::string& file_path, const std::string& mtl_path)
 {
+	// Read vertices, texcoords & normals from OBJ
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec2> uvs;
 	std::vector<glm::vec3> normals;
 	std::vector<Material> materials;
 
-	bool success = LoadOBJMTL(file_path.c_str(),
-		mtl_path.c_str(),
-		vertices,
-		uvs,
-		normals,
-		materials);
+	bool success = LoadOBJMTL(file_path.c_str(), mtl_path.c_str(),
+		vertices, uvs, normals, materials);
+	if (!success) return nullptr;
 
-	if (!success) return NULL;
-
+	// Index the vertices, texcoords & normals properly
 	std::vector<Vertex> vertex_buffer_data;
 	std::vector<GLuint> index_buffer_data;
+	IndexVBO(vertices, uvs, normals, index_buffer_data, vertex_buffer_data);
 
-	IndexVBO(vertices, uvs, normals,
-		index_buffer_data,
-		vertex_buffer_data);
-
+	// Create the mesh
 	Mesh* mesh = new Mesh(meshName);
+
+	// Copy materials into mesh
+	for (Material& material : materials)
+		mesh->materials.push_back(material);
 
 	// Upload vertex buffer
 	glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexBuffer);
@@ -709,17 +708,6 @@ Mesh* MeshBuilder::GenerateOBJMTL(const std::string& meshName,
 
 	mesh->indexSize = index_buffer_data.size();
 	mesh->mode = Mesh::DRAW_TRIANGLES;
-
-	// === AUTO LOAD TEXTURES ===
-	for (Material& material : materials)
-	{
-		if (!material.diffuseMap.empty())
-		{
-			material.textureID = LoadTGA(material.diffuseMap.c_str());
-		}
-
-		mesh->materials.push_back(material);
-	}
 
 	return mesh;
 }
