@@ -157,8 +157,6 @@ void Scene02::Init()
 	meshList[GEO_PAPER] = MeshBuilder::GenerateOBJMTL("Target", "Models//DuckTargetInvalid.obj", "Models//DuckTargetInvalid.mtl");
 	meshList[GEO_PAPER]->textureID = LoadTGA("Images//DuckTarget.tga");
 
-	meshList[GEO_WALLER] = MeshBuilder::GenerateOBJMTL("Wall", "Models//Wall//Wall.obj", "Models//Wall//Wall.mtl");
-
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
 
@@ -707,7 +705,7 @@ void Scene02::Render()
 	}
 	modelStack.PopMatrix();
 
-	meshList[GEO_BLASTER]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_BLASTER]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
 	meshList[GEO_BLASTER]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
 	meshList[GEO_BLASTER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 	meshList[GEO_BLASTER]->material.kShininess = 5.0f;
@@ -789,44 +787,25 @@ void Scene02::Render()
 		{
 			modelStack.PushMatrix();
 			modelStack.Rotate(target->GetRotation(), 0.f, 1.f, 0.f);
-			modelStack.Rotate(-90.f, 0.f, 1.f, 0.f);
+			modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
 			modelStack.Scale(targetSize.x,targetSize.y,targetSize.z);
 			RenderMesh(meshList[GEO_DUCKTARGET], true);
+			modelStack.PopMatrix();
+
 			if (targets[i]->GetScoreValue() < 0)
 			{
+				modelStack.PushMatrix();
+				modelStack.Rotate(-90.f, 0.f, 1.f, 0.f);
+				modelStack.Scale(targetSize.x, targetSize.y, targetSize.z);
 				RenderMesh(meshList[GEO_PAPER], true);
+				modelStack.PopMatrix();
 			}
-			modelStack.PopMatrix();
 		}
 		modelStack.Scale(target->sizeX, target->sizeY, target->sizeZ);
 		if (enableHitbox) {
 			RenderMesh(meshList[GEO_WALL], false);
 		}
 		modelStack.PopMatrix();
-	}
-
-	{
-		meshList[GEO_WALLER]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-		meshList[GEO_WALLER]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
-		meshList[GEO_WALLER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[GEO_WALLER]->material.kShininess = 5.0f;
-
-		/*meshList[GEO_WALLTEST]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-		meshList[GEO_WALLTEST]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
-		meshList[GEO_WALLTEST]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[GEO_WALLTEST]->material.kShininess = 5.0f;*/
-
-		modelStack.PushMatrix();
-		modelStack.Translate(0.f, 0.f, 0.f);
-		modelStack.Scale(1.f, 1.f, 1.f);
-		RenderMesh(meshList[GEO_WALLER], true);
-		modelStack.PopMatrix();
-
-		/*modelStack.PushMatrix();
-		modelStack.Translate(0.f, 0.f, 0.f);
-		modelStack.Scale(1.f, 1.f, 1.f);
-		RenderMesh(meshList[GEO_WALLTEST], true);
-		modelStack.PopMatrix();*/
 	}
 
 	// FPS COUNTER
