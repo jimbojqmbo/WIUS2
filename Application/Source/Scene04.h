@@ -9,6 +9,7 @@
 #include "MatrixStack.h"
 #include "Light.h"
 #include "FPCamera.h"
+#include "fourball.h"
 
 
 class Scene04 : public Scene
@@ -133,12 +134,12 @@ private:
 
 	float moveSpeed = 5.0f;
 	//additional
-	// idk
-	static const int  ball_num = 10;
+	
 	//objects
-	// physics objects
+	static const int  ball_num = 10;
+	fourball bounce_balls[ball_num];
+	//physics objects
 	//circle
-	PhysicsObject ball[ball_num];
 	PhysicsObject player;//test
 	//AABB
 	PhysicsObject floor;
@@ -149,8 +150,6 @@ private:
 	//varibles
 	// game scene
 	float gravity = -20;
-	//size
-	float ball_radius = 2;
 
 	float floor_space = 10;
 	float floor_height = 0.25;

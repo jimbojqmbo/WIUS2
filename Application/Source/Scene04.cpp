@@ -182,10 +182,10 @@ void Scene04::Init()
 
 	//ball innit
 	for (int i = 0; i < ball_num; i++) {
-		ball[i].mass = 2;
-		ball[i].bounciness = 1;
-		ball[i].pos.y = 10;
-		ball[i].pos.x = 2*i;
+		bounce_balls[i].ball.mass = 2;
+		bounce_balls[i].ball.bounciness = 1;
+		bounce_balls[i].ball.pos.y = 10;
+		bounce_balls[i].ball.pos.x = 2*i;
 	}
 	player.mass = 0;
 	player.bounciness = 1;
@@ -229,23 +229,23 @@ void Scene04::Update(double dt)
 }
 
 void Scene04::balls_update(double dt) {
-	float br = ball_radius * 1.5;
+	float br = bounce_balls[0].radius * 1.5;
 
 	for (int i = 0; i < ball_num; i++) {
 		
 		//collisions
 		// ball against ball
 		for (int j = i + 1; j < ball_num; j++) {
-			if (OverlapCircle2Circle(ball[i], br/2, ball[j], br, cd)) {
+			if (OverlapCircle2Circle(bounce_balls[i].ball, br, bounce_balls[j].ball, br, cd)) {
 				ResolveCollisionBall(cd);
 			}
 		}
 		//ball agaisnt player test
-		if (OverlapCircle2Circle(ball[i], br, player, br, cd)) {
+		if (OverlapCircle2Circle(bounce_balls[i].ball, br, player, br, cd)) {
 			ResolveCollisionBall(cd);
 		}
 		//ball against floor
-		if (OverlapCircle2AABB(ball[i], br , floor, glm::vec3 (floor_space, floor_height, floor_space),cd)) {
+		if (OverlapCircle2AABB(bounce_balls[i].ball, br , floor, glm::vec3 (floor_space, floor_height, floor_space),cd)) {
 			ResolveCollision(cd);
 			//std::cout << "ball collide with floor" << std::endl;
 		}
@@ -253,7 +253,7 @@ void Scene04::balls_update(double dt) {
 	}
 	for (int i = 0; i < ball_num; i++) {
 		//gravity 
-		ball[i].AddForce(glm::vec3(0, gravity, 0));
+		bounce_balls[i].ball.AddForce(glm::vec3(0, gravity, 0));
 		//mouse
 		if (MouseController::GetInstance()->IsButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
 			if (i == ball_select) {
@@ -261,12 +261,12 @@ void Scene04::balls_update(double dt) {
 				//camera.target
 				glm::vec3 direction = camera.target - camera.position;
 				direction = glm::normalize(direction);
-				ball[i].pos = camera.position;
-				ball[i].AddImpulse(direction*5.f);
+				bounce_balls[i].ball.pos = camera.position;
+				bounce_balls[i].ball.AddImpulse(direction*5.f);
 			}
 		}
 		//resolve collision
-		ball[i].UpdatePhysics(dt);
+		bounce_balls[i].ball.UpdatePhysics(dt);
 	}
 }
 
@@ -355,8 +355,8 @@ void Scene04::Render()
 void Scene04::balls_render() {
 	for (int i = 0; i < ball_num; i++) {
 		modelStack.PushMatrix();
-		modelStack.Translate(ball[i].pos.x, ball[i].pos.y,ball[i].pos.z);
-		modelStack.Scale((ball_radius),(ball_radius),(ball_radius));
+		modelStack.Translate(bounce_balls[i].ball.pos.x, bounce_balls[i].ball.pos.y, bounce_balls[i].ball.pos.z);
+		modelStack.Scale((bounce_balls[i].radius),(bounce_balls[i].radius),(bounce_balls[i].radius));
 		modelStack.Rotate(0 , 1.f, 1.f, 1.f);
 		RenderMesh(meshList[GEO_SPHERE], true);
 		modelStack.PopMatrix();

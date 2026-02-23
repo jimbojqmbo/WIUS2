@@ -152,6 +152,7 @@
     <ClCompile Include="Source\CollisionDetection.cpp" />
     <ClCompile Include="Source\DuckTarget.cpp" />
     <ClCompile Include="Source\evochat.cpp" />
+    <ClCompile Include="Source\fourball.cpp" />
     <ClCompile Include="Source\FPCamera.cpp" />
     <ClCompile Include="Source\LoadOBJ.cpp" />
     <ClCompile Include="Source\LoadTGA.cpp" />
@@ -180,6 +181,7 @@
     <ClInclude Include="Source\CollisionDetection.h" />
     <ClInclude Include="Source\DuckTarget.h" />
     <ClInclude Include="Source\evochat.h" />
+    <ClInclude Include="Source\fourball.h" />
     <ClInclude Include="Source\FPCamera.h" />
     <ClInclude Include="Source\Light.h" />
     <ClInclude Include="Source\LoadOBJ.h" />
