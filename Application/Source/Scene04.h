@@ -31,6 +31,9 @@ public:
 		GEO_TEXT,
 		GEO_SHADOW,
 		GEO_CUBE,
+		GEO_DEER,
+		GEO_COW,
+		GEO_SHEEP,
 
 		GEO_NOTE,
 
