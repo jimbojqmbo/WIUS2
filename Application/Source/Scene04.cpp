@@ -149,7 +149,7 @@ void Scene04::Init()
 
 	// 16 x 16 is the number of columns and rows for the text
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
-	meshList[GEO_TEXT]->textureID = LoadTGA("Models//model_containment//textures//Georgia.tga");
+	meshList[GEO_TEXT]->textureID = LoadTGA("Images//Georgia.tga");
 
 	meshList[GEO_GUI] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_GUI]->textureID = LoadTGA("Images//blackblack.tga");
@@ -261,20 +261,34 @@ void Scene04::balls_update(double dt) {
 		}
 		
 	}
+	
+
+	static bool isLeftUp = false;
+	static bool isRightUp = false;
+
+	if (!isLeftUp && MouseController::GetInstance()->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
+
+		isLeftUp = true;
+
+		if (ball_select < 10) {
+			std::cout << "mouse pressed" << std::endl;
+			//camera.target
+			//glm::vec3 direction = camera.target - camera.position;
+			glm::vec3 direction = glm::normalize(camera.front);
+			bounce_balls[ball_select].ball.pos = camera.position;
+			bounce_balls[ball_select].ball.AddImpulse(direction * 5.f);
+		}
+
+	}
+	else if (isLeftUp && MouseController::GetInstance()->IsButtonUp(GLFW_MOUSE_BUTTON_LEFT))
+	{
+		isLeftUp = false;
+	}
+
 	for (int i = 0; i < ball_num; i++) {
 		//gravity 
 		bounce_balls[i].ball.AddForce(glm::vec3(0, gravity, 0));
-		//mouse
-		if (MouseController::GetInstance()->IsButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
-			if (i == ball_select) {
-				std::cout << "mouse pressed";
-				//camera.target
-				glm::vec3 direction = camera.target - camera.position;
-				direction = glm::normalize(direction);
-				bounce_balls[i].ball.pos = camera.position;
-				bounce_balls[i].ball.AddImpulse(direction*5.f);
-			}
-		}
+		
 		//resolve collision
 		bounce_balls[i].ball.UpdatePhysics(dt);
 	}
@@ -873,7 +887,7 @@ void Scene04::ResolveCollisionBall(CollisionData cd) {
 
 	PhysicsObject&  o1 = *cd.pObj1;
 	PhysicsObject& o2 = *cd.pObj2;
-
+	/*
 	glm::vec3 oc = (cd.collisionNormal * cd.penetration);
 
 	oc.x = oc.x / 2;
@@ -888,7 +902,7 @@ void Scene04::ResolveCollisionBall(CollisionData cd) {
 		o1.pos -= oc;
 		o1.AddImpulse(-(cd.collisionNormal * (1 + o1.bounciness)));
 	}
-	/*
+	*/
 	float invMass1 = (o1.mass > 0.f) ? 1.0f / o1.mass : 0.f;
 	float invMass2 = (o2.mass > 0.f) ? 1.0f / o2.mass : 0.f;
 	float totalInvMass = invMass1 + invMass2;
@@ -908,5 +922,4 @@ void Scene04::ResolveCollisionBall(CollisionData cd) {
 	glm::vec3 impulse = j * cd.collisionNormal;
 	if (o1.mass > 0.f) o1.AddImpulse(-impulse * invMass1);
 	if (o2.mass > 0.f) o2.AddImpulse(impulse * invMass2);
-	*/
 }
