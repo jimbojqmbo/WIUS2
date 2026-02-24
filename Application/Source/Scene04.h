@@ -152,7 +152,7 @@ private:
 	CollisionData cd;
 	//varibles
 	// game scene
-	float gravity = -20;
+	float gravity = -10;
 
 	float floor_space = 10;
 	float floor_height = 0.25;
