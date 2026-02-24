@@ -44,6 +44,7 @@ public:
 		GEO_BASKETBALL,
 		GEO_HOOP,
 		GEO_TORUS,
+		GEO_BLACKWALL,
 		NUM_GEOMETRY,
 	};
 

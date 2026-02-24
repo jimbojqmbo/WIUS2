@@ -150,6 +150,8 @@ void Scene03::Init()
 
 	meshList[GEO_TORUS] = MeshBuilder::GenerateTorus("Torus", glm::vec3(1, 1, 1), 0.02, 1.1);
 
+	meshList[GEO_BLACKWALL] = MeshBuilder::GenerateQuad("BlackWall", glm::vec3(0, 0, 0), 1.f);
+
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
 
@@ -477,7 +479,17 @@ void Scene03::Update(double dt)
 			}
 		}*/
 
-		if (ballThrown && ball.pos.z < -10.f)
+		if (ballThrown && ball.pos.z <= 0.f)
+		{
+			hasBall = true;
+			ballThrown = false;
+
+			// Reset physics
+			ball.vel = glm::vec3(0.f);
+			ball.accel = glm::vec3(0.f);
+		}
+
+		if (ballThrown && ball.pos.y <= 2.f)
 		{
 			hasBall = true;
 			ballThrown = false;
@@ -837,10 +849,11 @@ void Scene03::Render()
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	modelStack.Translate(rimPosition.x, rimPosition.y - 0.2f, rimPosition.z);
-	modelStack.Scale(0.2f, 0.2f, 0.2f);
-	RenderMesh(meshList[GEO_SPHERE], false);
+	modelStack.Translate(0.f, 4.5f, 1.f);
+	modelStack.Scale(14.f, 9.f, 7.f);
+	RenderMesh(meshList[GEO_BLACKWALL], false);
 	modelStack.PopMatrix();
+
 
 	modelStack.PushMatrix();
 	modelStack.Scale(1.f, 1.f, 1.f);
