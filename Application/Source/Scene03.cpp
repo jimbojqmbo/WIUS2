@@ -84,7 +84,7 @@ void Scene03::Init()
 	//camera.Init(45.f, 45.f, 10.f);
 
 	camera.Init(
-		glm::vec3(0.0f, 1.0f, 14.0f), // position: Y = 1.0f
+		glm::vec3(0.0f, 1.0f, 30.0f), // was 0,1,14
 		glm::vec3(0.0f, 1.0f, 0.0f), // target:  Y = 1.0f (same height -> no pitch)
 		glm::vec3(0.0f, 1.0f, 0.0f)  // world up
 	);
@@ -150,6 +150,8 @@ void Scene03::Init()
 
 	meshList[GEO_TORUS] = MeshBuilder::GenerateTorus("Torus", glm::vec3(1, 1, 1), 0.02, 1.1);
 
+	meshList[GEO_BLACKWALL] = MeshBuilder::GenerateQuad("BlackWall", glm::vec3(0, 0, 0), 1.f);
+
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
 
@@ -186,6 +188,8 @@ void Scene03::Init()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	startarea = glm::vec3(0.f, 1.f, 14.f);
+	startarearadius = 5.f;
 }
 
 void Scene03::HandleMouseInput() {
@@ -285,6 +289,37 @@ bool Scene03::OverlapCircle2AABB(glm::vec3 circlePos, float radius, glm::vec3 bo
 
 void Scene03::Update(double dt)
 {
+	//int mouseX = MouseController::GetInstance()->GetMousePositionX();
+	//int mouseY = MouseController::GetInstance()->GetMousePositionY();
+	//std::cout << mouseX << ", " << mouseY << std::endl;
+
+	showCrosshair = true;
+
+	// Get total elapsed time from Application's m_timer
+	if (timerStarted && !timerEnded)
+	{
+		totalElapsedTime += dt;
+
+		if (totalElapsedTime >= timelimit)
+		{
+			totalElapsedTime = timelimit;
+			timerEnded = true;
+			std::cout << "Timer ended \n";
+			showScore = true;
+		}
+	}
+
+	// Convert to minutes and seconds
+	int minutes = static_cast<int>(totalElapsedTime) / 60;
+	int seconds = static_cast<int>(totalElapsedTime) % 60;
+
+	// Format text
+	char buffer[16];
+	sprintf_s(buffer, "%02d:%02d", minutes, seconds);
+	elapsedTimeText = std::string(buffer);
+
+	//std::cout << "Time: " << elapsedTimeText << std::endl;
+
 	float boardMinX = hoopPosition.x - 2.2f;
 	float boardMaxX = hoopPosition.x + 2.2f;
 
@@ -293,9 +328,13 @@ void Scene03::Update(double dt)
 
 	float boardZ = hoopPosition.z + 2.3f;
 
-	//camera.position.y = 1.f;
+	//camera.position.y = 3.f;
 
-	std::cout << camera.position.x << ", " << camera.position.y << ", " << camera.position.z << std::endl;
+	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_COMMA)) {
+		camera.position.y = 3.f;
+	}
+
+	//std::cout << camera.position.x << ", " << camera.position.y << ", " << camera.position.z << std::endl;
 
 	HandleKeyPress(dt);
 
@@ -348,106 +387,150 @@ void Scene03::Update(double dt)
 		spacePressed == false;
 	}*/
 
-	bool mouseCurrentlyDown = MouseController::GetInstance()->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT);
-
-	if (mouseCurrentlyDown && !mousePreviouslyDown && hasBall)
-	{
-		glm::vec3 forward = glm::normalize(camera.target - camera.position);
-
-		ball.pos = camera.position + forward * 2.0f;
-		ball.vel = forward * 25.f;
-		ball.vel.y = 14.f;
-		ball.accel.y = -gravity;
-
-		hasBall = false;
-		ballThrown = true;
-
-		//PlaySound(TEXT("Sounds//fah.wav"), NULL, SND_FILENAME | SND_SYNC);
+	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_R)) {
+		restartgame = true;
 	}
 
-	mousePreviouslyDown = mouseCurrentlyDown;
+	if (restartgame) {
+		camera.position.x = 0.f;
+		camera.position.y = 3.f;
+		camera.position.z = 14.f;
 
-	if (ballThrown)
-	{
-		ball.UpdatePhysics(dt);
+		bool mouseCurrentlyDown = MouseController::GetInstance()->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT);
 
-		if (ball.pos.y <= 0.4f)
+		if (mouseCurrentlyDown && !mousePreviouslyDown && hasBall)
 		{
-			ball.pos.y = 0.4f;
-			ball.vel.y *= -0.7f;
+			glm::vec3 forward = glm::normalize(camera.target - camera.position);
 
-			float friction = 0.98f;
-			ball.vel.x *= friction;
-			ball.vel.z *= friction;
+			ball.pos = camera.position + forward * 2.0f;
+			ball.vel = forward * 25.f;
+			ball.vel.y = 14.f;
+			ball.accel.y = -gravity;
 
-			if (abs(ball.vel.x) < 0.05f) ball.vel.x = 0.f;
-			if (abs(ball.vel.z) < 0.05f) ball.vel.z = 0.f;
-		}
+			hasBall = false;
+			ballThrown = true;
 
-		float boardMinX = hoopPosition.x - 2.2f;
-		float boardMaxX = hoopPosition.x + 2.2f;
-		float boardMinY = hoopPosition.y + 5.5f;
-		float boardMaxY = hoopPosition.y + 8.5f;
-		float boardZ = hoopPosition.z + 2.3f;
+			//PlaySound(TEXT("Sounds//fah.wav"), NULL, SND_FILENAME | SND_SYNC);
 
-		if (ball.pos.x >= boardMinX &&
-			ball.pos.x <= boardMaxX &&
-			ball.pos.y >= boardMinY &&
-			ball.pos.y <= boardMaxY)
-		{
-			if (abs(ball.pos.z - boardZ) <= ballRadius)
+			if (!timerStarted)
 			{
-				float direction = (ball.pos.z > boardZ) ? 1.f : -1.f;
-				ball.pos.z = boardZ + direction * ballRadius;
-				ball.vel.z = -ball.vel.z * 0.4f;
+				timerStarted = true;
 			}
 		}
 
-		glm::vec3 toBall = ball.pos - rimPosition;
-		glm::vec3 flat = glm::vec3(toBall.x, 0.f, toBall.z);
-		float distToCenter = glm::length(flat);
+		mousePreviouslyDown = mouseCurrentlyDown;
 
-		if (distToCenter > 0.0001f)
+		if (ballThrown)
 		{
-			glm::vec3 closestCirclePoint =
-				rimPosition + glm::normalize(flat) * rimbigR;
+			ball.UpdatePhysics(dt);
 
-			float distToTube =
-				glm::length(ball.pos - closestCirclePoint);
-
-			if (distToTube <= (rimsmallR + ballRadius))
+			if (ball.pos.y <= 0.4f)
 			{
-				glm::vec3 normal =
-					glm::normalize(ball.pos - closestCirclePoint);
+				ball.pos.y = 0.4f;
+				ball.vel.y *= -0.7f;
 
-				float penetration =
-					(rimsmallR + ballRadius) - distToTube;
+				float friction = 0.98f;
+				ball.vel.x *= friction;
+				ball.vel.z *= friction;
 
-				ball.pos += normal * penetration;
+				if (abs(ball.vel.x) < 0.05f) ball.vel.x = 0.f;
+				if (abs(ball.vel.z) < 0.05f) ball.vel.z = 0.f;
+			}
 
-				if (glm::dot(ball.vel, normal) < 0.f)
+			float boardMinX = hoopPosition.x - 2.2f;
+			float boardMaxX = hoopPosition.x + 2.2f;
+			float boardMinY = hoopPosition.y + 5.5f;
+			float boardMaxY = hoopPosition.y + 8.5f;
+			float boardZ = hoopPosition.z + 2.3f;
+
+			if (ball.pos.x >= boardMinX &&
+				ball.pos.x <= boardMaxX &&
+				ball.pos.y >= boardMinY &&
+				ball.pos.y <= boardMaxY)
+			{
+				if (abs(ball.pos.z - boardZ) <= ballRadius)
 				{
-					ball.vel = glm::reflect(ball.vel, normal);
-					ball.vel *= 0.7f;
+					float direction = (ball.pos.z > boardZ) ? 1.f : -1.f;
+					ball.pos.z = boardZ + direction * ballRadius;
+					ball.vel.z = -ball.vel.z * 0.4f;
 				}
 			}
-		}
 
-		float distanceToPlayer = glm::length(ball.pos - camera.position);
+			glm::vec3 toBall = ball.pos - rimPosition;
+			glm::vec3 flat = glm::vec3(toBall.x, 0.f, toBall.z);
+			float distToCenter = glm::length(flat);
 
-	/*	if (distanceToPlayer < pickupDistance && glm::length(ball.vel) < 1.0f)
-		{
+			if (distToCenter > 0.0001f)
+			{
+				glm::vec3 closestCirclePoint =
+					rimPosition + glm::normalize(flat) * rimbigR;
 
-			if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_E)) {
-				ballThrown = false;
-				hasBall = true;
+				float distToTube =
+					glm::length(ball.pos - closestCirclePoint);
+
+				if (distToTube <= (rimsmallR + ballRadius))
+				{
+					glm::vec3 normal =
+						glm::normalize(ball.pos - closestCirclePoint);
+
+					float penetration =
+						(rimsmallR + ballRadius) - distToTube;
+
+					ball.pos += normal * penetration;
+
+					if (glm::dot(ball.vel, normal) < 0.f)
+					{
+						ball.vel = glm::reflect(ball.vel, normal);
+						ball.vel *= 0.7f;
+					}
+				}
 			}
-		}*/
 
-		if (OverlapCircle2Circle(camera.position, pickupDistance, ball.pos, ballRadius)) {
-			if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_E)) {
-				ballThrown = false;
+			float distanceToPlayer = glm::length(ball.pos - camera.position);
+
+			/*if (distanceToPlayer < pickupDistance && glm::length(ball.vel) < 1.0f)
+			{
+
+				if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_E)) {
+					ballThrown = false;
+					hasBall = true;
+				}
+			}*/
+
+			if (ballThrown && ball.pos.z <= 0.f)
+			{
 				hasBall = true;
+				ballThrown = false;
+
+				// Reset physics
+				ball.vel = glm::vec3(0.f);
+				ball.accel = glm::vec3(0.f);
+			}
+
+			if (ballThrown && ball.pos.y <= 2.f)
+			{
+				hasBall = true;
+				ballThrown = false;
+
+				// Reset physics
+				ball.vel = glm::vec3(0.f);
+				ball.accel = glm::vec3(0.f);
+			}
+
+			bool isOverlapping = OverlapCircle2Circle(glm::vec3(rimPosition.x, rimPosition.y - 0.5f, rimPosition.z), 0.01f, ball.pos, ballRadius);
+			if (isOverlapping && !rimWasOverlapping)
+			{
+				pointcounter += 2;
+				std::cout << "Points: " << pointcounter << std::endl;
+			}
+
+			rimWasOverlapping = isOverlapping;
+
+			if (OverlapCircle2Circle(camera.position, pickupDistance, ball.pos, ballRadius)) {
+				if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_E)) {
+					ballThrown = false;
+					hasBall = true;
+				}
 			}
 		}
 	}
@@ -586,8 +669,7 @@ void Scene03::RenderText(Mesh* mesh, std::string text, glm::vec3 color)
 }
 
 
-void Scene03::RenderTextOnScreen(Mesh* mesh, std::string
-	text, glm::vec3 color, float size, float x, float y)
+void Scene03::RenderTextOnScreen(Mesh* mesh, std::string text, glm::vec3 color, float size, float x, float y)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
 		return;
@@ -714,30 +796,34 @@ void Scene03::Render()
 		modelStack.PopMatrix();
 	}*/
 
-	if (ballThrown)
-	{
-		modelStack.PushMatrix();
-		modelStack.Translate(ball.pos.x, ball.pos.y, ball.pos.z);
-		modelStack.Scale(0.008f, 0.008f, 0.008f);
-		RenderMesh(meshList[GEO_BASKETBALL], false);
-		modelStack.PopMatrix();
-	}
-	else if (hasBall)
-	{
-		// render in front of camera
-		glm::vec3 forward = glm::normalize(camera.target - camera.position);
-		glm::vec3 right = glm::normalize(glm::cross(forward, camera.up));
-		glm::vec3 up = glm::normalize(camera.up);
+	if (restartgame) {
+		if (ballThrown)
+		{
+			modelStack.PushMatrix();
+			modelStack.Translate(ball.pos.x, ball.pos.y, ball.pos.z);
+			modelStack.Scale(0.008f, 0.008f, 0.008f);
+			RenderMesh(meshList[GEO_BASKETBALL], false);
+			modelStack.PopMatrix();
+		}
+		else if (hasBall)
+		{
+			// render in front of camera
+			glm::vec3 forward = glm::normalize(camera.target - camera.position);
+			glm::vec3 right = glm::normalize(glm::cross(forward, camera.up));
+			glm::vec3 up = glm::normalize(camera.up);
 
-		glm::vec3 offset = forward * 1.5f + right * 0.7f + up * -0.6f;
+			glm::vec3 offset = forward * 1.5f + right * 0.7f + up * -0.6f;
 
-		modelStack.PushMatrix();
-		modelStack.Translate(camera.position.x + offset.x,
-			camera.position.y + offset.y,
-			camera.position.z + offset.z);
-		modelStack.Scale(0.008f, 0.008f, 0.008f);
-		RenderMesh(meshList[GEO_BASKETBALL], false);
-		modelStack.PopMatrix();
+			modelStack.PushMatrix();
+			modelStack.Translate(
+				camera.position.x + offset.x,
+				camera.position.y + offset.y,
+				camera.position.z + offset.z
+			);
+			modelStack.Scale(0.008f, 0.008f, 0.008f);
+			RenderMesh(meshList[GEO_BASKETBALL], false);
+			modelStack.PopMatrix();
+		}
 	}
 
 	modelStack.PushMatrix();
@@ -783,19 +869,57 @@ void Scene03::Render()
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	modelStack.Scale(1.f, 1.f, 1.f);
-	RenderTextOnScreen(meshList[GEO_TEXT], "+", glm::vec3(0, 1, 1), 40, 392, 282);
+	modelStack.Translate(0.f, 4.5f, 1.f);
+	modelStack.Scale(14.f, 9.f, 7.f);
+	RenderMesh(meshList[GEO_BLACKWALL], false);
 	modelStack.PopMatrix();
 
-	if (OverlapCircle2Circle(camera.position, pickupDistance, ball.pos, ballRadius)) {
+	//modelStack.PushMatrix();
+	//modelStack.Translate(rimPosition.x, rimPosition.y - 0.5f, rimPosition.z);
+	//modelStack.Scale(0.2f, 0.2, 0.2f);
+	//RenderMesh(meshList[GEO_SPHERE], false);
+	//modelStack.PopMatrix();
+
+	if (restartgame == false) {
+		if (OverlapCircle2Circle(camera.position, 2.f, startarea, startarearadius)) {
+			modelStack.PushMatrix();
+			RenderTextOnScreen(meshList[GEO_TEXT], "Press R to start! (Shoot when you are ready)", glm::vec3(1, 1, 1), 20, 140, 200);
+			modelStack.PopMatrix();
+		}
+	}
+
+
+	/*if (OverlapCircle2Circle(camera.position, pickupDistance, ball.pos, ballRadius)) {
 		modelStack.PushMatrix();
 		modelStack.Scale(1.f, 1.f, 1.f);
 		RenderTextOnScreen(meshList[GEO_TEXT], "Press E to pick up", glm::vec3(0, 1, 1), 20, 392, 200);
 		modelStack.PopMatrix();
+	}*/
+
+	if (restartgame) {
+		std::string point("Points: " + std::to_string(pointcounter));
+		RenderTextOnScreen(meshList[GEO_TEXT], point.substr(0, 11), glm::vec3(0, 1, 0), 40, 0, 0);
+
+		std::string timer("Timer: " + std::to_string(totalElapsedTime));
+		RenderTextOnScreen(meshList[GEO_TEXT], timer.substr(0, 10), glm::vec3(0, 1, 0), 40, 0, 530);
 	}
 
 	std::string temp("FPS:" + std::to_string(fps));
 	RenderTextOnScreen(meshList[GEO_TEXT], temp.substr(0, 9), glm::vec3(0, 1, 0), 40, 0, 560);
+
+	if (showScore == true) {
+		std::string point("Final Score: " + std::to_string(pointcounter));
+		RenderTextOnScreen(meshList[GEO_TEXT], point.substr(0, 15), glm::vec3(0, 1, 0), 40, 238, 282);
+		showCrosshair = false;
+	}
+
+	if (showCrosshair == true) {
+		//tuff crosshair
+		modelStack.PushMatrix();
+		modelStack.Scale(1.f, 1.f, 1.f);
+		RenderTextOnScreen(meshList[GEO_TEXT], "+", glm::vec3(0, 1, 1), 40, 392, 282);
+		modelStack.PopMatrix();
+	}
 }
 
 void Scene03::RenderMesh(Mesh* mesh, bool enableLight)

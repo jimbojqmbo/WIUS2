@@ -106,8 +106,7 @@ void Scene04::Init()
 
 	//debug
 	meshList[GEO_AXES] = MeshBuilder::GenerateAxes("Axes", 10000.f, 10000.f, 10000.f);
-	meshList[GEO_SPHERE] = MeshBuilder::GenerateSphere("Sun", glm::vec3(1.f, 1.f, 1.f), 1.f, 16, 16);
-	//meshList[GEO_CUBE] = MeshBuilder::GenerateCube("Arm", glm::vec3(0.5f, 0.5f, 0.5f), 1.f);
+	
 
 	//SKYBOX
 	meshList[GEO_LEFT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
@@ -130,12 +129,23 @@ void Scene04::Init()
 
 	
 	//shapes
+	meshList[GEO_SPHERE] = MeshBuilder::GenerateSphere("Sun", glm::vec3(1.f, 1.f, 1.f), 1.f, 16, 16);
 	meshList[GEO_QUAD] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
 	meshList[GEO_CYLINDER] = MeshBuilder::GenerateCylinder("Cylinder", glm::vec3(1.f, 1.f, 1.f), 36, 1.f, 2.f);
 	meshList[GEO_CUBE] = MeshBuilder::GenerateCube("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
+
 	//ground
 	meshList[GEO_GRASS] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
 	meshList[GEO_GRASS]->textureID = LoadTGA("Images//coast_sand_rocks_02 copy.tga");
+	//models
+	meshList[GEO_DEER] = MeshBuilder::GenerateOBJMTL("demon","Models//model_containment//obj//13573_Musk_Deer_v1_L3.obj","Models//model_containment//mtl//13573_Musk_Deer_v1_L3.mtl");
+	meshList[GEO_DEER]->textureID = LoadTGA("Models//model_containment//textures//musk_deer.tga");
+
+	meshList[GEO_COW] = MeshBuilder::GenerateOBJMTL("lowkeychillguy", "Models//model_containment//obj//cow.obj", "Models//model_containment//mtl//cow.mtl");
+	meshList[GEO_COW]->textureID = LoadTGA("Models//model_containment//textures//cow.tga");
+
+	meshList[GEO_SHEEP] = MeshBuilder::GenerateOBJMTL("demon", "Models//model_containment//obj//13574_Marco_Polo_Sheep_v1_L3.obj", "Models//model_containment//mtl//13574_Marco_Polo_Sheep_v1_L3.mtl");
+	meshList[GEO_SHEEP]->textureID = LoadTGA("Models//model_containment//textures//13574_Marco_Polo_Diffuse.tga");
 
 	// 16 x 16 is the number of columns and rows for the text
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
@@ -251,20 +261,34 @@ void Scene04::balls_update(double dt) {
 		}
 		
 	}
+	
+
+	static bool isLeftUp = false;
+	static bool isRightUp = false;
+
+	if (!isLeftUp && MouseController::GetInstance()->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
+
+		isLeftUp = true;
+
+		if (ball_select < 10) {
+			std::cout << "mouse pressed" << std::endl;
+			//camera.target
+			//glm::vec3 direction = camera.target - camera.position;
+			glm::vec3 direction = glm::normalize(camera.front);
+			bounce_balls[ball_select].ball.pos = camera.position;
+			bounce_balls[ball_select].ball.AddImpulse(direction * 5.f);
+		}
+
+	}
+	else if (isLeftUp && MouseController::GetInstance()->IsButtonUp(GLFW_MOUSE_BUTTON_LEFT))
+	{
+		isLeftUp = false;
+	}
+
 	for (int i = 0; i < ball_num; i++) {
 		//gravity 
 		bounce_balls[i].ball.AddForce(glm::vec3(0, gravity, 0));
-		//mouse
-		if (MouseController::GetInstance()->IsButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
-			if (i == ball_select) {
-				std::cout << "mouse pressed";
-				//camera.target
-				glm::vec3 direction = camera.target - camera.position;
-				direction = glm::normalize(direction);
-				bounce_balls[i].ball.pos = camera.position;
-				bounce_balls[i].ball.AddImpulse(direction*5.f);
-			}
-		}
+		
 		//resolve collision
 		bounce_balls[i].ball.UpdatePhysics(dt);
 	}
@@ -320,7 +344,7 @@ void Scene04::Render()
 	modelStack.PopMatrix();
 
 	// Skybox - now renders at world origin without accumulated transforms
-	RenderSkybox(skyboxscale);
+	RenderSkybox(skyboxscale,camera.position);
 
 	// grass tiled from -100 to 100 on X and Z, keep existing scale (5,1,5)
 	modelStack.PushMatrix();
@@ -376,7 +400,7 @@ void Scene04::walls_render(){
 	modelStack.PopMatrix();
 }
 
-void Scene04::RenderSkybox(float scale)
+void Scene04::RenderSkybox(float scale,glm::vec3 camerapos)
 {
 	/*
 	// Front face (no rotation needed if quad faces -Z by default)
@@ -434,42 +458,48 @@ void Scene04::RenderSkybox(float scale)
 	*/
 	modelStack.PushMatrix();
 	// Offset in Z direction by -50 units
-	modelStack.Translate(0.f, 0.f, -50.f);
+	modelStack.Translate(camerapos.x , camerapos.y, camerapos.z -(50*scale));
+	modelStack.Scale(scale,scale,scale);
 	meshList[GEO_FRONT]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
 	RenderMesh(meshList[GEO_FRONT], false);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
 	// Offset in Z direction by -50 units
-	modelStack.Translate(0.f, 0.f, 50.f);
+	modelStack.Translate(camerapos.x , camerapos.y, camerapos.z +(50*scale));
+	modelStack.Scale(scale, scale, scale);
 	modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
 	meshList[GEO_BACK]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
 	RenderMesh(meshList[GEO_BACK], false);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	modelStack.Translate(-50.f, 0.f, 0.f);
+	modelStack.Translate(camerapos.x - (50 * scale), camerapos.y, camerapos.z);
+	modelStack.Scale(scale, scale, scale);
 	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
 	meshList[GEO_LEFT]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
 	RenderMesh(meshList[GEO_LEFT], false);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	modelStack.Translate(50.f, 0.f, 0.f);
+	modelStack.Translate(camerapos.x + (50 * scale), camerapos.y, camerapos.z);
+	modelStack.Scale(scale, scale, scale);
 	modelStack.Rotate(90.f, 0.f, -1.f, 0.f);
 	meshList[GEO_RIGHT]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
 	RenderMesh(meshList[GEO_RIGHT], false);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 50.f, 0.f);
+	modelStack.Translate(camerapos.x , camerapos.y + (50 * scale), camerapos.z);
+	modelStack.Scale(scale, scale, scale);
 	modelStack.Rotate(90.f, 1.f, 0.f, 0.f);
 	meshList[GEO_TOP]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
 	RenderMesh(meshList[GEO_TOP], false);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, -50.f, 0.f);
+	modelStack.Translate(camerapos.x, camerapos.y - (50 * scale), camerapos.z);
+	modelStack.Scale(scale, scale, scale);
 	modelStack.Rotate(90.f, -1.f, 0.f, 0.f);
 	meshList[GEO_BOTTOM]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
 	RenderMesh(meshList[GEO_BOTTOM], false);
@@ -857,7 +887,7 @@ void Scene04::ResolveCollisionBall(CollisionData cd) {
 
 	PhysicsObject&  o1 = *cd.pObj1;
 	PhysicsObject& o2 = *cd.pObj2;
-
+	/*
 	glm::vec3 oc = (cd.collisionNormal * cd.penetration);
 
 	oc.x = oc.x / 2;
@@ -872,7 +902,7 @@ void Scene04::ResolveCollisionBall(CollisionData cd) {
 		o1.pos -= oc;
 		o1.AddImpulse(-(cd.collisionNormal * (1 + o1.bounciness)));
 	}
-	/*
+	*/
 	float invMass1 = (o1.mass > 0.f) ? 1.0f / o1.mass : 0.f;
 	float invMass2 = (o2.mass > 0.f) ? 1.0f / o2.mass : 0.f;
 	float totalInvMass = invMass1 + invMass2;
@@ -892,5 +922,4 @@ void Scene04::ResolveCollisionBall(CollisionData cd) {
 	glm::vec3 impulse = j * cd.collisionNormal;
 	if (o1.mass > 0.f) o1.AddImpulse(-impulse * invMass1);
 	if (o2.mass > 0.f) o2.AddImpulse(impulse * invMass2);
-	*/
 }

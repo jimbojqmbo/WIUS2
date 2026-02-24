@@ -31,6 +31,9 @@ public:
 		GEO_TEXT,
 		GEO_SHADOW,
 		GEO_CUBE,
+		GEO_DEER,
+		GEO_COW,
+		GEO_SHEEP,
 
 		GEO_NOTE,
 
@@ -115,7 +118,7 @@ private:
 	Light light[NUM_LIGHTS];
 	bool enableLight;
 
-	void RenderSkybox(float scale);
+	void RenderSkybox(float scale,glm::vec3 camerapos);
 
 	void RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey);
 
@@ -149,12 +152,12 @@ private:
 	CollisionData cd;
 	//varibles
 	// game scene
-	float gravity = -20;
+	float gravity = -10;
 
 	float floor_space = 10;
 	float floor_height = 0.25;
 
-	float skyboxscale = 100 ;
+	float skyboxscale = 2 ;
 	//unspecified
 	int ball_select = 0;
 	//functions

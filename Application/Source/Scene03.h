@@ -13,6 +13,9 @@
 #include <vector>
 #include <windows.h>
 #include "mmsystem.h"
+#include <chrono>
+#include <string>
+#include "timer.h"
 #pragma comment(lib, "winmm.lib")
 
 class Scene03 : public Scene
@@ -42,6 +45,7 @@ public:
 		GEO_BASKETBALL,
 		GEO_HOOP,
 		GEO_TORUS,
+		GEO_BLACKWALL,
 		NUM_GEOMETRY,
 	};
 
@@ -161,8 +165,22 @@ private:
 	PhysicsObject ball;
 	bool hasBall = true;
 	bool ballThrown = false;
-	float pickupDistance = 1.5f;
+	float pickupDistance = 2.5f;
+	bool rimWasOverlapping = false;
 
+	float totalElapsedTime = 0.f;
+    std::string elapsedTimeText;
+	bool timerStarted = false;
+	bool timerEnded = false;
+
+	int pointcounter = 0;
+	bool showScore = false;
+	bool showCrosshair = false;
+
+	float timelimit = 60.f;
+	bool restartgame = false;
+	glm::vec3 startarea;
+	float startarearadius;
 };
 
 #endif

@@ -469,7 +469,7 @@ void ResolveCircle2StaticLine(PhysicsObject& ball, float radius, const glm::vec3
 		ball.vel -= normal * vn;
 	}
 }
-
+/*
 bool OverlapCircle2AABB(glm::vec3 circlePos, float radius, glm::vec3 boxPos, glm::vec3 box_daimension)
 {
 
@@ -497,7 +497,7 @@ bool OverlapCircle2AABB(glm::vec3 circlePos, float radius, glm::vec3 boxPos, glm
 
 	return (distx * distx + disty * disty) <= (radius * radius);
 }
-
+*/
 bool OverlapCircle2AABB(PhysicsObject& circle, float radius, PhysicsObject& box, glm::vec3 box_daimension,CollisionData &cd)
 {
 	glm::vec3 spherePos = circle.pos;
@@ -532,4 +532,35 @@ bool OverlapCircle2AABB(PhysicsObject& circle, float radius, PhysicsObject& box,
 
 	return false;
 
+}
+void ResolveCircle2Ring(PhysicsObject& ball, float radius, PhysicsObject& ring, float bradius, float sradius, float height) {
+	glm::vec3 toBall = ball.pos - ring.pos;
+	glm::vec3 flat = glm::vec3(toBall.x, 0.f, toBall.z);
+	float distToCenter = glm::length(flat);
+
+	if (distToCenter > 0.0001f)
+	{
+		glm::vec3 closestCirclePoint =
+			ring.pos + glm::normalize(flat) * bradius;
+
+		float distToTube =
+			glm::length(ball.pos - closestCirclePoint);
+
+		if (distToTube <= (sradius + radius))
+		{
+			glm::vec3 normal =
+				glm::normalize(ball.pos - closestCirclePoint);
+
+			float penetration =
+				(sradius + radius) - distToTube;
+
+			ball.pos += normal * penetration;
+
+			if (glm::dot(ball.vel, normal) < 0.f)
+			{
+				ball.vel = glm::reflect(ball.vel, normal);
+				ball.vel *= 0.7f;
+			}
+		}
+	}
 }
