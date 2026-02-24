@@ -149,7 +149,7 @@ void Scene04::Init()
 
 	// 16 x 16 is the number of columns and rows for the text
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
-	meshList[GEO_TEXT]->textureID = LoadTGA("Models//model_containment//textures//Georgia.tga");
+	meshList[GEO_TEXT]->textureID = LoadTGA("Images//Georgia.tga");
 
 	meshList[GEO_GUI] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_GUI]->textureID = LoadTGA("Images//blackblack.tga");
