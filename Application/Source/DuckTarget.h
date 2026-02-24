@@ -27,7 +27,7 @@ private:
 
     int scoreValue;
 public:
-    DuckTarget(glm::vec3 start,glm::vec3 end,glm::vec3 size,float speed,int repeats, int value);
+    DuckTarget(glm::vec3 start,glm::vec3 end,glm::vec3 size,float speed,int repeats, int value, glm::vec3 rotation);
     ~DuckTarget();
 
     void Update(float dt);

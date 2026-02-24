@@ -38,6 +38,23 @@ public:
 		GEO_DUCKTARGET,
 		GEO_PAPER,
 
+		GEO_FENCE1,
+		GEO_FENCE2,
+		GEO_FENCE3,
+		GEO_FENCE4,
+		GEO_FENCE5,
+
+		GEO_TENT,
+		GEO_BARREL,
+		GEO_CRATE,
+
+		GEO_CRATES1,
+		GEO_CRATES2,
+		GEO_CRATES3,
+
+		GEO_BARRELS1,
+		GEO_BARRELS2,
+
 		GEO_BLASTER,
 
 		NUM_GEOMETRY,
@@ -143,6 +160,8 @@ private:
 	bool blasterMovingUp;
 	float blasterAngle;
 
+	bool gameEnded;
+
 	float score;
 
 	glm::vec3 targetHitboxSize;
@@ -151,6 +170,7 @@ private:
 	double totalElapsedTime;
 	std::string elapsedTimeText;
 	
+	PhysicsObject playerHitbox;
 };
 
 #endif

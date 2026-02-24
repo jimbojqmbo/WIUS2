@@ -85,10 +85,11 @@ void Scene02::Init()
 	//camera.Init(45.f, 45.f, 10.f);
 
 	camera.Init(
-		glm::vec3(4.0f, 3.0f, 0.0f), // position: Y = 1.0f
-		glm::vec3(0.0f, 1.0f, 0.0f), // target:  Y = 1.0f (same height -> no pitch)
+		glm::vec3(0.0f, 3.0f, 0.0f), // position: Y = 1.0f
+		glm::vec3(1.0f, 1.0f, 0.0f), // target:  Y = 1.0f (same height -> no pitch)
 		glm::vec3(0.0f, 1.0f, 0.0f)  // world up
 	);
+	camera.front = glm::vec3(0.f,0.f,0.f);
 
 	// enforce minimum Y at launch
 	if (camera.position.y < 3.3f) {
@@ -111,22 +112,22 @@ void Scene02::Init()
 
 	//SKYBOX
 	meshList[GEO_LEFT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_LEFT]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Left.tga");
+	meshList[GEO_LEFT]->textureID = LoadTGA("Images//DSSkybox//DSSkyLeft.tga");
 
 	meshList[GEO_RIGHT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_RIGHT]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Right.tga");
+	meshList[GEO_RIGHT]->textureID = LoadTGA("Images//DSSkybox//DSSkyRight.tga");
 
 	meshList[GEO_BACK] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_BACK]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Back.tga");
+	meshList[GEO_BACK]->textureID = LoadTGA("Images//DSSkybox//DSSkyBack.tga");
 
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_FRONT]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Front.tga");
+	meshList[GEO_FRONT]->textureID = LoadTGA("Images//DSSkybox//DSSkyFront.tga");
 
 	meshList[GEO_TOP] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_TOP]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Top.tga");
+	meshList[GEO_TOP]->textureID = LoadTGA("Images//DSSkybox//DSSkyUp.tga");
 
 	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Bottom.tga");
+	meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//DSSkybox//DSSkyDown.tga");
 
 	//meshList[GEO_QUAD]->textureID = LoadTGA("Images//NYP.tga");
 	meshList[GEO_QUAD] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
@@ -134,7 +135,7 @@ void Scene02::Init()
 	meshList[GEO_CYLINDER] = MeshBuilder::GenerateCylinder("Cylinder", glm::vec3(1.f, 1.f, 1.f), 36, 1.f, 2.f);
 
 	meshList[GEO_GRASS] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
-	meshList[GEO_GRASS]->textureID = LoadTGA("Images//coast_sand_rocks_02 copy.tga");
+	meshList[GEO_GRASS]->textureID = LoadTGA("Images//DSGrass.tga");
 
 	meshList[GEO_WALL] = MeshBuilder::GenerateCube("Wall", glm::vec3(1.f, 1.f, 1.f), 1.f);
 
@@ -148,14 +149,53 @@ void Scene02::Init()
 	meshList[GEO_GUI] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_GUI]->textureID = LoadTGA("Images//blackblack.tga");
 
-	meshList[GEO_BLASTER] = MeshBuilder::GenerateOBJMTL("Blaster", "Models//Blaster.obj", "Models//Blaster.mtl");
-	meshList[GEO_BLASTER]->textureID = LoadTGA("Images//Blaster.tga");
+	meshList[GEO_BLASTER] = MeshBuilder::GenerateOBJ("Blaster", "Models//DuckShoot//Blaster.obj");
+	meshList[GEO_BLASTER]->textureID = LoadTGA("Images///Blaster.tga");
 
-	meshList[GEO_DUCKTARGET] = MeshBuilder::GenerateOBJMTL("Target", "Models//DuckTarget.obj", "Models//DuckTarget.mtl");
+	meshList[GEO_DUCKTARGET] = MeshBuilder::GenerateOBJ("Target", "Models//DuckShoot//DuckTarget.obj");
 	meshList[GEO_DUCKTARGET]->textureID = LoadTGA("Images//DuckTarget.tga");
 
-	meshList[GEO_PAPER] = MeshBuilder::GenerateOBJMTL("Target", "Models//DuckTargetInvalid.obj", "Models//DuckTargetInvalid.mtl");
+	meshList[GEO_PAPER] = MeshBuilder::GenerateOBJ("Target", "Models//DuckShoot//DuckTargetInvalid.obj");
 	meshList[GEO_PAPER]->textureID = LoadTGA("Images//DuckTarget.tga");
+
+	meshList[GEO_FENCE1] = MeshBuilder::GenerateOBJ("Fence1", "Models//DuckShoot//Fence1.obj");
+	meshList[GEO_FENCE1]->textureID = LoadTGA("Images//DSFence.tga");
+
+	meshList[GEO_FENCE2] = MeshBuilder::GenerateOBJ("Fence2", "Models//DuckShoot//Fence2.obj");
+	meshList[GEO_FENCE2]->textureID = LoadTGA("Images//DSFence.tga");
+
+	meshList[GEO_FENCE3] = MeshBuilder::GenerateOBJ("Fence3", "Models//DuckShoot//Fence3.obj");
+	meshList[GEO_FENCE3]->textureID = LoadTGA("Images//DSFence.tga");
+
+	meshList[GEO_FENCE4] = MeshBuilder::GenerateOBJ("Fence4", "Models//DuckShoot//Fence4.obj");
+	meshList[GEO_FENCE4]->textureID = LoadTGA("Images//DSFence.tga");
+
+	meshList[GEO_FENCE5] = MeshBuilder::GenerateOBJ("Fence5", "Models//DuckShoot//Fence5.obj");
+	meshList[GEO_FENCE5]->textureID = LoadTGA("Images//DSFence.tga");
+
+	meshList[GEO_TENT] = MeshBuilder::GenerateOBJ("Tent", "Models//DuckShoot//Tents.obj");
+	meshList[GEO_TENT]->textureID = LoadTGA("Images//DSTent.tga");
+
+	meshList[GEO_BARREL] = MeshBuilder::GenerateOBJ("Barrel", "Models//DuckShoot//DSBarrel.obj");
+	meshList[GEO_BARREL]->textureID = LoadTGA("Images//DSBarrel.tga");
+
+	meshList[GEO_CRATE] = MeshBuilder::GenerateOBJ("Crate", "Models//DuckShoot//DSCrate.obj");
+	meshList[GEO_CRATE]->textureID = LoadTGA("Images//DSCrate.tga");
+
+	meshList[GEO_CRATES1] = MeshBuilder::GenerateOBJ("Crates1", "Models//DuckShoot//Tent1Crates1.obj");
+	meshList[GEO_CRATES1]->textureID = LoadTGA("Images//DSCrate.tga");
+
+	meshList[GEO_CRATES2] = MeshBuilder::GenerateOBJ("Crates1", "Models//DuckShoot//Tent1Crates2.obj");
+	meshList[GEO_CRATES2]->textureID = LoadTGA("Images//DSCrate.tga");
+
+	meshList[GEO_CRATES3] = MeshBuilder::GenerateOBJ("Crates1", "Models//DuckShoot//Tent1Crates3.obj");
+	meshList[GEO_CRATES3]->textureID = LoadTGA("Images//DSCrate.tga");
+
+	meshList[GEO_BARRELS1] = MeshBuilder::GenerateOBJ("Barrels1", "Models//DuckShoot//Tent1Barrels1.obj");
+	meshList[GEO_BARRELS1]->textureID = LoadTGA("Images//DSBarrel.tga");
+
+	meshList[GEO_BARRELS2] = MeshBuilder::GenerateOBJ("Barrels1", "Models//DuckShoot//Tent1Barrels2.obj");
+	meshList[GEO_BARRELS2]->textureID = LoadTGA("Images//DSBarrel.tga");
 
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
@@ -165,8 +205,8 @@ void Scene02::Init()
 
 	light[0].position = glm::vec3(camera.position.x, camera.position.y, camera.position.z);
 	light[0].color = glm::vec3(1, 1, 0.5);
-	light[0].type = Light::LIGHT_POINT;
-	light[0].power = 0;
+	light[0].type = Light::LIGHT_DIRECTIONAL;
+	light[0].power = 1;
 	light[0].kC = 1.f;
 	light[0].kL = 0.01f;
 	light[0].kQ = 0.001f;
@@ -190,20 +230,58 @@ void Scene02::Init()
 	wasMousePressed = false;
 	blasterAnimating = false;
 	blasterMovingUp = false;
+	gameEnded = false;
 
 	blasterAngle = 0.f;
 	score = 0.f;
 
-	targetHitboxSize = glm::vec3(4.f, 4.f, 0.3f);
-	targetSize = glm::vec3(1.f, 1.f, 1.f);
+	targetHitboxSize = glm::vec3(4.f, 5.f, 3.f);
+	targetSize = glm::vec3(0.3f,0.3f,0.3f);
+	targetHitboxSize *= targetSize;
+
+	playerHitbox = PhysicsObject(2.f,2.f,2.f, glm::vec3(0.f,1.f,0.f), 0.f, 0.f, glm::vec3(0.f, 0.f, 0.f));
 
 	m_parameters[U_TEXT_ENABLED] = glGetUniformLocation(m_programID, "textEnabled");
 	m_parameters[U_TEXT_COLOR] = glGetUniformLocation(m_programID, "textColor");
 
 	// Create Invis Walls
 	{
-		//walls.push_back(PhysicsObject(500.f, 5.f, 500.f, glm::vec3(0.f, -2.f, 0.f), 0.f, 0.5f));
-		//walls.push_back(PhysicsObject(1.f, 10.f, 100.f, glm::vec3(0.f, 0.f, 0.f), 0.f, 0.5f));
+		// Tent1 Walls
+		walls.push_back(PhysicsObject(1.f, 20.f, 16.f, glm::vec3(23.f, 0.f, 30.f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 20.f, 23.48f, glm::vec3(14.43f, 0.f, 13.6f), 0.f, 0.2f, glm::vec3(0.f, 45.f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 20.f, 23.48f, glm::vec3(14.43f, 0.f, 43.6f), 0.f, 0.2f, glm::vec3(0.f, -45.f, 0.f)));
+
+		walls.push_back(PhysicsObject(1.f, 20.f, 16.f, glm::vec3(-23.f, 0.f, 30.f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 20.f, 28.5f, glm::vec3(-14.43f, 0.f, 43.6f), 0.f, 0.2f, glm::vec3(0.f, 45.f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 20.f, 23.48f, glm::vec3(-14.43f, 0.f, 13.6f), 0.f, 0.2f, glm::vec3(0.f, -45.f, 0.f)));
+
+		// Tent1 Crates
+		walls.push_back(PhysicsObject(2.f, 3.786f, 13.202f, glm::vec3(0.07f, 0.f, 29.9f), 0.f, 0.5f, glm::vec3(0.f, 0.f, 0.f)));
+		walls.push_back(PhysicsObject(2.f, 7.362f, 13.202f, glm::vec3(8.56f, 0.f, 34.8f), 0.f, 0.5f, glm::vec3(0.f, -14.2f, 0.f)));
+		walls.push_back(PhysicsObject(2.f, 7.362f, 13.202f, glm::vec3(7.228f, 0.f, 20.2f), 0.f, 0.5f, glm::vec3(0.f, 26.45f, 0.f)));
+
+		walls.push_back(PhysicsObject(2.f, 3.786f, 17.672f, glm::vec3(15.65f, 0.f, 26.3f), 0.f, 0.5f, glm::vec3(0.f, 0.f, 0.f)));
+		walls.push_back(PhysicsObject(2.f, 7.362f, 14.916f, glm::vec3(15.65f, 0.f, 26.8f), 0.f, 0.5f, glm::vec3(0.f, 0.f, 0.f)));
+		walls.push_back(PhysicsObject(2.f, 10.84f, 13.202f, glm::vec3(15.65f, 0.f, 26.8f), 0.f, 0.5f, glm::vec3(0.f, 0.f, 0.f)));
+
+		// Tent2 Walls
+		walls.push_back(PhysicsObject(1.f, 20.f, 16.f, glm::vec3(23.f, 0.f, 106.f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 20.f, 23.48f, glm::vec3(14.43f, 0.f, 89.6f), 0.f, 0.2f, glm::vec3(0.f, 45.f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 20.f, 23.48f, glm::vec3(14.43f, 0.f, 119.6f), 0.f, 0.2f, glm::vec3(0.f, -45.f, 0.f)));
+
+		walls.push_back(PhysicsObject(1.f, 20.f, 16.f, glm::vec3(-23.f, 0.f, 106.f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 20.f, 28.5f, glm::vec3(-14.43f, 0.f, 119.6f), 0.f, 0.2f, glm::vec3(0.f, 45.f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 20.f, 23.48f, glm::vec3(-14.43f, 0.f, 89.6f), 0.f, 0.2f, glm::vec3(0.f, -45.f, 0.f)));
+
+		// Fences
+		walls.push_back(PhysicsObject(1.f, 7.85f, 14.f, glm::vec3(5.f, 0.f, -0.68f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 7.85f, 14.f, glm::vec3(-5.f, 0.f, -0.68f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
+
+		walls.push_back(PhysicsObject(1.f, 7.85f, 26.72f, glm::vec3(5.f, 0.f, 67.9f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 7.85f, 27.28f, glm::vec3(-5.f, 0.f, 67.6f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
+
+		walls.push_back(PhysicsObject(1.f, 7.85f, 21.1f, glm::vec3(5.f, 0.f, 139.44f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 7.85f, 21.1f, glm::vec3(-5.f, 0.f, 139.44f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
 	}
 
 	// Test Create Targets
@@ -274,7 +352,7 @@ void Scene02::HandleMouseInput(double dt)
 
 	bool isMousePressed = MouseController::GetInstance()->IsButtonPressed(0);
 
-	if (isMousePressed && !wasMousePressed)
+	if (isMousePressed && !wasMousePressed && !gameEnded)
 	{
 		PhysicsObject ball;
 
@@ -313,7 +391,10 @@ void Scene02::HandleMouseInput(double dt)
 void Scene02::Update(double dt)
 {
 	// Get total elapsed time from Application's m_timer
-	totalElapsedTime += dt;
+	if (!gameEnded)
+	{
+		totalElapsedTime += dt;
+	}
 
 	// Convert to minutes and seconds
 	int minutes = static_cast<int>(totalElapsedTime) / 60;
@@ -323,6 +404,14 @@ void Scene02::Update(double dt)
 	char buffer[16];
 	sprintf_s(buffer, "%02d:%02d", minutes, seconds);
 	elapsedTimeText = std::string(buffer);
+
+	if (totalElapsedTime >= 300.f && !gameEnded)
+	{
+		gameEnded = true;
+	}
+
+	float temp = 1.f / dt;
+	fps = glm::round(temp * 100.f) / 100.f;
 
 	HandleKeyPress(dt);
 
@@ -342,22 +431,29 @@ void Scene02::Update(double dt)
 	bool isKeyPressed = KeyboardController::GetInstance()->IsKeyDown('B');
 	if (isKeyPressed && !wasKeyPressed)
 	{
-		glm::vec3 startPos = glm::vec3(20.f, 10.f, -20.f);
-		glm::vec3 endPos = glm::vec3(-20.f, 10.f, -20.f);
-		float speed = 15.f;
-		int repeats = 5;
+		glm::vec3 startPos = glm::vec3(1.f, 2.2f,24.3f);
+		glm::vec3 endPos = glm::vec3(1.f, 2.2f, 35.5f);
+		float speed = 3.f;
+		int repeats = 2;
 
-		SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 5);
+		SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 1);
 
-		startPos = glm::vec3(20.f, 18.f, -20.f);
-		endPos = glm::vec3(-20.f, 18.f, -20.f);
-		speed = 10.f;
+		startPos = glm::vec3(5.692f, 4.f, 14.2f);
+		endPos = glm::vec3(10.93f, 4.f, 25.f);
+		speed = 5.f;
 		repeats = 5;
 
-		SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 10);
+		SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 2);
 
-		startPos = glm::vec3(20.f, 26.f, -20.f);
-		endPos = glm::vec3(-20.f, 26.f, -20.f);
+		startPos = glm::vec3(8.185f, 4.f, 40.8f);
+		endPos = glm::vec3(10.93f, 4.f, 30.f);
+		speed = 5.f;
+		repeats = 5;
+
+		SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, -5);
+
+		startPos = glm::vec3(16.72f, 5.616f, 21.1f);
+		endPos = glm::vec3(16.72f, 5.616f, 32.9f);
 		speed = 5.f;
 		repeats = 5;
 
@@ -368,11 +464,24 @@ void Scene02::Update(double dt)
 
 	camera.Update(dt);
 
-	camera.position.y = 3.3f;
+	glm::vec3 oldPos = playerHitbox.pos;
 
-	float temp = static_cast<float>(1.0 / dt);
-	fps = glm::round(temp * 100.f) / 100.f;
+	// Move player
+	playerHitbox.pos += playerHitbox.vel * static_cast<float>(dt);
 
+	// Check collisions against walls
+	for (int j = 0; j < walls.size(); j++) {
+		PhysicsObject& wall = walls[j];
+		CollisionData cd;
+		if (OverlapSphere2OBB(playerHitbox, wall, cd))
+		{
+			playerHitbox.pos = oldPos;
+			break;
+		}
+	}
+
+	// Keep camera height consistent
+	camera.position = glm::vec3(playerHitbox.pos.x, 3.3f, playerHitbox.pos.z);
 	if (camera.position.y < 3.3f) {
 		camera.position.y = 3.3f;
 		if (camera.target.y < 3.3f)
@@ -388,7 +497,7 @@ void Scene02::Update(double dt)
 		for (int j = 0; j < walls.size(); j++) {
 			PhysicsObject& wall = walls[j];
 			CollisionData cd;
-			if (OverlapSphere2AABB(ball, wall, cd))
+			if (OverlapSphere2OBB(ball, wall, cd))
 			{
 				ResolveCollision(cd);
 			}
@@ -396,7 +505,7 @@ void Scene02::Update(double dt)
 
 		for (int j = 0; j < targets.size(); j++) {
 			CollisionData cd;
-			if (OverlapSphere2AABB(ball, *targets[j], cd))
+			if (OverlapSphere2OBB(ball, *targets[j], cd))
 			{
 				if (targets[j]->OnHit())
 				{
@@ -410,6 +519,7 @@ void Scene02::Update(double dt)
 
 		ball.UpdatePhysics(dt);
 
+
 		if (ball.pos.y < -10.f)
 		{
 			projectiles.erase(projectiles.begin() + i);
@@ -417,13 +527,15 @@ void Scene02::Update(double dt)
 		}
 	}
 
-	for (int i=0;i<targets.size();i++)
+	for (int i = 0; i < targets.size(); i++)
 	{
 		if (targets[i]->IsActive())
 		{
 			targets[i]->Update(dt);
 		}
-		else if (!targets[i]->IsActive() || targets[i]->pos.y < -20.f) {
+
+		if (!targets[i]->IsActive() || targets[i]->pos.y < -10.f)
+		{
 			delete targets[i];
 			targets.erase(targets.begin() + i);
 			i--;
@@ -455,48 +567,63 @@ void Scene02::Update(double dt)
 			}
 		}
 	}
+
+	playerHitbox.UpdatePhysics(dt);
 }
 
 void Scene02::RenderSkybox() {
+	int scaleValue = 10.f;
+
 	modelStack.PushMatrix();
 	// Offset in Z direction by -50 units
-	modelStack.Translate(0.f, 0.f, -50.f);
+	modelStack.Translate(0.f, 0.f, -50.f * scaleValue);
+	modelStack.Rotate(-90.f, 0.f, 0.f, 1.f);
+	modelStack.Scale(scaleValue, scaleValue, scaleValue);
 	meshList[GEO_FRONT]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
 	RenderMesh(meshList[GEO_FRONT], false);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
 	// Offset in Z direction by -50 units
-	modelStack.Translate(0.f, 0.f, 50.f);
+	modelStack.Translate(0.f, 0.f, 50.f * scaleValue);
 	modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+	modelStack.Rotate(-90.f, 0.f, 0.f, 1.f);
+	modelStack.Scale(scaleValue, scaleValue, scaleValue);
 	meshList[GEO_BACK]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
 	RenderMesh(meshList[GEO_BACK], false);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	modelStack.Translate(-50.f, 0.f, 0.f);
+	modelStack.Translate(-50.f * scaleValue, 0.f, 0.f);
 	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+	modelStack.Rotate(-90.f, 0.f, 0.f, 1.f);
+	modelStack.Scale(scaleValue, scaleValue, scaleValue);
 	meshList[GEO_LEFT]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
 	RenderMesh(meshList[GEO_LEFT], false);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	modelStack.Translate(50.f, 0.f, 0.f);
+	modelStack.Translate(50.f * scaleValue, 0.f, 0.f);
 	modelStack.Rotate(90.f, 0.f, -1.f, 0.f);
+	modelStack.Rotate(-90.f, 0.f, 0.f, 1.f);
+	modelStack.Scale(scaleValue, scaleValue, scaleValue);
 	meshList[GEO_RIGHT]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
 	RenderMesh(meshList[GEO_RIGHT], false);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 50.f, 0.f);
+	modelStack.Translate(0.f, 50.f * scaleValue, 0.f);
 	modelStack.Rotate(90.f, 1.f, 0.f, 0.f);
+
+	modelStack.Scale(scaleValue, scaleValue, scaleValue);
 	meshList[GEO_TOP]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
 	RenderMesh(meshList[GEO_TOP], false);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, -50.f, 0.f);
+	modelStack.Translate(0.f, -50.f * scaleValue, 0.f);
 	modelStack.Rotate(90.f, -1.f, 0.f, 0.f);
+	modelStack.Scale(scaleValue, scaleValue, scaleValue);
 	meshList[GEO_BOTTOM]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
 	RenderMesh(meshList[GEO_BOTTOM], false);
 	modelStack.PopMatrix();
@@ -624,7 +751,7 @@ void Scene02::RenderTextOnScreen(Mesh* mesh, std::string text, glm::vec3 color, 
 
 void Scene02::SpawnTarget(glm::vec3 startingPosition, glm::vec3 endingPosition, glm::vec3 size, float speed, int repeats, int value)
 {
-	targets.push_back(new DuckTarget(startingPosition, endingPosition, size, speed, repeats, value));
+	targets.push_back(new DuckTarget(startingPosition, endingPosition, size, speed, repeats, value, glm::vec3(0.f,0.f,0.f)));
 }
 
 void Scene02::Render()
@@ -683,8 +810,8 @@ void Scene02::Render()
 	modelStack.PushMatrix();
 	{
 		// spacing chosen to match the previous manual placement (50 units)
-		const float start = -250.f;
-		const float end = 250.f;
+		const float start = -400.f;
+		const float end = 400.f;
 		const float step = 50.f;
 		for (float x = start; x <= end; x += step)
 		{
@@ -705,124 +832,327 @@ void Scene02::Render()
 	}
 	modelStack.PopMatrix();
 
-	meshList[GEO_BLASTER]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
-	meshList[GEO_BLASTER]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
-	meshList[GEO_BLASTER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-	meshList[GEO_BLASTER]->material.kShininess = 5.0f;
+	// Materials
+	{
+		meshList[GEO_BLASTER]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_BLASTER]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_BLASTER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[GEO_BLASTER]->material.kShininess = 5.0f;
 
-	glm::vec3 forward = glm::normalize(camera.target - camera.position);
-	glm::vec3 right = glm::normalize(glm::cross(forward, camera.up));
-	glm::vec3 up = glm::normalize(camera.up);
+		meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.6f, 0.6f, 0.6f);
+		meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[GEO_SPHERE]->material.kShininess = 5.0f;
 
-	glm::vec3 blasterPos =
-		camera.position
-		+ forward * 2.f
-		+ right * 1.f
-		- up * 1.f;
+		meshList[GEO_WALL]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+		meshList[GEO_WALL]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_WALL]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[GEO_WALL]->material.kShininess = 5.0f;
 
-	glm::mat4 rot(1.0f);
-	rot[0] = glm::vec4(right, 0.f);
-	rot[1] = glm::vec4(up, 0.f);
-	rot[2] = glm::vec4(-forward, 0.f);
+		meshList[GEO_DUCKTARGET]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+		meshList[GEO_DUCKTARGET]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_DUCKTARGET]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[GEO_DUCKTARGET]->material.kShininess = 5.0f;
 
-	modelStack.PushMatrix();
-	modelStack.Translate(blasterPos.x, blasterPos.y, blasterPos.z);
+		meshList[GEO_PAPER]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_PAPER]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_PAPER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[GEO_PAPER]->material.kShininess = 5.0f;
 
-	modelStack.MultMatrix(rot);
-	modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
-	modelStack.Rotate(-blasterAngle, 1.f, 0.f, 0.f);
-	modelStack.Scale(0.4f, 0.5f, 0.5f);
+		meshList[GEO_FENCE1]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_FENCE1]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_FENCE1]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[GEO_FENCE1]->material.kShininess = 5.0f;
 
-	RenderMesh(meshList[GEO_BLASTER], true);
-	modelStack.PopMatrix();
+		meshList[GEO_FENCE2]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_FENCE2]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_FENCE2]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[GEO_FENCE2]->material.kShininess = 5.0f;
 
-	meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
-	meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
-	meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-	meshList[GEO_SPHERE]->material.kShininess = 5.0f;
+		meshList[GEO_FENCE3]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_FENCE3]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_FENCE3]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[GEO_FENCE3]->material.kShininess = 5.0f;
 
-	meshList[GEO_WALL]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
-	meshList[GEO_WALL]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
-	meshList[GEO_WALL]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-	meshList[GEO_WALL]->material.kShininess = 5.0f;
+		meshList[GEO_FENCE4]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_FENCE4]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_FENCE4]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[GEO_FENCE4]->material.kShininess = 5.0f;
 
-	// Render Projectiles
-	for (int i=0;i<projectiles.size();i++) {
-		PhysicsObject& ball = projectiles[i];
-		modelStack.PushMatrix();
-		modelStack.Translate(ball.pos.x, ball.pos.y, ball.pos.z);
-		modelStack.Scale(ball.sizeX, ball.sizeY, ball.sizeZ);
-		RenderMesh(meshList[GEO_SPHERE], true);
-		modelStack.PopMatrix();
+		meshList[GEO_FENCE5]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_FENCE5]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_FENCE5]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[GEO_FENCE5]->material.kShininess = 5.0f;
+
+		meshList[GEO_TENT]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_TENT]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_TENT]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[GEO_TENT]->material.kShininess = 5.0f;
+
+		meshList[GEO_BARREL]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_BARREL]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_BARREL]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[GEO_BARREL]->material.kShininess = 5.0f;
+
+		meshList[GEO_CRATE]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_CRATE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_CRATE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[GEO_CRATE]->material.kShininess = 5.0f;
+
+		meshList[GEO_CRATES1]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_CRATES1]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_CRATES1]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[GEO_CRATES1]->material.kShininess = 5.0f;
+
+		meshList[GEO_CRATES2]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_CRATES2]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_CRATES2]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[GEO_CRATES2]->material.kShininess = 5.0f;
+
+		meshList[GEO_CRATES3]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_CRATES3]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_CRATES3]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[GEO_CRATES3]->material.kShininess = 5.0f;
+
+		meshList[GEO_BARRELS1]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_BARRELS1]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_BARRELS1]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[GEO_BARRELS1]->material.kShininess = 5.0f;
+
+		meshList[GEO_BARRELS2]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_BARRELS2]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_BARRELS2]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[GEO_BARRELS2]->material.kShininess = 5.0f;
 	}
 
-	// Render Walls
+	// Environment
+	{
+		// Tents
+		{
+			// Tent1
+			{
+				modelStack.PushMatrix();
+				modelStack.Translate(0.f, 0.f, 0.f);
+				modelStack.Scale(1.f, 1.f, 1.f);
+				RenderMesh(meshList[GEO_TENT], true);
+				modelStack.PopMatrix();
 
-	if (enableHitbox) {
-		for (int i = 0; i < walls.size(); i++) {
-			PhysicsObject& wall = walls[i];
+				modelStack.PushMatrix();
+				modelStack.Translate(0.f, 0.f, 0.f);
+				modelStack.Scale(1.f, 1.f, 1.f);
+				RenderMesh(meshList[GEO_CRATES1], true);
+				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(0.f, 0.f, 0.f);
+				modelStack.Scale(1.f, 1.f, 1.f);
+				RenderMesh(meshList[GEO_CRATES2], true);
+				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(0.f, 0.f, 0.f);
+				modelStack.Scale(1.f, 1.f, 1.f);
+				RenderMesh(meshList[GEO_CRATES3], true);
+				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(0.f, 0.f, 0.f);
+				modelStack.Scale(1.f, 1.f, 1.f);
+				RenderMesh(meshList[GEO_BARRELS1], true);
+				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(0.f, 0.f, 0.f);
+				modelStack.Scale(1.f, 1.f, 1.f);
+				RenderMesh(meshList[GEO_BARRELS2], true);
+				modelStack.PopMatrix();
+			}
+
+			// Tent2
+			{
+
+			}
+		}
+
+		// Fences
+		{
 			modelStack.PushMatrix();
-			modelStack.Translate(wall.pos.x, wall.pos.y, wall.pos.z);
-			modelStack.Scale(wall.sizeX, wall.sizeY, wall.sizeZ);
-			RenderMesh(meshList[GEO_WALL], false);
+			modelStack.Translate(0.f, 0.f, 0.f);
+			modelStack.Scale(1.f, 1.f, 1.f);
+			RenderMesh(meshList[GEO_FENCE1], true);
 			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(0.f, 0.f, 0.f);
+			modelStack.Scale(1.f, 1.f, 1.f);
+			RenderMesh(meshList[GEO_FENCE2], true);
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(0.f, 0.f, 0.f);
+			modelStack.Scale(1.f, 1.f, 1.f);
+			RenderMesh(meshList[GEO_FENCE3], true);
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(0.f, 0.f, 0.f);
+			modelStack.Scale(1.f, 1.f, 1.f);
+			RenderMesh(meshList[GEO_FENCE4], true);
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(0.f, 0.f, 0.f);
+			modelStack.Scale(1.f, 1.f, 1.f);
+			RenderMesh(meshList[GEO_FENCE5], true);
+			modelStack.PopMatrix();
+		}
+
+		// Trees
+		{
+
+		}
+
+		// Other props
+		{
+			/*modelStack.PushMatrix();
+			modelStack.Translate(0.f, 0.f, 0.f);
+			modelStack.Scale(0.3f, 0.35f, 0.3f);
+			RenderMesh(meshList[GEO_BARREL], true);
+			modelStack.PopMatrix();*/
+
+			/*modelStack.PushMatrix();
+			modelStack.Translate(0.f, 0.f, 0.f);
+			modelStack.Scale(1.f, 1.f, 1.f);
+			RenderMesh(meshList[GEO_CRATE], true);
+			modelStack.PopMatrix();*/
 		}
 	}
 
-	meshList[GEO_DUCKTARGET]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
-	meshList[GEO_DUCKTARGET]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
-	meshList[GEO_DUCKTARGET]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-	meshList[GEO_DUCKTARGET]->material.kShininess = 5.0f;
-
-	meshList[GEO_PAPER]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
-	meshList[GEO_PAPER]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
-	meshList[GEO_PAPER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-	meshList[GEO_PAPER]->material.kShininess = 5.0f;
-
-	// Render Targets
-	for (int i = 0; i < targets.size(); i++) {
-		DuckTarget* target = targets[i];
-		modelStack.PushMatrix();
-		modelStack.Translate(target->pos.x, target->pos.y, target->pos.z);
-		{
+	// Runtime Renders
+	{
+		// Render Projectiles
+		for (int i = 0; i < projectiles.size(); i++) {
+			PhysicsObject& ball = projectiles[i];
 			modelStack.PushMatrix();
-			modelStack.Rotate(target->GetRotation(), 0.f, 1.f, 0.f);
+			modelStack.Translate(ball.pos.x, ball.pos.y, ball.pos.z);
+			modelStack.Scale(ball.sizeX, ball.sizeY, ball.sizeZ);
+			RenderMesh(meshList[GEO_SPHERE], true);
+			modelStack.PopMatrix();
+		}
+
+		// Render Walls
+
+		if (enableHitbox) {
+			for (int i = 0; i < walls.size(); i++) {
+				PhysicsObject& wall = walls[i];
+				modelStack.PushMatrix();
+				modelStack.Translate(wall.pos.x, wall.pos.y, wall.pos.z);
+				modelStack.Rotate(wall.rotation.x, 1.f, 0.f, 0.f);
+				modelStack.Rotate(wall.rotation.y, 0.f, 1.f, 0.f);
+				modelStack.Rotate(wall.rotation.z, 0.f, 0.f, 1.f);
+				modelStack.Scale(wall.sizeX, wall.sizeY, wall.sizeZ);
+				RenderMesh(meshList[GEO_WALL], false);
+				modelStack.PopMatrix();
+			}
+
+			modelStack.PushMatrix();
+			modelStack.Translate(playerHitbox.pos.x, playerHitbox.pos.y, playerHitbox.pos.z);
+			modelStack.Scale(playerHitbox.sizeX, playerHitbox.sizeY, playerHitbox.sizeZ);
+			RenderMesh(meshList[GEO_SPHERE], false);
+			modelStack.PopMatrix();
+		}
+
+		// Render Targets
+		for (int i = 0; i < targets.size(); i++) {
+			DuckTarget* target = targets[i];
+
+			modelStack.PushMatrix();
+			modelStack.Translate(target->pos.x, target->pos.y, target->pos.z);
+
+			float yaw = target->GetRotation();
+			modelStack.Rotate(yaw, 0.f, 1.f, 0.f);
+
+			// Render main duck target mesh
+			modelStack.PushMatrix();
 			modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
-			modelStack.Scale(targetSize.x,targetSize.y,targetSize.z);
+			modelStack.Scale(targetSize.x, targetSize.y, targetSize.z);
 			RenderMesh(meshList[GEO_DUCKTARGET], true);
 			modelStack.PopMatrix();
 
-			if (targets[i]->GetScoreValue() < 0)
+			if (target->GetScoreValue() < 0)
 			{
+				modelStack.PushMatrix();
+				modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+				modelStack.Scale(targetSize.x, targetSize.y, targetSize.z);
+				RenderMesh(meshList[GEO_PAPER], true);
+				modelStack.PopMatrix();
+
 				modelStack.PushMatrix();
 				modelStack.Rotate(-90.f, 0.f, 1.f, 0.f);
 				modelStack.Scale(targetSize.x, targetSize.y, targetSize.z);
 				RenderMesh(meshList[GEO_PAPER], true);
 				modelStack.PopMatrix();
 			}
+
+			// Render hitbox if enabled
+			if (enableHitbox) {
+				modelStack.PushMatrix();
+				modelStack.Scale(target->sizeX, target->sizeY, target->sizeZ);
+				RenderMesh(meshList[GEO_WALL], false);
+				modelStack.PopMatrix();
+			}
+
+			modelStack.PopMatrix();
 		}
-		modelStack.Scale(target->sizeX, target->sizeY, target->sizeZ);
-		if (enableHitbox) {
-			RenderMesh(meshList[GEO_WALL], false);
-		}
+	}
+
+	// Blaster
+	{
+		glm::vec3 forward = glm::normalize(camera.target - camera.position);
+		glm::vec3 right = glm::normalize(glm::cross(forward, camera.up));
+		glm::vec3 up = glm::normalize(camera.up);
+
+		glm::vec3 blasterPos =
+			camera.position
+			+ forward * 2.f
+			+ right * 1.f
+			- up * 1.f;
+
+		glm::mat4 rot(1.0f);
+		rot[0] = glm::vec4(right, 0.f);
+		rot[1] = glm::vec4(up, 0.f);
+		rot[2] = glm::vec4(-forward, 0.f);
+
+		modelStack.PushMatrix();
+		modelStack.Translate(blasterPos.x, blasterPos.y, blasterPos.z);
+
+		modelStack.MultMatrix(rot);
+		modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+		modelStack.Rotate(-blasterAngle, 1.f, 0.f, 0.f);
+		modelStack.Scale(0.4f, 0.5f, 0.5f);
+
+		RenderMesh(meshList[GEO_BLASTER], true);
 		modelStack.PopMatrix();
 	}
 
-	// FPS COUNTER
+	// UI
 	{
-		std::string temp("FPS:" + std::to_string(fps));
-		RenderTextOnScreen(meshList[GEO_TEXT], temp.substr(0, 9), glm::vec3(0, 1, 0), 20, 0, 580);
-	}
+		// FPS COUNTER
+		{
+			std::string temp("FPS:" + std::to_string(fps));
+			RenderTextOnScreen(meshList[GEO_TEXT], temp.substr(0, 9), glm::vec3(0, 1, 0), 20, 0, 580);
+		}
 
-	// SCORE COUNTER
-	{
-		std::string temp("Score:" + std::to_string(score));
-		RenderTextOnScreen(meshList[GEO_TEXT], temp.substr(0, 9), glm::vec3(1, 0, 0), 20, 0, 540);
-	}
+		// SCORE COUNTER
+		{
+			std::string temp("Score:" + std::to_string(score));
+			RenderTextOnScreen(meshList[GEO_TEXT], temp.substr(0,9), glm::vec3(1, 0, 0), 20, 0, 540);
+		}
 
-	// TIME COUNTER
-	{
-		RenderTextOnScreen(meshList[GEO_TEXT], "Time: " + elapsedTimeText, glm::vec3(1.f, 1.f, 0.f), 20, 0, 500);
+		// TIME COUNTER
+		{
+			RenderTextOnScreen(meshList[GEO_TEXT], "Time: " + elapsedTimeText, glm::vec3(1.f, 1.f, 0.f), 20, 0, 500);
+		}
 	}
 }
 
@@ -875,6 +1205,13 @@ void Scene02::Exit()
 	}
 	glDeleteVertexArrays(1, &m_vertexArrayID);
 	glDeleteProgram(m_programID);
+
+	for (int i = 0; i < targets.size(); i++)
+	{
+		delete targets[i];
+		targets.erase(targets.begin() + i);
+		i--;
+	}
 }
 
 void Scene02::HandleKeyPress(double dt)
@@ -940,71 +1277,122 @@ void Scene02::HandleKeyPress(double dt)
 	}
 
 	// Calculate forward and right vectors based on camera orientation
-	glm::vec3 forward = glm::normalize(camera.target - camera.position);
+	glm::vec3 forward = glm::normalize(glm::vec3(camera.target.x - camera.position.x, 0.f, camera.target.z - camera.position.z));
 	glm::vec3 right = glm::normalize(glm::cross(forward, camera.up));
 
-	// Use IsKeyDown for continuous movement while holding the key
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_W))
-	{
-		// Move forward
 
+	if (!gameEnded)
+	{
 		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT_SHIFT)) {
-			float sprintmovement = (1.5 * moveSpeed) * static_cast<float>(dt);
-			camera.position += forward * sprintmovement;
-			camera.target += forward * sprintmovement;
+			moveSpeed = 5.f * 1.5f;
 		}
 		else {
-			float movement = moveSpeed * static_cast<float>(dt);
-			camera.position += forward * movement;
-			camera.target += forward * movement;
+			moveSpeed = 5.f;
 		}
-	}
 
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_S))
-	{
-		// Move backward
-
-		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT_SHIFT)) {
-			float sprintmovement = (1.5 * moveSpeed) * static_cast<float>(dt);
-			camera.position -= forward * sprintmovement;
-			camera.target -= forward * sprintmovement;
+		// Build requested movement delta from input (frame-rate independent)
+		glm::vec3 requestedDelta(0.0f);
+		float movement = moveSpeed * static_cast<float>(dt);
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_W))
+		{
+			requestedDelta += forward * movement;
 		}
-		else {
-			float movement = moveSpeed * static_cast<float>(dt);
-			camera.position -= forward * movement;
-			camera.target -= forward * movement;
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_S))
+		{
+			requestedDelta -= forward * movement;
 		}
-	}
-
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_A))
-	{
-		// Move left (strafe)
-
-		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT_SHIFT)) {
-			float sprintmovement = (1.5 * moveSpeed) * static_cast<float>(dt);
-			camera.position -= right * sprintmovement;
-			camera.target -= right * sprintmovement;
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_A))
+		{
+			requestedDelta -= right * movement;
 		}
-		else {
-			float movement = moveSpeed * static_cast<float>(dt);
-			camera.position -= right * movement;
-			camera.target -= right * movement;
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_D))
+		{
+			requestedDelta += right * movement;
 		}
-	}
 
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_D))
-	{
-		// Move right (strafe)
+		// If there is movement requested, test collisions using a swept/simple discrete test.
+		if (glm::length(requestedDelta) > 1e-6f)
+		{
+			// Discrete test: try full move first
+			PhysicsObject test = playerHitbox;
+			test.pos += requestedDelta;
 
-		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT_SHIFT)) {
-			float sprintmovement = (1.5 * moveSpeed) * static_cast<float>(dt);
-			camera.position += right * sprintmovement;
-			camera.target += right * sprintmovement;
-		}
-		else {
-			float movement = moveSpeed * static_cast<float>(dt);
-			camera.position += right * movement;
-			camera.target += right * movement;
+			bool collision = false;
+			for (int i = 0; i < walls.size(); ++i)
+			{
+				CollisionData cd;
+				if (OverlapSphere2OBB(test, walls[i], cd))
+				{
+					collision = true;
+					break;
+				}
+			}
+
+			if (!collision)
+			{
+				// Accept full move
+				playerHitbox.pos = test.pos;
+				camera.position += requestedDelta;
+				camera.target += requestedDelta;
+			}
+			else
+			{
+				// Try axis-separated movement to allow sliding along walls.
+				// XZ-plane only (keep Y unchanged).
+				glm::vec3 deltaX = glm::vec3(requestedDelta.x, 0.0f, 0.0f);
+				glm::vec3 deltaZ = glm::vec3(0.0f, 0.0f, requestedDelta.z);
+
+				bool movedX = false;
+				bool movedZ = false;
+
+				if (glm::length(deltaX) > 1e-6f)
+				{
+					PhysicsObject tx = playerHitbox;
+					tx.pos += deltaX;
+					bool colX = false;
+					for (int i = 0; i < walls.size(); ++i)
+					{
+						CollisionData cd;
+						if (OverlapSphere2OBB(tx, walls[i], cd))
+						{
+							colX = true;
+							break;
+						}
+					}
+					if (!colX)
+					{
+						playerHitbox.pos += deltaX;
+						camera.position += deltaX;
+						camera.target += deltaX;
+						movedX = true;
+					}
+				}
+
+				if (glm::length(deltaZ) > 1e-6f)
+				{
+					PhysicsObject tz = playerHitbox;
+					tz.pos += deltaZ;
+					bool colZ = false;
+					for (int i = 0; i < walls.size(); ++i)
+					{
+						CollisionData cd;
+						if (OverlapSphere2OBB(tz, walls[i], cd))
+						{
+							colZ = true;
+							break;
+						}
+					}
+					if (!colZ)
+					{
+						playerHitbox.pos += deltaZ;
+						camera.position += deltaZ;
+						camera.target += deltaZ;
+						movedZ = true;
+					}
+				}
+
+				// If neither axis allowed movement then we are blocked (no change).
+			}
 		}
 	}
 }

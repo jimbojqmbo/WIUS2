@@ -1,6 +1,6 @@
 #include "DuckTarget.h"
 
-DuckTarget::DuckTarget(glm::vec3 start, glm::vec3 end, glm::vec3 size, float speed, int repeats, int value)
+DuckTarget::DuckTarget(glm::vec3 start, glm::vec3 end, glm::vec3 size, float speed, int repeats, int value, glm::vec3 rotation)
 {
     hitImpulseStrength = 2.f;
     pos = start;
@@ -12,6 +12,7 @@ DuckTarget::DuckTarget(glm::vec3 start, glm::vec3 end, glm::vec3 size, float spe
     sizeY = size.y;
     sizeZ = size.z;
     scoreValue = value;
+    this->rotation = rotation;
 }
 
 DuckTarget::~DuckTarget()
@@ -30,9 +31,6 @@ void DuckTarget::Update(float dt)
     {
         movingToEnd = !movingToEnd;
 
-        rotationY += 180.f;
-        if (rotationY >= 360.f) rotationY -= 360.f;
-
         if (!movingToEnd)
         {
             repeatsRemaining--;
@@ -46,7 +44,13 @@ void DuckTarget::Update(float dt)
     else
     {
         dir = glm::normalize(dir);
+
         pos += dir * moveSpeed * dt;
+
+        float angleRad = atan2(dir.x, dir.z);
+        rotationY = glm::degrees(angleRad);
+
+        rotationY += 90.f;
     }
 
 	UpdatePhysics(dt);

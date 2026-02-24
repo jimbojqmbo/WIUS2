@@ -2,13 +2,13 @@
 
 PhysicsObject::PhysicsObject()
     : sizeX{ 1.f }, sizeY{ 1.f }, sizeZ{ 1.f }, pos{}, prevPos{}, vel{}, accel{},
-	mass{ 1.f }, m_totalForces{}, angularVel{}, orientation{}, bounciness{ 1.f }
+	mass{ 1.f }, m_totalForces{}, angularVel{}, rotation{ 0.f,0.f,0.f }, bounciness{ 1.f }
 {
 }
 
-PhysicsObject::PhysicsObject(float sizeX, float sizeY, float sizeZ, glm::vec3 pos, float mass, float bounciness)
+PhysicsObject::PhysicsObject(float sizeX, float sizeY, float sizeZ, glm::vec3 pos, float mass, float bounciness, glm::vec3 rotation)
     : sizeX{ 1.f }, sizeY{ 1.f }, sizeZ{ 1.f }, pos{}, prevPos{}, vel{}, accel{},
-	mass{ 1.f }, m_totalForces{}, angularVel{}, orientation{}, bounciness{ 1.f }
+	mass{ 1.f }, m_totalForces{}, angularVel{}, rotation{ 0.f,0.f,0.f }, bounciness{ 1.f }
 {
 	this->sizeX = sizeX;
 	this->sizeY = sizeY;
@@ -18,6 +18,7 @@ PhysicsObject::PhysicsObject(float sizeX, float sizeY, float sizeZ, glm::vec3 po
 
 	this->mass = mass;
     this->bounciness = bounciness;
+	this->rotation = rotation;
 }
 
 void PhysicsObject::AddForce(const glm::vec3& force)
@@ -52,12 +53,7 @@ void PhysicsObject::UpdatePhysics(float dt)
 
     pos += vel * dt;
 
-    // Angular motion (3D correct)
-    glm::quat omega(0.f, angularVel.x, angularVel.y, angularVel.z);
-    glm::quat dq = 0.5f * omega * orientation;
-
-    orientation += dq * dt;
-    orientation = glm::normalize(orientation);
+    rotation += angularVel * dt;
 
     m_totalForces = glm::vec3(0.f);
 }

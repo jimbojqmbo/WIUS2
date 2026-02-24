@@ -11,7 +11,7 @@ class PhysicsObject
 {
 public:
 	PhysicsObject();
-	PhysicsObject(float sizeX, float sizeY, float sizeZ, glm::vec3 pos, float mass, float bounciness);
+	PhysicsObject(float sizeX, float sizeY, float sizeZ, glm::vec3 pos, float mass, float bounciness, glm::vec3 rotation);
 	virtual ~PhysicsObject() = default;
 
 	float sizeX;
@@ -27,7 +27,7 @@ public:
 
 	//for angular movement
 	glm::vec3 angularVel;
-	glm::quat orientation;
+	glm::vec3 rotation;
 
 	//misc
 	float bounciness;

@@ -251,6 +251,100 @@ bool OverlapSphere2AABB(PhysicsObject& sphereObj, PhysicsObject& boxObj, Collisi
 	return false;
 }
 
+bool OverlapSphere2OBB(PhysicsObject& sphereObj, PhysicsObject& boxObj, CollisionData& cd)
+{
+	glm::vec3 spherePos = sphereObj.pos;
+	float radius = sphereObj.sizeX * 0.5f;
+
+	glm::vec3 halfSize(
+		boxObj.sizeX * 0.5f,
+		boxObj.sizeY * 0.5f,
+		boxObj.sizeZ * 0.5f
+	);
+
+	// Build model matrix for the OBB (translate then rotate)
+	glm::mat4 model(1.0f);
+	model = glm::translate(model, boxObj.pos);
+	model = glm::rotate(model, glm::radians(boxObj.rotation.x), glm::vec3(1, 0, 0));
+	model = glm::rotate(model, glm::radians(boxObj.rotation.y), glm::vec3(0, 1, 0));
+	model = glm::rotate(model, glm::radians(boxObj.rotation.z), glm::vec3(0, 0, 1));
+
+	// Transform sphere center into box local space
+	glm::mat4 invModel = glm::inverse(model);
+	glm::vec3 localSpherePos = glm::vec3(invModel * glm::vec4(spherePos, 1.0f));
+
+	// Closest point on AABB (in local space)
+	glm::vec3 localMin = -halfSize;
+	glm::vec3 localMax = halfSize;
+	glm::vec3 localClosest = glm::clamp(localSpherePos, localMin, localMax);
+
+	glm::vec3 diff = localSpherePos - localClosest;
+	float distSquared = glm::dot(diff, diff);
+
+	// No overlap
+	if (distSquared > radius * radius)
+		return false;
+
+	// Prepare cd
+	cd.pObj1 = &sphereObj;
+	cd.pObj2 = &boxObj;
+
+	const float EPS = 1e-6f;
+	glm::vec3 localNormal;
+	glm::vec3 localContact;
+
+	if (distSquared > EPS)
+	{
+		// usual case: sphere center outside or on surface -> normal from box -> sphere
+		float dist = std::sqrt(distSquared);
+		localNormal = diff / dist; // points from box surface toward sphere center
+		localContact = localClosest; // closest point on box surface (or edge)
+		cd.penetration = radius - dist;
+	}
+	else
+	{
+		// center is inside the box (or extremely close). Choose nearest face as normal and compute correct penetration.
+		float dx = halfSize.x - std::abs(localSpherePos.x);
+		float dy = halfSize.y - std::abs(localSpherePos.y);
+		float dz = halfSize.z - std::abs(localSpherePos.z);
+
+		// pick axis with smallest distance to face (closest face)
+		if (dx <= dy && dx <= dz)
+		{
+			localNormal = glm::vec3((localSpherePos.x >= 0.0f) ? 1.0f : -1.0f, 0.0f, 0.0f);
+			localContact = glm::vec3((localSpherePos.x >= 0.0f) ? halfSize.x : -halfSize.x,
+				glm::clamp(localSpherePos.y, -halfSize.y, halfSize.y),
+				glm::clamp(localSpherePos.z, -halfSize.z, halfSize.z));
+			cd.penetration = radius + dx;
+		}
+		else if (dy <= dx && dy <= dz)
+		{
+			localNormal = glm::vec3(0.0f, (localSpherePos.y >= 0.0f) ? 1.0f : -1.0f, 0.0f);
+			localContact = glm::vec3(glm::clamp(localSpherePos.x, -halfSize.x, halfSize.x),
+				(localSpherePos.y >= 0.0f) ? halfSize.y : -halfSize.y,
+				glm::clamp(localSpherePos.z, -halfSize.z, halfSize.z));
+			cd.penetration = radius + dy;
+		}
+		else
+		{
+			localNormal = glm::vec3(0.0f, 0.0f, (localSpherePos.z >= 0.0f) ? 1.0f : -1.0f);
+			localContact = glm::vec3(glm::clamp(localSpherePos.x, -halfSize.x, halfSize.x),
+				glm::clamp(localSpherePos.y, -halfSize.y, halfSize.y),
+				(localSpherePos.z >= 0.0f) ? halfSize.z : -halfSize.z);
+			cd.penetration = radius + dz;
+		}
+	}
+
+	// Convert localNormal and contact back to world space
+	glm::vec3 worldNormal = glm::normalize(glm::mat3(model) * localNormal);
+	glm::vec3 worldContact = glm::vec3(model * glm::vec4(localContact, 1.0f));
+
+	cd.collisionNormal = worldNormal;
+	cd.contactPoint = worldContact;
+
+	return true;
+}
+
 void ResolveCollision(CollisionData& cd)
 {
 	PhysicsObject& Obj1 = *cd.pObj1;
@@ -263,37 +357,37 @@ void ResolveCollision(CollisionData& cd)
 	float totalInvMass = invMass1 + invMass2;
 	if (totalInvMass == 0.f) return;
 
-	// --- Immediate positional correction ---
-	Obj1.pos += n * cd.penetration; // fully move sphere out of wall
-
-	// --- Compute relative velocity along normal ---
 	float velAlongNormal = glm::dot(Obj1.vel - Obj2.vel, n);
 
-	// --- Apply bounciness ---
 	float restitution = std::min(Obj1.bounciness, Obj2.bounciness);
 
-	if (velAlongNormal < 0.f) // only if moving into the wall
+	if (velAlongNormal < 0.f)
 	{
 		float j = -(1.f + restitution) * velAlongNormal / totalInvMass;
 		glm::vec3 impulse = j * n;
 
 		Obj1.vel += impulse * invMass1;
-		Obj2.vel -= impulse * invMass2; // wall usually has invMass=0
+		Obj2.vel -= impulse * invMass2;
 	}
 
-	// --- Friction along tangent ---
 	glm::vec3 relativeVel = Obj1.vel - Obj2.vel;
 	glm::vec3 tangent = relativeVel - glm::dot(relativeVel, n) * n;
 	float lenT = glm::length(tangent);
 	if (lenT > 0.001f)
 	{
 		tangent /= lenT;
-		glm::vec3 frictionImpulse = -0.4f * tangent * glm::length(relativeVel); // simple friction
+		glm::vec3 frictionImpulse = -0.4f * tangent * glm::length(relativeVel);
 		Obj1.vel += frictionImpulse * invMass1;
 		Obj2.vel -= frictionImpulse * invMass2;
 	}
 
-	// Clamp very small velocities
+	const float percent = 0.8f;
+	const float slop = 0.01f;
+	float correctionMag = std::max(cd.penetration - slop, 0.0f) / totalInvMass * percent;
+	glm::vec3 correction = correctionMag * n;
+	Obj1.pos += correction * invMass1;
+	Obj2.pos -= correction * invMass2;
+
 	if (glm::length(Obj1.vel) < 0.01f) Obj1.vel = glm::vec3(0.f);
 }
 

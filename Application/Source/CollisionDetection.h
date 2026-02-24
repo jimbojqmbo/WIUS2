@@ -30,6 +30,7 @@ bool OverlapCircle2OBB(PhysicsObject& circle, float radius, PhysicsObject& box, 
 
 // 3D collision detection functions
 bool OverlapSphere2AABB(PhysicsObject& sphereObj, PhysicsObject& boxObj, CollisionData& cd);
+bool OverlapSphere2OBB(PhysicsObject& sphereObj, PhysicsObject& boxObj, CollisionData& cd);
 
 // collision resolution function
 void ResolveCollision(CollisionData& cd);
