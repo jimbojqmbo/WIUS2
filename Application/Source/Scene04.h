@@ -148,6 +148,9 @@ private:
 	PhysicsObject floor;
 	//OOB
 	PhysicsObject ball_slide;
+	//ring
+	static const int  ring_num = 3;
+	fourball rings[ring_num];
 	//else
 	CollisionData cd;
 	//varibles
@@ -165,9 +168,11 @@ private:
 	bool OverlapCircle2CYLINDER(const glm::vec3& pos1, float r1, const glm::vec3& pos2, float width,float height);
 	void ResolveCollisionBall(CollisionData cd);
 	//object realted
+	bool OverlapCircle2(const glm::vec3& pos1, float r1, const glm::vec3& pos2, float r2);
 	void balls_update(double dt);
 	void balls_render();
 	void walls_render();
+	void walls_resolve(CollisionData cd);
 
 };
 
