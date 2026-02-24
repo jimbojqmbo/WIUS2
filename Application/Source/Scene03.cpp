@@ -287,6 +287,12 @@ bool Scene03::OverlapCircle2AABB(glm::vec3 circlePos, float radius, glm::vec3 bo
 
 void Scene03::Update(double dt)
 {
+	//int mouseX = MouseController::GetInstance()->GetMousePositionX();
+	//int mouseY = MouseController::GetInstance()->GetMousePositionY();
+	//std::cout << mouseX << ", " << mouseY << std::endl;
+
+	showCrosshair = true;
+
 	// Get total elapsed time from Application's m_timer
 	if (timerStarted && !timerEnded)
 	{
@@ -297,6 +303,7 @@ void Scene03::Update(double dt)
 			totalElapsedTime = 5.f;
 			timerEnded = true;
 			std::cout << "Timer ended \n";
+			showScore = true;
 		}
 	}
 
@@ -499,7 +506,7 @@ void Scene03::Update(double dt)
 			ball.accel = glm::vec3(0.f);
 		}
 
-		bool isOverlapping = OverlapCircle2Circle(rimPosition, 0.01f, ball.pos, ballRadius);
+		bool isOverlapping = OverlapCircle2Circle(glm::vec3(rimPosition.x, rimPosition.y - 0.5f, rimPosition.z), 0.01f, ball.pos, ballRadius);
 		if (isOverlapping && !rimWasOverlapping)
 		{
 			pointcounter += 2;
@@ -650,8 +657,7 @@ void Scene03::RenderText(Mesh* mesh, std::string text, glm::vec3 color)
 }
 
 
-void Scene03::RenderTextOnScreen(Mesh* mesh, std::string
-	text, glm::vec3 color, float size, float x, float y)
+void Scene03::RenderTextOnScreen(Mesh* mesh, std::string text, glm::vec3 color, float size, float x, float y)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
 		return;
@@ -854,11 +860,11 @@ void Scene03::Render()
 	RenderMesh(meshList[GEO_BLACKWALL], false);
 	modelStack.PopMatrix();
 
-
-	modelStack.PushMatrix();
-	modelStack.Scale(1.f, 1.f, 1.f);
-	RenderTextOnScreen(meshList[GEO_TEXT], "+", glm::vec3(0, 1, 1), 40, 392, 282);
-	modelStack.PopMatrix();
+	//modelStack.PushMatrix();
+	//modelStack.Translate(rimPosition.x, rimPosition.y - 0.5f, rimPosition.z);
+	//modelStack.Scale(0.2f, 0.2, 0.2f);
+	//RenderMesh(meshList[GEO_SPHERE], false);
+	//modelStack.PopMatrix();
 
 	if (OverlapCircle2Circle(camera.position, pickupDistance, ball.pos, ballRadius)) {
 		modelStack.PushMatrix();
@@ -868,10 +874,28 @@ void Scene03::Render()
 	}
 
 	std::string point("Points: " + std::to_string(pointcounter));
-	RenderTextOnScreen(meshList[GEO_TEXT], point.substr(0, 9), glm::vec3(0, 1, 0), 40, 0, 0);
+	RenderTextOnScreen(meshList[GEO_TEXT], point.substr(0, 11), glm::vec3(0, 1, 0), 40, 0, 0);
+
+	std::string timer("Timer: " + std::to_string(totalElapsedTime));
+	RenderTextOnScreen(meshList[GEO_TEXT], timer.substr(0, 8), glm::vec3(0, 1, 0), 40, 0, 530);
 
 	std::string temp("FPS:" + std::to_string(fps));
 	RenderTextOnScreen(meshList[GEO_TEXT], temp.substr(0, 9), glm::vec3(0, 1, 0), 40, 0, 560);
+
+	if (showScore == true) {
+		//std::string point("Final Score: " + std::to_string(pointcounter));
+		//RenderTextOnScreen(meshList[GEO_TEXT], point.substr(0, 11), glm::vec3(0, 1, 0), 40, 282, 282);
+		showCrosshair = false;
+		RenderTextOnScreen(meshList[GEO_TEXT], "Final Score: 99", glm::vec3(0, 1, 0), 40, 238, 282);
+	}
+
+	if (showCrosshair == true) {
+		//tuff crosshair
+		modelStack.PushMatrix();
+		modelStack.Scale(1.f, 1.f, 1.f);
+		RenderTextOnScreen(meshList[GEO_TEXT], "+", glm::vec3(0, 1, 1), 40, 392, 282);
+		modelStack.PopMatrix();
+	}
 }
 
 void Scene03::RenderMesh(Mesh* mesh, bool enableLight)

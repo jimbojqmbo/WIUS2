@@ -15,6 +15,7 @@
 #include "mmsystem.h"
 #include <chrono>
 #include <string>
+#include "timer.h"
 #pragma comment(lib, "winmm.lib")
 
 class Scene03 : public Scene
@@ -173,6 +174,8 @@ private:
 	bool timerEnded = false;
 
 	int pointcounter = 0;
+	bool showScore = false;
+	bool showCrosshair = false;
 };
 
 #endif
