@@ -7,7 +7,7 @@ public:
 	//visibility
 	bool visible = false;
 	//size
-	float radius = 2;
+	float radius = 1;
 	//object
 	PhysicsObject ball;
 	//functions
