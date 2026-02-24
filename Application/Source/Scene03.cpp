@@ -317,7 +317,11 @@ void Scene03::Update(double dt)
 
 	float boardZ = hoopPosition.z + 2.3f;
 
-	camera.position.y = 3.f;
+	//camera.position.y = 3.f;
+
+	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_COMMA)) {
+		camera.position.y = 3.f;
+	}
 
 	//std::cout << camera.position.x << ", " << camera.position.y << ", " << camera.position.z << std::endl;
 
@@ -472,6 +476,25 @@ void Scene03::Update(double dt)
 				hasBall = true;
 			}
 		}*/
+
+		if (ballThrown && ball.pos.z < -10.f)
+		{
+			hasBall = true;
+			ballThrown = false;
+
+			// Reset physics
+			ball.vel = glm::vec3(0.f);
+			ball.accel = glm::vec3(0.f);
+		}
+
+		bool isOverlapping = OverlapCircle2Circle(rimPosition, 0.01f, ball.pos, ballRadius);
+		if (isOverlapping && !rimWasOverlapping)
+		{
+			pointcounter += 2;
+			std::cout << "Points: " << pointcounter << std::endl;
+		}
+
+		rimWasOverlapping = isOverlapping;
 
 		if (OverlapCircle2Circle(camera.position, pickupDistance, ball.pos, ballRadius)) {
 			if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_E)) {
@@ -761,9 +784,11 @@ void Scene03::Render()
 		glm::vec3 offset = forward * 1.5f + right * 0.7f + up * -0.6f;
 
 		modelStack.PushMatrix();
-		modelStack.Translate(camera.position.x + offset.x,
+		modelStack.Translate(
+			camera.position.x + offset.x,
 			camera.position.y + offset.y,
-			camera.position.z + offset.z);
+			camera.position.z + offset.z
+		);
 		modelStack.Scale(0.008f, 0.008f, 0.008f);
 		RenderMesh(meshList[GEO_BASKETBALL], false);
 		modelStack.PopMatrix();
@@ -812,6 +837,12 @@ void Scene03::Render()
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
+	modelStack.Translate(rimPosition.x, rimPosition.y - 0.2f, rimPosition.z);
+	modelStack.Scale(0.2f, 0.2f, 0.2f);
+	RenderMesh(meshList[GEO_SPHERE], false);
+	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
 	modelStack.Scale(1.f, 1.f, 1.f);
 	RenderTextOnScreen(meshList[GEO_TEXT], "+", glm::vec3(0, 1, 1), 40, 392, 282);
 	modelStack.PopMatrix();
@@ -822,6 +853,9 @@ void Scene03::Render()
 		RenderTextOnScreen(meshList[GEO_TEXT], "Press E to pick up", glm::vec3(0, 1, 1), 20, 392, 200);
 		modelStack.PopMatrix();
 	}
+
+	std::string point("Points: " + std::to_string(pointcounter));
+	RenderTextOnScreen(meshList[GEO_TEXT], point.substr(0, 9), glm::vec3(0, 1, 0), 40, 0, 0);
 
 	std::string temp("FPS:" + std::to_string(fps));
 	RenderTextOnScreen(meshList[GEO_TEXT], temp.substr(0, 9), glm::vec3(0, 1, 0), 40, 0, 560);

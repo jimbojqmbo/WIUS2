@@ -164,11 +164,14 @@ private:
 	bool hasBall = true;
 	bool ballThrown = false;
 	float pickupDistance = 2.5f;
+	bool rimWasOverlapping = false;
 
 	float totalElapsedTime = 0.f;
     std::string elapsedTimeText;
 	bool timerStarted = false;
 	bool timerEnded = false;
+
+	int pointcounter = 0;
 };
 
 #endif
