@@ -184,7 +184,7 @@ private:
 	bool showScore = false;
 	bool showCrosshair = false;
 
-	float timelimit = 2.f;
+	float timelimit = 60.f;
 	bool restartgame = false;
 	glm::vec3 startarea;
 	float startarearadius;

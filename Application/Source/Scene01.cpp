@@ -245,9 +245,15 @@ void Scene01::Init()
 	meshList[ENTERBASKETBALLPROMPT] = MeshBuilder::GenerateQuad("enter goat", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[ENTERBASKETBALLPROMPT]->textureID = LoadTGA("Images//scene01 UI//teleporttobasketball.tga");
 
+	meshList[ENTERBALLBOUNCERPROMPT] = MeshBuilder::GenerateQuad("enter bounce", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[ENTERBALLBOUNCERPROMPT]->textureID = LoadTGA("Images//scene01 UI//teleporttoballbouncer.tga");
+
+	meshList[ENTERDUCKSHOOTINGPROMPT] = MeshBuilder::GenerateQuad("enter duck", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[ENTERDUCKSHOOTINGPROMPT]->textureID = LoadTGA("Images//scene01 UI//teleporttoduckshooting.tga");
+
 	{
-		meshList[GEO_DEER] = MeshBuilder::GenerateOBJMTL("demon", "Models//model_containment//obj//13573_Musk_Deer_v1_L3.obj", "Models//model_containment//mtl//13573_Musk_Deer_v1_L3.mtl");
-		meshList[GEO_DEER]->textureID = LoadTGA("Models//model_containment//textures//musk_deer.tga");
+		//meshList[GEO_DEER] = MeshBuilder::GenerateOBJMTL("demon", "Models//model_containment//obj//13573_Musk_Deer_v1_L3.obj", "Models//model_containment//mtl//13573_Musk_Deer_v1_L3.mtl");
+		//meshList[GEO_DEER]->textureID = LoadTGA("Models//model_containment//textures//musk_deer.tga");
 
 		meshList[GEO_COW] = MeshBuilder::GenerateOBJMTL("lowkeychillguy", "Models//model_containment//obj//cow.obj", "Models//model_containment//mtl//cow.mtl");
 		meshList[GEO_COW]->textureID = LoadTGA("Models//model_containment//textures//cow.tga");
@@ -298,6 +304,12 @@ void Scene01::Init()
 		// BASKETBALL COURT
 		meshList[BASKETBALLCOURT] = MeshBuilder::GenerateOBJMTL("basketball court", "Models//scene01 basketball court//basketball_court_low_poly_purple.obj", "Models//scene01 basketball court//basketball_court_low_poly_purple.mtl");
 		meshList[BASKETBALLCOURT]->textureID = LoadTGA("Images//scene01 basketball court//scene01 basketballcourt.tga");
+	}
+
+	{
+		// SCENE02 TENT
+		meshList[GEO_TENT] = MeshBuilder::GenerateOBJ("Tent", "Models//DuckShoot//Tents.obj");
+		meshList[GEO_TENT]->textureID = LoadTGA("Images//DSTent.tga");
 	}
 
 	// Setup invisible fence zones (AABB) using the coordinates provided
@@ -850,6 +862,81 @@ void Scene01::Update(double dt)
 				BasketballGameEntered = false;
 
 				// TELEPORT OUTSIDE ARENA
+				camera1.position = glm::vec3(112, 3.3, 62);
+			}
+		}
+	}
+
+	{
+		// ENTER BALL BOUNCER PROMPT
+
+		const glm::vec3 minPos(92, -1, -75);
+		const glm::vec3 maxPos(141, 6, -25);
+
+		auto isInsideBox = [](const glm::vec3& p, const glm::vec3& mn, const glm::vec3& mx) {
+			return (p.x >= mn.x && p.x <= mx.x) &&
+				(p.y >= mn.y && p.y <= mx.y) &&
+				(p.z >= mn.z && p.z <= mx.z);
+			};
+
+		bool inside = isInsideBox(camera1.position, minPos, maxPos);
+
+		// RESET PROMPTS FIRST
+		EnterBallBouncerGamePrompt = false;
+
+		// ENTER LOGIC
+		if (!BallBouncerGameEntered && inside)
+		{
+			EnterBallBouncerGamePrompt = true;
+
+			if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_ENTER))
+			{
+				BallBouncerGameEntered = true;
+				scene04request = true;
+			}
+			if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_F1))
+			{
+				BallBouncerGameEntered = false;
+
+				// TELEPORT OUTSIDE ARENA
+				camera1.position = glm::vec3(85, 3.3, -22);
+			}
+		}
+	}
+
+	{
+		// ENTER DUCK SHOOTING PROMPT
+
+		const glm::vec3 minPos(1, -1, 161);
+		const glm::vec3 maxPos(22, 6, 180);
+
+		auto isInsideBox = [](const glm::vec3& p, const glm::vec3& mn, const glm::vec3& mx) {
+			return (p.x >= mn.x && p.x <= mx.x) &&
+				(p.y >= mn.y && p.y <= mx.y) &&
+				(p.z >= mn.z && p.z <= mx.z);
+			};
+
+		bool inside = isInsideBox(camera1.position, minPos, maxPos);
+
+		// RESET PROMPTS FIRST
+		EnterDuckShootingGamePrompt = false;
+
+		// ENTER LOGIC
+		if (!DuckShootingGameEntered && inside)
+		{
+			EnterDuckShootingGamePrompt = true;
+
+			if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_ENTER))
+			{
+				DuckShootingGameEntered = true;
+				scene02request = true;
+			}
+			if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_F1))
+			{
+				DuckShootingGameEntered = false;
+
+				// TELEPORT OUTSIDE ARENA
+				camera1.position = glm::vec3(10, 3.3, 150);
 			}
 		}
 	}
@@ -989,6 +1076,19 @@ void Scene01::RenderGamePathways()
 	modelStack.PushMatrix();
 	modelStack.Translate(113, 0.3, 49);
 	modelStack.Scale(20, 0.1, 45);
+	modelStack.Rotate(90.f, 1.f, 0.f, 0.f);
+	modelStack.Rotate(180.f, 1.f, 0.f, 0.f);
+	meshList[GREYGROUND]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GREYGROUND]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GREYGROUND]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+	meshList[GREYGROUND]->material.kShininess = 5.0f;
+	RenderMesh(meshList[GREYGROUND], false);
+	modelStack.PopMatrix();
+
+	// PATH TO DUCK SHOOTING
+	modelStack.PushMatrix();
+	modelStack.Translate(15, 0.3, 100);
+	modelStack.Scale(22, 0.1, 116);
 	modelStack.Rotate(90.f, 1.f, 0.f, 0.f);
 	modelStack.Rotate(180.f, 1.f, 0.f, 0.f);
 	meshList[GREYGROUND]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
@@ -1716,28 +1816,6 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 			modelStack.PopMatrix();
 
 			modelStack.PushMatrix();
-			modelStack.Translate(0, 0.f, 61);
-			modelStack.Scale(3, 3, 3);
-			modelStack.Rotate(100, 0.f, 1.f, 0.f);
-			meshList[LOWPOLYBUILDING]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
-			meshList[LOWPOLYBUILDING]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-			meshList[LOWPOLYBUILDING]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-			meshList[LOWPOLYBUILDING]->material.kShininess = 5.0f;
-			RenderMesh(meshList[LOWPOLYBUILDING], true);
-			modelStack.PopMatrix();
-
-			modelStack.PushMatrix();
-			modelStack.Translate(19, 0.f, 55);
-			modelStack.Scale(3, 3, 3);
-			modelStack.Rotate(100, 0.f, 1.f, 0.f);
-			meshList[LOWPOLYBUILDING]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
-			meshList[LOWPOLYBUILDING]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-			meshList[LOWPOLYBUILDING]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-			meshList[LOWPOLYBUILDING]->material.kShininess = 5.0f;
-		 RenderMesh(meshList[LOWPOLYBUILDING], true);
-			modelStack.PopMatrix();
-
-			modelStack.PushMatrix();
 			modelStack.Translate(51, 0.f, 48);
 			modelStack.Scale(3, 3, 3);
 			modelStack.Rotate(100, 0.f, 1.f, 0.f);
@@ -1811,6 +1889,28 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 		meshList[CARNIVALTENT]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 		meshList[CARNIVALTENT]->material.kShininess = 5.0f;
 		RenderMesh(meshList[CARNIVALTENT], true);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(110, 0, -5);
+		modelStack.Scale(1, 1, 1);
+		modelStack.Rotate(310, 0, 1, 0);
+		meshList[CARNIVALTENT]->material.kAmbient = glm::vec3(0.1, 0.1, 0.1);
+		meshList[CARNIVALTENT]->material.kDiffuse = glm::vec3(0.8, 0, 0);
+		meshList[CARNIVALTENT]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[CARNIVALTENT]->material.kShininess = 5.0f;
+		RenderMesh(meshList[CARNIVALTENT], true);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(16, 0, 150);
+		modelStack.Scale(1, 1, 1);
+		modelStack.Rotate(0, 0, 1, 0);
+		meshList[GEO_TENT]->material.kAmbient = glm::vec3(0.1, 0.1, 0.1);
+		meshList[GEO_TENT]->material.kDiffuse = glm::vec3(0.8, 0, 0);
+		meshList[GEO_TENT]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[GEO_TENT]->material.kShininess = 5.0f;
+		RenderMesh(meshList[GEO_TENT], true);
 		modelStack.PopMatrix();
 
 		if (!player1InCar)
@@ -2073,6 +2173,20 @@ void Scene01::Render()
 		{
 			glDisable(GL_DEPTH_TEST);
 			RenderMeshOnScreen(meshList[ENTERBASKETBALLPROMPT], 800, 450, 1600, 900);
+			glEnable(GL_DEPTH_TEST);
+		}
+
+		if (EnterBallBouncerGamePrompt)
+		{
+			glDisable(GL_DEPTH_TEST);
+			RenderMeshOnScreen(meshList[ENTERBALLBOUNCERPROMPT], 800, 450, 1600, 900);
+			glEnable(GL_DEPTH_TEST);
+		}
+
+		if (EnterDuckShootingGamePrompt)
+		{
+			glDisable(GL_DEPTH_TEST);
+			RenderMeshOnScreen(meshList[ENTERDUCKSHOOTINGPROMPT], 800, 450, 1600, 900);
 			glEnable(GL_DEPTH_TEST);
 		}
 	}

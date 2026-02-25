@@ -172,6 +172,28 @@ void Application::Run()
 		scene->Update(m_timer.getElapsedTime());
 		scene->Render();
 
+		static bool isLeftUp = false;
+		static bool isRightUp = false;
+		int mouseX = MouseController::GetInstance()->GetMousePositionX();
+		int mouseY = MouseController::GetInstance()->GetMousePositionY();
+		//std::cout << mouseX << ", " << mouseY << std::endl;
+		if (!isLeftUp && MouseController::GetInstance()->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT))
+		{
+			isLeftUp = true;
+
+			//ominous runners
+			if (mouseX > 0 && mouseX < 1600 && mouseY > 0 && mouseY < 900) {
+				std::cout << "enter game" << std::endl;
+				scene1->Exit();
+				scene2->Init();
+				PlaySound(NULL, 0, 0);
+				scene = scene2;
+				sceneNum = SCENE_01;
+				//PlaySound(TEXT("Sounds//fah.wav"), NULL, SND_FILENAME | SND_ASYNC);
+			}
+		}
+
+		/*
 		// === FROM MAIN MENU TO SCENE01 ===
 		if (!isEnterUp && KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_1)) {
 			if (sceneNum == SCENE_GUI) {
@@ -252,21 +274,61 @@ void Application::Run()
 		else if (isEnterUp && KeyboardController::GetInstance()->IsKeyUp(GLFW_KEY_BACKSPACE)) {
 			isEnterUp = false;
 		}
+		*/
 
-		// === FROM SCENE01 TO SCENE03 (Basketball) ===
-		if (sceneNum == SCENE_01)
 		{
-			Scene01* s01 = dynamic_cast<Scene01*>(scene);
-			if (s01 && s01->scene03request)
+			// THE FOLLOWING SCENE SWITCHING MECHANICS ARE FOR SCENE01 ONLY
+
+
+			// === FROM SCENE01 TO SCENE02 (duck shooting) ===
+			if (sceneNum == SCENE_01)
 			{
-				s01->scene03request = false;
+				Scene01* s02 = dynamic_cast<Scene01*>(scene);
+				if (s02 && s02->scene02request)
+				{
+					s02->scene02request = false;
 
-				scene2->Exit();      // exit Scene01
-				scene4->Init();      // Scene03 is scene4 in your setup
-				//PlaySound(NULL, 0, 0);
+					scene2->Exit();      // exit Scene01
+					scene3->Init();
+					//PlaySound(NULL, 0, 0);
 
-				scene = scene4;
-				sceneNum = SCENE_03;
+					scene = scene3;
+					sceneNum = SCENE_02;
+				}
+			}
+
+			// === FROM SCENE01 TO SCENE03 (Basketball) ===
+			if (sceneNum == SCENE_01)
+			{
+				Scene01* s03 = dynamic_cast<Scene01*>(scene);
+				if (s03 && s03->scene03request)
+				{
+					s03->scene03request = false;
+
+					scene2->Exit();      // exit Scene01
+					scene4->Init();      // Scene03 is scene4 in your setup
+					//PlaySound(NULL, 0, 0);
+
+					scene = scene4;
+					sceneNum = SCENE_03;
+				}
+			}
+
+			// === FROM SCENE01 TO SCENE04 (Ball bouncer) ===
+			if (sceneNum == SCENE_01)
+			{
+				Scene01* s04 = dynamic_cast<Scene01*>(scene);
+				if (s04 && s04->scene04request)
+				{
+					s04->scene04request = false;
+
+					scene2->Exit();      // exit Scene01
+					scene5->Init();
+					//PlaySound(NULL, 0, 0);
+
+					scene = scene5;
+					sceneNum = SCENE_04;
+				}
 			}
 		}
 

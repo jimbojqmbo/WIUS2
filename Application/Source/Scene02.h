@@ -176,6 +176,21 @@ private:
 	std::string elapsedTimeText;
 	
 	PhysicsObject playerHitbox;
+
+	PhysicsObject trigger1;
+	PhysicsObject trigger2;
+	PhysicsObject trigger3;
+
+	PhysicsObject section1Barrier;
+	PhysicsObject section2Barrier;
+
+	bool trigger1Activated;
+	bool section1Start;
+	bool section1End;
+
+	bool trigger2Activated;
+	bool section2Start;
+	bool section2End;
 };
 
 #endif
