@@ -201,6 +201,18 @@ void Scene04::Init()
 		bounce_balls[i].ball.pos.y = 10;
 		bounce_balls[i].ball.pos.x = 2*i;
 	}
+	//baucket innit
+	for (int i = 0; i < ball_num; i++) {
+		rings[i].bucket.bounciness = 1;
+		
+	}
+
+	rings[0].bucket.pos.z = rings[0].radius*2;
+	rings[1].bucket.pos.x = rings[0].radius * 2;
+	rings[1].bucket.pos.z = -rings[0].radius * 2;
+	rings[2].bucket.pos.x = -rings[0].radius * 2;
+	rings[2].bucket.pos.z = -rings[0].radius * 2;
+
 	player.mass = 0;
 	player.bounciness = 1;
 	player.pos.y = 10;
@@ -429,8 +441,8 @@ void Scene04::walls_render(){
 void Scene04::buckets_render() {
 	for (int i = 0; i < ring_num; i++) {
 		modelStack.PushMatrix();
-		modelStack.Translate(bounce_balls[i].ball.pos.x, bounce_balls[i].ball.pos.y - (.5f), bounce_balls[i].ball.pos.z);
-		modelStack.Scale((bounce_balls[i].radius), (bounce_balls[i].radius), (bounce_balls[i].radius));
+		modelStack.Translate(rings[i].bucket.pos.x, rings[i].bucket.pos.y, rings[i].bucket.pos.z);
+		modelStack.Scale((rings[i].radius), (rings[i].height), (rings[i].radius));
 		meshList[GEO_BUCKET]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
 		meshList[GEO_BUCKET]->material.kDiffuse = glm::vec3(0.1f, 0.1f, 0.1f);
 		meshList[GEO_BUCKET]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
