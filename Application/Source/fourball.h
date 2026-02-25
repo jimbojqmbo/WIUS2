@@ -4,8 +4,8 @@
 class fourball
 {
 public:
-	//visibility
-	bool visible = false;
+	//rizzy varibles
+	bool thrown = false;
 	//size
 	float radius = 0.5;
 	//object

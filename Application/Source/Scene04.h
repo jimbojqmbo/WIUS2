@@ -164,7 +164,7 @@ private:
 	float ball_power = 50;
 	float power_max = 100;
 	float power_min = 0;
-	bool show_col = true;
+	bool show_col = false;
 	//functions
 
 	bool OverlapCircle2CYLINDER(const glm::vec3& pos1, float r1, const glm::vec3& pos2, float width,float height);

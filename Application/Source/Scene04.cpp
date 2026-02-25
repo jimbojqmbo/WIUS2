@@ -275,6 +275,9 @@ void Scene04::balls_update(double dt) {
 			glm::vec3 direction = camera.target - camera.position;
 			bounce_balls[ball_select].ball.pos = camera.position;
 			bounce_balls[ball_select].ball.AddImpulse(direction * ball_power);
+			bounce_balls[ball_select].ball.rotation = direction;
+			std::cout << bounce_balls[ball_select].ball.rotation.x << std::endl;
+			bounce_balls[ball_select].thrown = true;
 			ball_select++;
 		}
 
@@ -377,17 +380,23 @@ void Scene04::Render()
 
 void Scene04::balls_render() {
 	for (int i = 0; i < ball_num; i++) {
-		modelStack.PushMatrix();
-		modelStack.Translate(bounce_balls[i].ball.pos.x, bounce_balls[i].ball.pos.y, bounce_balls[i].ball.pos.z);
-		modelStack.Scale((bounce_balls[i].radius),(bounce_balls[i].radius),(bounce_balls[i].radius));
-		modelStack.Rotate(0 , 1.f, 1.f, 1.f);
-		RenderMesh(meshList[GEO_SPHERE], true);
-		modelStack.PopMatrix();
+		if (show_col == true) {
+			modelStack.PushMatrix();
+			modelStack.Translate(bounce_balls[i].ball.pos.x, bounce_balls[i].ball.pos.y, bounce_balls[i].ball.pos.z);
+			modelStack.Scale((bounce_balls[i].radius), (bounce_balls[i].radius), (bounce_balls[i].radius));
+			modelStack.Rotate(bounce_balls[i].ball.rotation.x, 1.f, 0.f, 0.f);
+			modelStack.Rotate(bounce_balls[i].ball.rotation.y, 0.f, 1.f, 0.f);
+			modelStack.Rotate(bounce_balls[i].ball.rotation.z, 0.f, 0.f, 1.f);
+			RenderMesh(meshList[GEO_SPHERE], true);
+			modelStack.PopMatrix();
+		}
 
 		modelStack.PushMatrix();
 		modelStack.Translate(bounce_balls[i].ball.pos.x, bounce_balls[i].ball.pos.y-(.5f), bounce_balls[i].ball.pos.z);
 		modelStack.Scale((bounce_balls[i].radius), (bounce_balls[i].radius), (bounce_balls[i].radius));
-		modelStack.Rotate(0, 1.f, 1.f, 1.f);
+		modelStack.Rotate(bounce_balls[i].ball.rotation.x, 1.f, 0.f, 0.f);
+		modelStack.Rotate(bounce_balls[i].ball.rotation.y, 0.f, 1.f, 0.f);
+		modelStack.Rotate(bounce_balls[i].ball.rotation.z, 0.f, 0.f, 1.f);
 		RenderMesh(meshList[GEO_DEER], true);
 		modelStack.PopMatrix();
 	}
@@ -741,11 +750,17 @@ void Scene04::HandleKeyPress(double dt)
 		camera.position += right * glm::vec3(0.1);// *speed; 
 		camera.target += right * glm::vec3(0.1);// *speed;
 	}
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_R))
+	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_R))
 	{
+		for (int i = 0; i < ball_num; i++) {
+			bounce_balls[i].thrown = false;
+		}
 		ball_select = 0;
 	}
-
+	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_C))
+	{
+		show_col = not(show_col);
+	}
 	
 	/*
 	if (KeyboardController::GetInstance()->IsKeyDown('I'))
@@ -849,33 +864,14 @@ void Scene04::ResolveCollisionBall(CollisionData cd) {
 		o2.pos += oc;
 		o2.vel = (o1.vel * (o2.bounciness));
 		o2.AddImpulse((cd.collisionNormal * (o2.bounciness))*o2.mass);
+		o2.angularVel = o2.vel;
 	}
 	if (o1.mass > 0.f) {
 		o1.pos -= oc;
+		o1.vel = -(o2.vel * (o1.bounciness));
 		o1.AddImpulse((-cd.collisionNormal * (o1.bounciness))* o1.mass);
+		o1.angularVel = o1.vel;
 	}
-	/*
-	
-	float invMass1 = (o1.mass > 0.f) ? 1.0f / o1.mass : 0.f;
-	float invMass2 = (o2.mass > 0.f) ? 1.0f / o2.mass : 0.f;
-	float totalInvMass = invMass1 + invMass2;
-
-	glm::vec3 correction = cd.collisionNormal * (cd.penetration / totalInvMass);
-	if (o1.mass > 0.f) o1.pos -= correction * invMass1;
-	if (o2.mass > 0.f) o2.pos += correction * invMass2;
-
-	glm::vec3 relVel = o2.vel - o1.vel;
-	float velAlongNormal = glm::dot(relVel, cd.collisionNormal);
-
-	if (velAlongNormal > 0) return; // already separating
-
-	float e = (std::fmin(o1.bounciness, o2.bounciness)); // restitution
-	float j = -(1 + e) * velAlongNormal / (invMass1 + invMass2);
-
-	glm::vec3 impulse = j * cd.collisionNormal;
-	if (o1.mass > 0.f) o1.AddImpulse(-impulse * invMass1);
-	if (o2.mass > 0.f) o2.AddImpulse(impulse * invMass2);
-	*/
 }
 
 bool Scene04::OverlapCircle2(const glm::vec3& pos1, float r1, const glm::vec3& pos2, float r2)
@@ -915,6 +911,8 @@ void Scene04::walls_resolve(CollisionData cd) {
 
 		o1.vel += impulse * invMass1;
 		o2.vel -= impulse * invMass2; // wall usually has invMass=0
+		o1.angularVel = o1.vel;
+		o2.angularVel = o2.vel;
 	}
 
 	// --- Friction along tangent ---
@@ -924,9 +922,11 @@ void Scene04::walls_resolve(CollisionData cd) {
 	if (lenT > 0.001f)
 	{
 		tangent /= lenT;
-		glm::vec3 frictionImpulse = -0.4f * tangent * glm::length(relativeVel); // simple friction
+		glm::vec3 frictionImpulse = -0.1f * tangent * glm::length(relativeVel); // simple friction
 		o1.vel += frictionImpulse * invMass1;
 		o2.vel -= frictionImpulse * invMass2;
+		o1.angularVel = o1.vel;
+		o2.angularVel = o2.vel;
 	}
 
 	// Clamp very small velocities
