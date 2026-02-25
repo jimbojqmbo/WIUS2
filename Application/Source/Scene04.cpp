@@ -138,13 +138,13 @@ void Scene04::Init()
 	meshList[GEO_GRASS] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
 	meshList[GEO_GRASS]->textureID = LoadTGA("Images//coast_sand_rocks_02 copy.tga");
 	//models
-	/*
-	meshList[GEO_DEER] = MeshBuilder::GenerateOBJMTL("demon","Models//model_containment//obj//13573_Musk_Deer_v1_L3.obj","Models//model_containment//mtl//13573_Musk_Deer_v1_L3.mtl");
+	
+	meshList[GEO_DEER] = MeshBuilder::GenerateOBJMTL("demon","Models//model_containment//obj//musk_deer.obj","Models//model_containment//mtl//musk_deer.mtl");
 	meshList[GEO_DEER]->textureID = LoadTGA("Models//model_containment//textures//musk_deer.tga");
 
 	meshList[GEO_COW] = MeshBuilder::GenerateOBJMTL("lowkeychillguy", "Models//model_containment//obj//cow.obj", "Models//model_containment//mtl//cow.mtl");
 	meshList[GEO_COW]->textureID = LoadTGA("Models//model_containment//textures//cow.tga");
-
+	/*
 	meshList[GEO_SHEEP] = MeshBuilder::GenerateOBJMTL("demon", "Models//model_containment//obj//13574_Marco_Polo_Sheep_v1_L3.obj", "Models//model_containment//mtl//13574_Marco_Polo_Sheep_v1_L3.mtl");
 	meshList[GEO_SHEEP]->textureID = LoadTGA("Models//model_containment//textures//13574_Marco_Polo_Diffuse.tga");
 	*/
@@ -383,6 +383,13 @@ void Scene04::balls_render() {
 		modelStack.Rotate(0 , 1.f, 1.f, 1.f);
 		RenderMesh(meshList[GEO_SPHERE], true);
 		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(bounce_balls[i].ball.pos.x, bounce_balls[i].ball.pos.y, bounce_balls[i].ball.pos.z);
+		modelStack.Scale((bounce_balls[i].radius), (bounce_balls[i].radius), (bounce_balls[i].radius));
+		modelStack.Rotate(0, 1.f, 1.f, 1.f);
+		RenderMesh(meshList[GEO_DEER], true);
+		modelStack.PopMatrix();
 	}
 }
 
@@ -397,6 +404,10 @@ void Scene04::walls_render(){
 	modelStack.Rotate(0, 1.f, 1.f, 1.f);
 	RenderMesh(meshList[GEO_CUBE], true);
 	modelStack.PopMatrix();
+}
+
+void Scene04::buckets_render() {
+
 }
 
 void Scene04::RenderSkybox(float scale,glm::vec3 camerapos)
