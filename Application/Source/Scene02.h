@@ -117,13 +117,15 @@ public:
 	virtual void Render();
 	virtual void Exit();
 
+	bool startingSceneRequest = false;
+
 private:
 	void HandleKeyPress(double dt);
 	void RenderMesh(Mesh* mesh, bool enableLight);
 
 	void RenderSkybox();
 
-	void RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey);
+	void RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey, float rotation);
 
 	void HandleMouseInput(double dt);
 
@@ -177,6 +179,7 @@ private:
 
 	int score;
 	int shotsFired;
+	int validTargets;
 
 	glm::vec3 targetHitboxSize;
 	glm::vec3 targetSize;
