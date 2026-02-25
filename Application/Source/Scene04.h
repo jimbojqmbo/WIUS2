@@ -11,6 +11,7 @@
 #include "FPCamera.h"
 #include "fourball.h"
 #include "ringbuck.h"
+#include "Scene01.h"
 
 
 class Scene04 : public Scene
@@ -168,6 +169,9 @@ private:
 	float power_max = 100;
 	float power_min = 0;
 	bool show_col = false;
+	bool playing = false;
+	//scene
+	Scene* main_scene = new Scene01();
 	//functions
 
 	bool OverlapCircle2CYLINDER(const glm::vec3& pos1, float r1, const glm::vec3& pos2, float width,float height);
@@ -180,6 +184,7 @@ private:
 	void walls_render();
 	void buckets_render();
 	void walls_resolve(CollisionData cd);
+	void go_back();
 
 };
 

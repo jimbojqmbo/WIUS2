@@ -964,3 +964,9 @@ void Scene04::walls_resolve(CollisionData cd) {
 	// Clamp very small velocities
 	if (glm::length(o1.vel) < 0.01f)o1.vel = glm::vec3(0.f);
 }
+
+void Scene04::go_back() {
+
+	this->Exit();
+	main_scene->Init();
+}
