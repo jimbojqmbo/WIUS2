@@ -96,6 +96,9 @@
     <ClCompile Include="Source\fourball.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\ringbuck.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application.h">
@@ -186,6 +189,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\fourball.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ringbuck.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

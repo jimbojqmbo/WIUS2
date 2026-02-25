@@ -145,11 +145,11 @@ void Scene04::Init()
 	meshList[GEO_COW] = MeshBuilder::GenerateOBJMTL("lowkeychillguy", "Models//model_containment//obj//cow.obj", "Models//model_containment//mtl//cow.mtl");
 	meshList[GEO_COW]->textureID = LoadTGA("Models//model_containment//textures//cow.tga");
 
-	meshList[GEO_SHEEP] = MeshBuilder::GenerateOBJMTL("demon", "Models//model_containment//obj//13574_Marco_Polo_Sheep_v1_L3.obj", "Models//model_containment//mtl//13574_Marco_Polo_Sheep_v1_L3.mtl");
-	meshList[GEO_SHEEP]->textureID = LoadTGA("Models//model_containment//textures//13574_Marco_Polo_Diffuse.tga");
+	//meshList[GEO_SHEEP] = MeshBuilder::GenerateOBJMTL("demon", "Models//model_containment//obj//13574_Marco_Polo_Sheep_v1_L3.obj", "Models//model_containment//mtl//13574_Marco_Polo_Sheep_v1_L3.mtl");
+	//meshList[GEO_SHEEP]->textureID = LoadTGA("Models//model_containment//textures//13574_Marco_Polo_Diffuse.tga");
 
-	meshList[GEO_BUCKET] = MeshBuilder::GenerateOBJ("dog", "Models//model_containment//obj//bucket.obj");
-	//meshList[GEO_BUCKET]->textureID = LoadTGA("Models//model_containment//textures//goal_bucket.tga");
+	meshList[GEO_BUCKET] = MeshBuilder::GenerateOBJMTL("dog", "Models//model_containment//obj//rv_bucket.obj", "Models//model_containment//mtl//rv_bucket.mtl");
+	meshList[GEO_BUCKET]->textureID = LoadTGA("Models//model_containment//textures//goal_bucket.tga");
 
 	// 16 x 16 is the number of columns and rows for the text
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);

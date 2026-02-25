@@ -10,6 +10,7 @@
 #include "Light.h"
 #include "FPCamera.h"
 #include "fourball.h"
+#include "ringbuck.h"
 
 
 class Scene04 : public Scene

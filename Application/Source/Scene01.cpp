@@ -261,8 +261,8 @@ void Scene01::Init()
 		meshList[GEO_COW] = MeshBuilder::GenerateOBJMTL("lowkeychillguy", "Models//model_containment//obj//cow.obj", "Models//model_containment//mtl//cow.mtl");
 		meshList[GEO_COW]->textureID = LoadTGA("Models//model_containment//textures//cow.tga");
 
-		meshList[GEO_SHEEP] = MeshBuilder::GenerateOBJMTL("demon", "Models//model_containment//obj//13574_Marco_Polo_Sheep_v1_L3.obj", "Models//model_containment//mtl//13574_Marco_Polo_Sheep_v1_L3.mtl");
-		meshList[GEO_SHEEP]->textureID = LoadTGA("Models//model_containment//textures//13574_Marco_Polo_Diffuse.tga");
+		//meshList[GEO_SHEEP] = MeshBuilder::GenerateOBJMTL("demon", "Models//model_containment//obj//13574_Marco_Polo_Sheep_v1_L3.obj", "Models//model_containment//mtl//13574_Marco_Polo_Sheep_v1_L3.mtl");
+		//meshList[GEO_SHEEP]->textureID = LoadTGA("Models//model_containment//textures//13574_Marco_Polo_Diffuse.tga");
 	}
 
 	{
