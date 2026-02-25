@@ -150,7 +150,7 @@ private:
 	PhysicsObject floor;
 	//ring
 	static const int  ring_num = 3;
-	fourball rings[ring_num];
+	ringbuck rings[ring_num];
 	//else
 	CollisionData cd;
 	//varibles

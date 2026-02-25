@@ -90,6 +90,7 @@ void Scene04::Init()
 	);
 
 	// enforce minimum Y at launch
+	/*
 	if (camera.position.y < 3.3f) {
 		camera.position.y = 3.3f;
 		// keep the camera looking at the same relative height (adjust target to avoid looking too far down)
@@ -97,6 +98,7 @@ void Scene04::Init()
 		// re-initialize so FPCamera::Init() recomputes its internal vectors (Refresh)
 		camera.Init(camera.position, camera.target, camera.up);
 	}
+	*/
 
 	// Init VBO here
 	for (int i = 0; i < NUM_GEOMETRY; ++i)
@@ -201,6 +203,18 @@ void Scene04::Init()
 		bounce_balls[i].ball.pos.y = 10;
 		bounce_balls[i].ball.pos.x = 2*i;
 	}
+	//baucket innit
+	for (int i = 0; i < ring_num; i++) {
+		rings[i].bucket.bounciness = 1;
+		
+	}
+
+	rings[0].bucket.pos.z = rings[0].radius*2;
+	rings[1].bucket.pos.x = rings[0].radius * 2;
+	rings[1].bucket.pos.z = -rings[0].radius * 2;
+	rings[2].bucket.pos.x = -rings[0].radius * 2;
+	rings[2].bucket.pos.z = -rings[0].radius * 2;
+
 	player.mass = 0;
 	player.bounciness = 1;
 	player.pos.y = 10;
@@ -229,13 +243,12 @@ void Scene04::Update(double dt)
 	HandleKeyPress(dt);
 
 	// Prevent camera from going below ground after camera updates
-	if (camera.position.y < 3.0f) {
-		camera.position.y = 3.0f;
-		if (camera.target.y < 3.0f)
-			camera.target.y = 3.0f;
+	if (camera.position.y < 15.0f) {
+		camera.position.y = 15.0f;
+		if (camera.target.y < 15.0f)
+			camera.target.y = 15.f;
 		camera.Init(camera.position, camera.target, camera.up);
 	}
-
 	camera.Update(dt);
 
 	
@@ -252,15 +265,13 @@ void Scene04::balls_update(double dt) {
 				ResolveCollisionBall(cd);
 			}
 		}
-		//ball agaisnt player test
-		if (OverlapCircle2Circle(bounce_balls[i].ball, bounce_balls[i].radius, player, bounce_balls[i].radius, cd)) {
-			//std::cout << "ball_touching" << std::endl;
-			//ResolveCollisionBall(cd);
-		}
 		//ball against floor
 		if (OverlapCircle2AABB(bounce_balls[i].ball, bounce_balls[i].radius, floor, glm::vec3 (floor_space, floor_height, floor_space),cd)) {
 			walls_resolve(cd);
-			//std::cout << "ball collide with floor" << std::endl;
+		}
+		//ball agaisnt buckets
+		for (int l = 0; l < ring_num; l++) {
+			ResolveCircle2Ring(bounce_balls[i].ball, bounce_balls[i].radius, rings[l].bucket, rings[l].radius, rings[l].sradius, rings[l].height);
 		}
 		
 	}
@@ -400,9 +411,6 @@ void Scene04::balls_render() {
 			modelStack.PushMatrix();
 			modelStack.Translate(bounce_balls[i].ball.pos.x, bounce_balls[i].ball.pos.y - (.5f), bounce_balls[i].ball.pos.z);
 			modelStack.Scale((bounce_balls[i].radius), (bounce_balls[i].radius), (bounce_balls[i].radius));
-			modelStack.Rotate(bounce_balls[i].ball.rotation.x, 1.f, 0.f, 0.f);
-			modelStack.Rotate(bounce_balls[i].ball.rotation.y, 0.f, 1.f, 0.f);
-			modelStack.Rotate(bounce_balls[i].ball.rotation.z, 0.f, 0.f, 1.f);
 			meshList[GEO_DEER]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
 			meshList[GEO_DEER]->material.kDiffuse = glm::vec3(0.1f, 0.1f, 0.1f);
 			meshList[GEO_DEER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
@@ -429,8 +437,8 @@ void Scene04::walls_render(){
 void Scene04::buckets_render() {
 	for (int i = 0; i < ring_num; i++) {
 		modelStack.PushMatrix();
-		modelStack.Translate(bounce_balls[i].ball.pos.x, bounce_balls[i].ball.pos.y - (.5f), bounce_balls[i].ball.pos.z);
-		modelStack.Scale((bounce_balls[i].radius), (bounce_balls[i].radius), (bounce_balls[i].radius));
+		modelStack.Translate(rings[i].bucket.pos.x, rings[i].bucket.pos.y, rings[i].bucket.pos.z);
+		modelStack.Scale((rings[i].radius), (rings[i].height), (rings[i].radius));
 		meshList[GEO_BUCKET]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
 		meshList[GEO_BUCKET]->material.kDiffuse = glm::vec3(0.1f, 0.1f, 0.1f);
 		meshList[GEO_BUCKET]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
@@ -798,17 +806,6 @@ void Scene04::HandleKeyPress(double dt)
 		light[0].position.y += static_cast<float>(dt) * 5.f;
 	*/
 	// Clamp camera height to adjusted limits
-	if (camera.position.y < 3.3f) {
-		camera.position.y = 3.3f;
-		if (camera.target.y < 3.3f)
-			camera.target.y = 3.3f;
-	}
-	if (camera.position.y > 3.8f) {
-		camera.position.y = 3.8f;
-		if (camera.target.y > 3.8f)
-			camera.target.y = 3.8f;
-	}
-
 }
 
 void Scene04::HandleMouseInput() {

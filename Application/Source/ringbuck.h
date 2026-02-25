@@ -5,7 +5,9 @@ class ringbuck
 {
 public:
 	//size
-	float radius = 0.5;
+	float radius = 2.f;
+	float sradius = 1.f;
+	float height = 1.5f;
 	//object
 	PhysicsObject bucket;
 	//functions
