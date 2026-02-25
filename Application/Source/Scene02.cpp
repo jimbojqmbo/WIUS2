@@ -346,23 +346,6 @@ void Scene02::Init()
 
 		walls.push_back(PhysicsObject(1.f, 7.85f, 21.1f, glm::vec3(5.f, 0.f, 139.44f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
 		walls.push_back(PhysicsObject(1.f, 7.85f, 21.1f, glm::vec3(-5.f, 0.f, 139.44f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
-
-		// Fence Zone Walls
-		walls.push_back(PhysicsObject(1.f, 7.74f, 10.904f, glm::vec3(10.15f, 0.f, 150.59f), 0.f, 0.2f, glm::vec3(0.f, 83.19f, 0.f)));
-		walls.push_back(PhysicsObject(1.f, 7.74f, 16.336f, glm::vec3(22.11f, 0.f, 155.5f), 0.f, 0.2f, glm::vec3(0.f, 58.7f, 0.f)));
-		walls.push_back(PhysicsObject(1.f, 7.74f, 21.56f, glm::vec3(33.3f, 0.f, 169.5f), 0.f, 0.2f, glm::vec3(0.f, 24.03f, 0.f)));
-		walls.push_back(PhysicsObject(1.f, 7.74f, 17.52f, glm::vec3(37.54f, 0.f, 188.f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
-		walls.push_back(PhysicsObject(1.f, 7.74f, 21.4f, glm::vec3(32.9f, 0.f, 205.5f), 0.f, 0.2f, glm::vec3(0.f, -24.f, 0.f)));
-		walls.push_back(PhysicsObject(1.f, 7.74f, 16.32f, glm::vec3(21.4f, 0.f, 218.f), 0.f, 0.2f, glm::vec3(0.f, -64.f, 0.f)));
-		walls.push_back(PhysicsObject(1.f, 7.74f, 10.14f, glm::vec3(9.515f, 0.f, 221.7f), 0.f, 0.2f, glm::vec3(0.f, -88.5f, 0.f)));
-
-		walls.push_back(PhysicsObject(1.f, 7.74f, 10.904f, glm::vec3(-10.15f, 0.f, 150.59f), 0.f, 0.2f, glm::vec3(0.f, -83.19f, 0.f)));
-		walls.push_back(PhysicsObject(1.f, 7.74f, 16.336f, glm::vec3(-22.11f, 0.f, 155.5f), 0.f, 0.2f, glm::vec3(0.f, -58.7f, 0.f)));
-		walls.push_back(PhysicsObject(1.f, 7.74f, 21.56f, glm::vec3(-33.3f, 0.f, 169.5f), 0.f, 0.2f, glm::vec3(0.f, -24.03f, 0.f)));
-		walls.push_back(PhysicsObject(1.f, 7.74f, 17.52f, glm::vec3(-37.54f, 0.f, 188.f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
-		walls.push_back(PhysicsObject(1.f, 7.74f, 21.4f, glm::vec3(-32.9f, 0.f, 205.5f), 0.f, 0.2f, glm::vec3(0.f, 24.f, 0.f)));
-		walls.push_back(PhysicsObject(1.f, 7.74f, 16.32f, glm::vec3(-21.4f, 0.f, 218.f), 0.f, 0.2f, glm::vec3(0.f, 64.f, 0.f)));
-		walls.push_back(PhysicsObject(1.f, 7.74f, 10.14f, glm::vec3(-9.515f, 0.f, 221.7f), 0.f, 0.2f, glm::vec3(0.f, 88.5f, 0.f)));
 	}
 
 	// Test Create Targets
