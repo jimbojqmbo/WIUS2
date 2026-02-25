@@ -82,6 +82,8 @@ public:
 		U_MATERIAL_DIFFUSE,
 		U_MATERIAL_SPECULAR,
 		U_MATERIAL_SHININESS,
+
+		// LIGHT 0
 		U_LIGHT0_TYPE,
 		U_LIGHT0_POSITION,
 		U_LIGHT0_COLOR,
@@ -93,6 +95,33 @@ public:
 		U_LIGHT0_COSCUTOFF,
 		U_LIGHT0_COSINNER,
 		U_LIGHT0_EXPONENT,
+
+		// LIGHT 1
+		U_LIGHT1_TYPE,
+		U_LIGHT1_POSITION,
+		U_LIGHT1_COLOR,
+		U_LIGHT1_POWER,
+		U_LIGHT1_KC,
+		U_LIGHT1_KL,
+		U_LIGHT1_KQ,
+		U_LIGHT1_SPOTDIRECTION,
+		U_LIGHT1_COSCUTOFF,
+		U_LIGHT1_COSINNER,
+		U_LIGHT1_EXPONENT,
+
+		// LIGHT 2
+		U_LIGHT2_TYPE,
+		U_LIGHT2_POSITION,
+		U_LIGHT2_COLOR,
+		U_LIGHT2_POWER,
+		U_LIGHT2_KC,
+		U_LIGHT2_KL,
+		U_LIGHT2_KQ,
+		U_LIGHT2_SPOTDIRECTION,
+		U_LIGHT2_COSCUTOFF,
+		U_LIGHT2_COSINNER,
+		U_LIGHT2_EXPONENT,
+
 		U_NUMLIGHTS,
 		U_COLOR_TEXTURE_ENABLED,
 		U_COLOR_TEXTURE,
@@ -146,7 +175,7 @@ private:
 
 	MatrixStack modelStack, viewStack, projectionStack;
 
-	static const int NUM_LIGHTS = 1;
+	static const int NUM_LIGHTS = 3;
 	Light light[NUM_LIGHTS];
 	bool enableLight;
 
@@ -199,10 +228,14 @@ private:
 	bool trigger1Activated;
 	bool section1Start;
 	bool section1End;
+	float trigger1Timer;
+	bool section1SpawnEnd;
 
 	bool trigger2Activated;
 	bool section2Start;
 	bool section2End;
+	float trigger2Timer;
+	bool section2SpawnEnd;
 };
 
 #endif
