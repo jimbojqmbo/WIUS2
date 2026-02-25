@@ -138,6 +138,7 @@ void Scene04::Init()
 	meshList[GEO_GRASS] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
 	meshList[GEO_GRASS]->textureID = LoadTGA("Images//coast_sand_rocks_02 copy.tga");
 	//models
+	/*
 	meshList[GEO_DEER] = MeshBuilder::GenerateOBJMTL("demon","Models//model_containment//obj//13573_Musk_Deer_v1_L3.obj","Models//model_containment//mtl//13573_Musk_Deer_v1_L3.mtl");
 	meshList[GEO_DEER]->textureID = LoadTGA("Models//model_containment//textures//musk_deer.tga");
 
@@ -146,7 +147,7 @@ void Scene04::Init()
 
 	meshList[GEO_SHEEP] = MeshBuilder::GenerateOBJMTL("demon", "Models//model_containment//obj//13574_Marco_Polo_Sheep_v1_L3.obj", "Models//model_containment//mtl//13574_Marco_Polo_Sheep_v1_L3.mtl");
 	meshList[GEO_SHEEP]->textureID = LoadTGA("Models//model_containment//textures//13574_Marco_Polo_Diffuse.tga");
-
+	*/
 	// 16 x 16 is the number of columns and rows for the text
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Images//Georgia.tga");
@@ -250,8 +251,8 @@ void Scene04::balls_update(double dt) {
 		}
 		//ball agaisnt player test
 		if (OverlapCircle2Circle(bounce_balls[i].ball, bounce_balls[i].radius, player, bounce_balls[i].radius, cd)) {
-			std::cout << "ball_touching" << std::endl;
-			ResolveCollisionBall(cd);
+			//std::cout << "ball_touching" << std::endl;
+			//ResolveCollisionBall(cd);
 		}
 		//ball against floor
 		if (OverlapCircle2AABB(bounce_balls[i].ball, bounce_balls[i].radius * 2, floor, glm::vec3 (floor_space, floor_height*2, floor_space),cd)) {
@@ -268,12 +269,12 @@ void Scene04::balls_update(double dt) {
 
 		isLeftUp = true;
 		if (ball_select < 10) {
-			std::cout << "mouse pressed" << std::endl;
+			std::cout << bounce_balls[ball_select].ball.mass << std::endl;
+			bounce_balls[ball_select].ball.vel = glm::vec3(0.f);
 			//camera.target
-			glm::vec3 direction = camera.target - player.pos;
-			//glm::vec3 direction = glm::normalize(camera.front);
+			glm::vec3 direction = camera.target - camera.position;
 			bounce_balls[ball_select].ball.pos = camera.position;
-			bounce_balls[ball_select].ball.AddImpulse(direction * 5.f);
+			bounce_balls[ball_select].ball.AddImpulse(direction * ball_power);
 			ball_select++;
 		}
 
