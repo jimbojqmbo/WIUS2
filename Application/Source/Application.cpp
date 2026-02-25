@@ -243,7 +243,7 @@ void Application::Run()
 				scene1->Init();
 				PlaySound(NULL, 0, 0);
 				scene = scene1;
-				sceneNum = SCENE_04;
+				sceneNum = SCENE_GUI;
 
 				glViewport(0, 0, 1600, 900);
 			}
@@ -251,6 +251,23 @@ void Application::Run()
 		}
 		else if (isEnterUp && KeyboardController::GetInstance()->IsKeyUp(GLFW_KEY_BACKSPACE)) {
 			isEnterUp = false;
+		}
+
+		// === FROM SCENE01 TO SCENE03 (Basketball) ===
+		if (sceneNum == SCENE_01)
+		{
+			Scene01* s01 = dynamic_cast<Scene01*>(scene);
+			if (s01 && s01->scene03request)
+			{
+				s01->scene03request = false;
+
+				scene2->Exit();      // exit Scene01
+				scene4->Init();      // Scene03 is scene4 in your setup
+				//PlaySound(NULL, 0, 0);
+
+				scene = scene4;
+				sceneNum = SCENE_03;
+			}
 		}
 
 		if (KeyboardController::GetInstance()->IsKeyPressed('N'))

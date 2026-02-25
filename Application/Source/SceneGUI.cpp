@@ -11,6 +11,7 @@
 //Include GLFW
 #include <GLFW/glfw3.h>
 
+#include "Application.h"
 #include "shader.hpp"
 #include "Application.h"
 #include "MeshBuilder.h"
@@ -227,6 +228,7 @@ void SceneGUI::HandleMouseInput() {
 		//ominous runners
 		if (mouseX > 84 && mouseX < 426 && mouseY > 296 && mouseY < 876) {
 			std::cout << "bumper car" << std::endl;
+			
 		}
 		//ominous runners
 

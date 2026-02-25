@@ -2,6 +2,7 @@
 #define SCENE_01_H
 
 #include "CollisionDetection.h"
+#include "PhysicsObject.h"
 
 #include "Scene.h"
 #include "Mesh.h"
@@ -9,6 +10,10 @@
 #include "MatrixStack.h"
 #include "Light.h"
 #include "FPCamera.h"
+
+#include <glm/glm.hpp>
+#include <vector>
+#include <utility>
 
 struct Player
 {
@@ -33,13 +38,19 @@ public:
 		GEO_CYLINDER,
 		GEO_TEXT,
 		GEO_SHADOW,
+		GEO_DEER,
+		GEO_COW,
+		GEO_SHEEP,
 
 		GEO_NOTE,
 		BUMPERCAR,
+		BUMPERCARTENT,
 		TALLTREE,
 		LOWPOLYBUILDING,
 		BLOXBURGTREE,
 		CARTOONFENCE,
+		CARNIVALTENT,
+		BASKETBALLCOURT,
 
 		GEO_SPARKLING_STAR,
 
@@ -56,11 +67,15 @@ public:
 		GEO_EYEBALL_MTL,
 		JEFFREYEPSTEIN,
 		FOREST,
+		BIRCHTREE,
 
 		EXITBUTTON,
 		PAUSEMENU,
 		PLAYER1INDICATORUI,
 		PLAYER2INDICATORUI,
+		ENTERBUMPERCARGAMEPROMPT,
+		EXITBUMPERCARGAMEPROMPT,
+		ENTERBASKETBALLPROMPT,
 
 		NUM_GEOMETRY,
 	};
@@ -109,6 +124,8 @@ public:
 	virtual void Render();
 	virtual void Exit();
 
+	bool scene03request = false;
+
 private:
 	void HandleKeyPress1(FPCamera& cam, double dt);
 	void HandleKeyPress2(FPCamera& cam, double dt);
@@ -143,6 +160,7 @@ private:
 	void RenderTextOnScreen(Mesh* mesh, std::string text, glm::vec3 color, float size, float x, float y);
 
 	void RenderPathway();
+	void RenderGamePathways();
 
 	glm::vec3 change;
 
@@ -159,6 +177,13 @@ private:
 
 	float fps = 0;
 
+	bool BumperCarGameEntered = false;
+	bool EnterBumperCarGamePrompt = false;
+	bool ExitBumperCarGamePrompt = false;
+
+	bool BasketballGameEntered = false;
+	bool EnterBasketballGamePrompt = false;
+
 	// Physics / bumper-car properties
 	glm::vec3 cameraVelocity1 = glm::vec3(0.0f);
 	glm::vec3 cameraVelocity2 = glm::vec3(0.0f);
@@ -168,16 +193,20 @@ private:
 	float linearDamping = 2;   // damping per second (friction)
 	float maxSpeed = 25;       // limit speed from exploding
 	float driveAcceleration = 240; // acceleration (units/s^2) from input
-	float cameraRadius = 3.5;    // collision radius per camera
-
-	// Resolve collision by applying an impulse to velocities and a small positional correction (XZ-plane)
-	void ResolveCameraCollisionsWithBounce(FPCamera& a, glm::vec3& velA, FPCamera& b, glm::vec3& velB, double dt);
+	float cameraRadius = 3.5f;    // collision radius per camera
 
 	bool pausemenu = false;
 	bool isGameRunning = true;
 
 	bool player1InCar = false;
 	bool player2InCar = false;
+
+	// Invisible fence collision zones (AABB min/max)
+	// Each entry: first = min, second = max
+	std::vector<std::pair<glm::vec3, glm::vec3>> fenceZones;
+
+	// Helper to query fence collision
+	bool IsInsideFence(const glm::vec3& p) const;
 	
 };
 
