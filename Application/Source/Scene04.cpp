@@ -239,23 +239,22 @@ void Scene04::Update(double dt)
 }
 
 void Scene04::balls_update(double dt) {
-	float br = bounce_balls[0].radius;
 	for (int i = 0; i < ball_num; i++) {
 		
 		//collisions
 		// ball against ball
 		for (int j = i + 1; j < ball_num; j++) {
-			if (OverlapCircle2Circle(bounce_balls[i].ball, br, bounce_balls[j].ball, br,cd)) {
+			if (OverlapCircle2Circle(bounce_balls[i].ball, bounce_balls[i].radius, bounce_balls[j].ball, bounce_balls[j].radius,cd)) {
 				ResolveCollisionBall(cd);
 			}
 		}
 		//ball agaisnt player test
-		if (OverlapCircle2Circle(bounce_balls[i].ball, br, player, br, cd)) {
+		if (OverlapCircle2Circle(bounce_balls[i].ball, bounce_balls[i].radius, player, bounce_balls[i].radius, cd)) {
 			std::cout << "ball_touching" << std::endl;
 			ResolveCollisionBall(cd);
 		}
 		//ball against floor
-		if (OverlapCircle2AABB(bounce_balls[i].ball, br * 2, floor, glm::vec3 (floor_space, floor_height*2, floor_space),cd)) {
+		if (OverlapCircle2AABB(bounce_balls[i].ball, bounce_balls[i].radius * 2, floor, glm::vec3 (floor_space, floor_height*2, floor_space),cd)) {
 			walls_resolve(cd);
 			//std::cout << "ball collide with floor" << std::endl;
 		}
@@ -393,7 +392,7 @@ void Scene04::walls_render(){
 	meshList[GEO_CUBE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 	meshList[GEO_CUBE]->material.kShininess = 5.0f;
 	modelStack.Translate(floor.pos.x, floor.pos.y, floor.pos.z);
-	modelStack.Scale(floor_space/9, floor_height, floor_space/9);
+	modelStack.Scale(floor_space/9.5, floor_height/9.5, floor_space/9.5);
 	modelStack.Rotate(0, 1.f, 1.f, 1.f);
 	RenderMesh(meshList[GEO_CUBE], true);
 	modelStack.PopMatrix();

@@ -146,8 +146,6 @@ private:
 	PhysicsObject player;//test
 	//AABB
 	PhysicsObject floor;
-	//OOB
-	PhysicsObject ball_slide;
 	//ring
 	static const int  ring_num = 3;
 	fourball rings[ring_num];
