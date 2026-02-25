@@ -167,12 +167,6 @@ void Scene02::Init()
 	meshList[GEO_FENCE3] = MeshBuilder::GenerateOBJ("Fence3", "Models//DuckShoot//Fence3.obj");
 	meshList[GEO_FENCE3]->textureID = LoadTGA("Images//DSFence.tga");
 
-	meshList[GEO_FENCE4] = MeshBuilder::GenerateOBJ("Fence4", "Models//DuckShoot//Fence4.obj");
-	meshList[GEO_FENCE4]->textureID = LoadTGA("Images//DSFence.tga");
-
-	meshList[GEO_FENCE5] = MeshBuilder::GenerateOBJ("Fence5", "Models//DuckShoot//Fence5.obj");
-	meshList[GEO_FENCE5]->textureID = LoadTGA("Images//DSFence.tga");
-
 	meshList[GEO_TENT] = MeshBuilder::GenerateOBJ("Tent", "Models//DuckShoot//Tents.obj");
 	meshList[GEO_TENT]->textureID = LoadTGA("Images//DSTent.tga");
 
@@ -241,6 +235,15 @@ void Scene02::Init()
 	blasterMovingUp = false;
 	gameEnded = false;
 
+	trigger1Activated = false;
+	trigger2Activated = false;
+
+	section1Start = false;
+	section1End = false;
+	section2Start = false;
+	section2End = false;
+
+
 	blasterAngle = 0.f;
 	score = 0.f;
 
@@ -249,6 +252,13 @@ void Scene02::Init()
 	targetHitboxSize *= targetSize;
 
 	playerHitbox = PhysicsObject(2.f,2.f,2.f, glm::vec3(0.f,1.f,0.f), 0.f, 0.f, glm::vec3(0.f, 0.f, 0.f));
+
+	trigger1 = PhysicsObject(10.f, 4.f, 10.f, glm::vec3(-17.9f, 0.f, 31.1f), 0.f, 0.f, glm::vec3(0.f, 0.f, 0.f));
+	trigger2 = PhysicsObject(10.f, 4.f, 10.f, glm::vec3(-17.9f, 0.f, 106.7f), 0.f, 0.f, glm::vec3(0.f, 0.f, 0.f));
+	trigger3 = PhysicsObject(10.f, 4.f, 10.f, glm::vec3(0.f, 0.f, 146.3f), 0.f, 0.f, glm::vec3(0.f, 0.f, 0.f));
+
+	section1Barrier = PhysicsObject(10.648f, 17.456f, 2.336, glm::vec3(-17.9, 0.f, 40.f), 0.f, 0.f, glm::vec3(0.f, 0.f, 0.f));
+	section2Barrier = PhysicsObject(10.648f, 17.456f, 2.336, glm::vec3(-17.9, 0.f, 117.f), 0.f, 0.f, glm::vec3(0.f, 0.f, 0.f));
 
 	m_parameters[U_TEXT_ENABLED] = glGetUniformLocation(m_programID, "textEnabled");
 	m_parameters[U_TEXT_COLOR] = glGetUniformLocation(m_programID, "textColor");
@@ -499,78 +509,6 @@ void Scene02::Update(double dt)
 	if (KeyboardController::GetInstance()->IsKeyDown('P'))
 		light[0].position.y += static_cast<float>(dt) * 5.f;
 
-	bool isKeyPressed = KeyboardController::GetInstance()->IsKeyDown('B');
-	if (isKeyPressed && !wasKeyPressed)
-	{
-		// Test Create tent1 Targets
-		glm::vec3 startPos = glm::vec3(1.f, 2.2f,24.3f);
-		glm::vec3 endPos = glm::vec3(1.f, 2.2f, 35.5f);
-		float speed = 3.f;
-		int repeats = 2;
-
-		SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 1);
-
-		startPos = glm::vec3(5.692f, 4.f, 14.2f);
-		endPos = glm::vec3(10.93f, 4.f, 25.f);
-		speed = 5.f;
-		repeats = 5;
-
-		SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 2);
-
-		startPos = glm::vec3(8.185f, 4.f, 40.8f);
-		endPos = glm::vec3(10.93f, 4.f, 30.f);
-		speed = 5.f;
-		repeats = 5;
-
-		SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, -5);
-
-		startPos = glm::vec3(16.72f, 5.616f, 21.1f);
-		endPos = glm::vec3(16.72f, 5.616f, 32.9f);
-		speed = 5.f;
-		repeats = 5;
-
-		SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, -5);
-
-		// Test Create tent2 Targets
-
-		startPos = glm::vec3(1.236f, 2.2f, 98.4f);
-		endPos = glm::vec3(1.236f, 2.2f, 113.9f);
-		speed = 5.f;
-		repeats = 5;
-
-		SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 1);
-
-		startPos = glm::vec3(2.736f, 2.2f, 91.f);
-		endPos = glm::vec3(8.47f, 2.2f, 100.7f);
-		speed = 5.f;
-		repeats = 5;
-
-		SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 1);
-
-		startPos = glm::vec3(7.56f, 2.2f, 117.f);
-		endPos = glm::vec3(10.68f, 2.2f, 105.8f);
-		speed = 5.f;
-		repeats = 5;
-
-		SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 1);
-
-		startPos = glm::vec3(13.94f, 4.2f, 96.1f);
-		endPos = glm::vec3(13.94f, 4.2f, 112.f);
-		speed = 5.f;
-		repeats = 5;
-
-		SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 1);
-			
-		startPos = glm::vec3(16.85f, 6.2f, 112.f);
-		endPos = glm::vec3(16.85f, 6.2f, 96.1f);
-		speed = 5.f;
-		repeats = 5;
-
-		SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 1);
-	}
-
-	wasKeyPressed = isKeyPressed;
-
 	camera.Update(dt);
 
 	glm::vec3 oldPos = playerHitbox.pos;
@@ -586,6 +524,19 @@ void Scene02::Update(double dt)
 		{
 			playerHitbox.pos = oldPos;
 			break;
+		}
+	}
+
+	// Barriers
+	{
+		CollisionData cd;
+		if (OverlapSphere2OBB(playerHitbox, section1Barrier, cd) && !section1End)
+		{
+			playerHitbox.pos = oldPos;
+		}
+		if (OverlapSphere2OBB(playerHitbox, section2Barrier, cd) && !section2End)
+		{
+			playerHitbox.pos = oldPos;
 		}
 	}
 
@@ -673,6 +624,118 @@ void Scene02::Update(double dt)
 			else {
 				blasterAngle = 0.f;
 				blasterAnimating = false;
+			}
+		}
+	}
+
+	// Triggers
+	{
+		CollisionData cd;
+		if (OverlapSphere2OBB(playerHitbox, trigger1, cd) && !trigger1Activated)
+		{
+			glm::vec3 startPos = glm::vec3(1.f, 2.2f, 24.3f);
+			glm::vec3 endPos = glm::vec3(1.f, 2.2f, 35.5f);
+			float speed = 3.f;
+			int repeats = 2;
+
+			SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 1);
+
+			startPos = glm::vec3(5.692f, 4.f, 14.2f);
+			endPos = glm::vec3(10.93f, 4.f, 25.f);
+			speed = 5.f;
+			repeats = 5;
+
+			SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 2);
+
+			startPos = glm::vec3(8.185f, 4.f, 40.8f);
+			endPos = glm::vec3(10.93f, 4.f, 30.f);
+			speed = 5.f;
+			repeats = 5;
+
+			SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, -5);
+
+			startPos = glm::vec3(16.72f, 5.616f, 21.1f);
+			endPos = glm::vec3(16.72f, 5.616f, 32.9f);
+			speed = 5.f;
+			repeats = 5;
+
+			SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, -5);
+
+			trigger1Activated = true;
+			section1Start = true;
+		}
+
+		if (OverlapSphere2OBB(playerHitbox, trigger2, cd) && !trigger2Activated)
+		{
+			glm::vec3 startPos = glm::vec3(1.f, 2.2f, 24.3f);
+			glm::vec3 endPos = glm::vec3(1.f, 2.2f, 35.5f);
+			float speed = 3.f;
+			int repeats = 2;
+
+			startPos = glm::vec3(1.236f, 2.2f, 98.4f);
+			endPos = glm::vec3(1.236f, 2.2f, 113.9f);
+			speed = 5.f;
+			repeats = 5;
+
+			SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 1);
+
+			startPos = glm::vec3(2.736f, 2.2f, 91.f);
+			endPos = glm::vec3(8.47f, 2.2f, 100.7f);
+			speed = 5.f;
+			repeats = 5;
+
+			SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 1);
+
+			startPos = glm::vec3(7.56f, 2.2f, 117.f);
+			endPos = glm::vec3(10.68f, 2.2f, 105.8f);
+			speed = 5.f;
+			repeats = 5;
+
+			SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 1);
+
+			startPos = glm::vec3(13.94f, 4.2f, 96.1f);
+			endPos = glm::vec3(13.94f, 4.2f, 112.f);
+			speed = 5.f;
+			repeats = 5;
+
+			SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 1);
+
+			startPos = glm::vec3(16.85f, 6.2f, 112.f);
+			endPos = glm::vec3(16.85f, 6.2f, 96.1f);
+			speed = 5.f;
+			repeats = 5;
+
+
+			SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 1);
+			trigger2Activated = true;
+			section2Start = true;
+		}
+
+		if (OverlapSphere2OBB(playerHitbox, trigger3, cd) && !gameEnded)
+		{
+			if (section1End && section2End)
+			{
+				gameEnded = true;
+			}
+		}
+	}
+
+	// Section End Conditions
+	{
+		if (section1Start)
+		{
+			if (targets.empty())
+			{
+				section1Start = false;
+				section1End = true;
+			}
+		}
+		if (section2Start)
+		{
+			if (targets.empty())
+			{
+				section2Start = false;
+				section2End = true;
 			}
 		}
 	}
@@ -983,16 +1046,6 @@ void Scene02::Render()
 		meshList[GEO_FENCE3]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 		meshList[GEO_FENCE3]->material.kShininess = 5.0f;
 
-		meshList[GEO_FENCE4]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
-		meshList[GEO_FENCE4]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-		meshList[GEO_FENCE4]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[GEO_FENCE4]->material.kShininess = 5.0f;
-
-		meshList[GEO_FENCE5]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
-		meshList[GEO_FENCE5]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-		meshList[GEO_FENCE5]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[GEO_FENCE5]->material.kShininess = 5.0f;
-
 		meshList[GEO_TENT]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_TENT]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_TENT]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
@@ -1144,18 +1197,6 @@ void Scene02::Render()
 			modelStack.Translate(0.f, 0.f, 0.f);
 			modelStack.Scale(1.f, 1.f, 1.f);
 			RenderMesh(meshList[GEO_FENCE3], true);
-			modelStack.PopMatrix();
-
-			modelStack.PushMatrix();
-			modelStack.Translate(0.f, 0.f, 0.f);
-			modelStack.Scale(1.f, 1.f, 1.f);
-			RenderMesh(meshList[GEO_FENCE4], true);
-			modelStack.PopMatrix();
-
-			modelStack.PushMatrix();
-			modelStack.Translate(0.f, 0.f, 0.f);
-			modelStack.Scale(1.f, 1.f, 1.f);
-			RenderMesh(meshList[GEO_FENCE5], true);
 			modelStack.PopMatrix();
 		}
 
