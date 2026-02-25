@@ -156,6 +156,9 @@ void Scene03::Init()
 	meshList[GEO_TENT] = MeshBuilder::GenerateOBJMTL("CarnivalTent", "Models//alvintent.obj", "Models//alvintent.mtl");
 	meshList[GEO_TENT]->textureID = LoadTGA("Images//alvintent.tga");
 
+	meshList[GEO_HOTDOG] = MeshBuilder::GenerateOBJMTL("hotdog", "Models//hotdog.obj", "Models//hotdog.mtl");
+	meshList[GEO_HOTDOG]->textureID = LoadTGA("Images//hotdog.tga");
+
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
 
@@ -409,6 +412,10 @@ void Scene03::Update(double dt)
 	else {
 		inStartArea = false;
 	}
+
+	std::cout << light->position.x << ", " <<
+				 light->position.y << ", " <<
+				 light->position.z << std::endl;
 
 	if (inStartArea) {
 		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_R))
@@ -930,10 +937,17 @@ void Scene03::Render()
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	modelStack.Translate(light->position.x, light->position.y, light->position.z);
-	modelStack.Scale(3.f, 3.f, 3.f);
+	modelStack.Translate(25.f, 6.f, -20.f);
+	modelStack.Scale(8.f, 8.f, 8.f);
 	modelStack.Rotate(225.f, 0.f, 1.f, 0.f);
 	RenderMesh(meshList[GEO_TENT], false);
+	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	modelStack.Translate(-18.f, 0.f, 8.f);
+	modelStack.Scale(1.f, 1.f, 1.f);
+	modelStack.Rotate(-90.f, 0.f, 1.f, 0.f);
+	RenderMesh(meshList[GEO_HOTDOG], false);
 	modelStack.PopMatrix();
 
 	//modelStack.PushMatrix();

@@ -47,6 +47,7 @@ public:
 		GEO_TORUS,
 		GEO_BLACKWALL,
 		GEO_TENT,
+		GEO_HOTDOG,
 		NUM_GEOMETRY,
 	};
 
