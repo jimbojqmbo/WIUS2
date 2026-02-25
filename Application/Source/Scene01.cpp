@@ -236,6 +236,9 @@ void Scene01::Init()
 	meshList[PAUSEMENU] = MeshBuilder::GenerateQuad("pause", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[PAUSEMENU]->textureID = LoadTGA("Images//scene01pausemenuv2.tga");
 
+	meshList[MAINPAUSE] = MeshBuilder::GenerateQuad("pause", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[MAINPAUSE]->textureID = LoadTGA("Images//mainpausemenu.tga");
+
 	meshList[ENTERBUMPERCARGAMEPROMPT] = MeshBuilder::GenerateQuad("enter", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[ENTERBUMPERCARGAMEPROMPT]->textureID = LoadTGA("Images//bumper car game prompts//enterbumpercargame.tga");
 
@@ -258,8 +261,8 @@ void Scene01::Init()
 		meshList[GEO_COW] = MeshBuilder::GenerateOBJMTL("lowkeychillguy", "Models//model_containment//obj//cow.obj", "Models//model_containment//mtl//cow.mtl");
 		meshList[GEO_COW]->textureID = LoadTGA("Models//model_containment//textures//cow.tga");
 
-		meshList[GEO_SHEEP] = MeshBuilder::GenerateOBJMTL("demon", "Models//model_containment//obj//13574_Marco_Polo_Sheep_v1_L3.obj", "Models//model_containment//mtl//13574_Marco_Polo_Sheep_v1_L3.mtl");
-		meshList[GEO_SHEEP]->textureID = LoadTGA("Models//model_containment//textures//13574_Marco_Polo_Diffuse.tga");
+		//meshList[GEO_SHEEP] = MeshBuilder::GenerateOBJMTL("demon", "Models//model_containment//obj//13574_Marco_Polo_Sheep_v1_L3.obj", "Models//model_containment//mtl//13574_Marco_Polo_Sheep_v1_L3.mtl");
+		//meshList[GEO_SHEEP]->textureID = LoadTGA("Models//model_containment//textures//13574_Marco_Polo_Diffuse.tga");
 	}
 
 	{
@@ -2443,7 +2446,7 @@ void Scene01::Render()
 	{
 		glDisable(GL_DEPTH_TEST);
 		glViewport(0, 0, 1600, 900);
-		RenderMeshOnScreen(meshList[PAUSEMENU], 800, 450, 1600, 900);
+		RenderMeshOnScreen(meshList[MAINPAUSE], 800, 450, 1600, 900);
 		glEnable(GL_DEPTH_TEST);
 		return;
 	}
@@ -2835,8 +2838,8 @@ void Scene01::HandleKeyPress2(FPCamera& cam, double dt)
 			// float dt = Timer::GetDeltaTime(); 
 			float dt = 0.016f; // Placeholder for ~60fps
 
-			const float rotationSpeed = 50.0f; // Adjusted for real dt
-			float turnAmount = rotationSpeed * dt;
+			const float rotationSpeed = 125.0f; // Adjusted for real dt
+			float turnAmount = (rotationSpeed * dt);
 
 			// 2. Update Angles (The Source of Truth)
 			if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_I)) cam.altitude += turnAmount;

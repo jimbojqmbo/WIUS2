@@ -10,6 +10,7 @@
 #include "Light.h"
 #include "FPCamera.h"
 #include "fourball.h"
+#include "ringbuck.h"
 
 
 class Scene04 : public Scene
@@ -34,6 +35,7 @@ public:
 		GEO_DEER,
 		GEO_COW,
 		GEO_SHEEP,
+		GEO_BUCKET,
 
 		GEO_NOTE,
 
@@ -148,12 +150,12 @@ private:
 	PhysicsObject floor;
 	//ring
 	static const int  ring_num = 3;
-	fourball rings[ring_num];
+	ringbuck rings[ring_num];
 	//else
 	CollisionData cd;
 	//varibles
 	// game scene
-	float gravity = -20;
+	float gravity = -50;
 
 	float floor_space = 10;
 	float floor_height = 0.25;

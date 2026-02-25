@@ -1,0 +1,85 @@
+# Blender 4.4.3 MTL File: 'Scene_Night.blend'
+# www.blender.org
+
+newmtl Material.001
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump -bm 10.000000 C:/Users/green/Pictures/Blender Textures/aerial_grass_rock_2k_jpg/aerial_grass_rock_nor_2k.jpg
+
+newmtl Material.002
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Users/green/Pictures/Blender Textures/rock_ground_02_2k_jpg/rock_ground_02_albedo_2k.jpg
+map_Bump -bm 10.000000 C:/Users/green/Pictures/Blender Textures/rock_ground_02_2k_jpg/rock_ground_02_nor_2k.jpg
+
+newmtl Material.003
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Users/green/Pictures/Blender Textures/186-1868550_grass-blade-texture-png-grass.png
+
+newmtl Material.004
+Ns 360.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Material.005
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump -bm 10.000000 C:/Users/green/Pictures/Blender Textures/brown_planks_03_2k_jpg/brown_planks_03_Nor_2k.jpg
+
+newmtl Material.006
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Users/green/Pictures/Blender Textures/dry-tree-branch-isolated-white-background-png-file-transparent-also-available-wooden-fallen-to-ground-high-quality-160380970.jpg
+
+newmtl Material.010
+Ns 9.452158
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Users/green/Pictures/Blender Textures/tree_bark_03_2k_jpg/tree_bark_03_diff_2k.jpg
+
+newmtl Material.013
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Users/green/Pictures/Blender Textures/Leaf 2 front 1K/Leaf 2 front 1K/Leaf 2 front 1K_ALB.jpg

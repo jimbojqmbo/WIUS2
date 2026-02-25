@@ -90,6 +90,7 @@ void Scene04::Init()
 	);
 
 	// enforce minimum Y at launch
+	/*
 	if (camera.position.y < 3.3f) {
 		camera.position.y = 3.3f;
 		// keep the camera looking at the same relative height (adjust target to avoid looking too far down)
@@ -97,6 +98,7 @@ void Scene04::Init()
 		// re-initialize so FPCamera::Init() recomputes its internal vectors (Refresh)
 		camera.Init(camera.position, camera.target, camera.up);
 	}
+	*/
 
 	// Init VBO here
 	for (int i = 0; i < NUM_GEOMETRY; ++i)
@@ -144,10 +146,13 @@ void Scene04::Init()
 
 	meshList[GEO_COW] = MeshBuilder::GenerateOBJMTL("lowkeychillguy", "Models//model_containment//obj//cow.obj", "Models//model_containment//mtl//cow.mtl");
 	meshList[GEO_COW]->textureID = LoadTGA("Models//model_containment//textures//cow.tga");
-	/*
-	meshList[GEO_SHEEP] = MeshBuilder::GenerateOBJMTL("demon", "Models//model_containment//obj//13574_Marco_Polo_Sheep_v1_L3.obj", "Models//model_containment//mtl//13574_Marco_Polo_Sheep_v1_L3.mtl");
-	meshList[GEO_SHEEP]->textureID = LoadTGA("Models//model_containment//textures//13574_Marco_Polo_Diffuse.tga");
-	*/
+
+	//meshList[GEO_SHEEP] = MeshBuilder::GenerateOBJMTL("demon", "Models//model_containment//obj//13574_Marco_Polo_Sheep_v1_L3.obj", "Models//model_containment//mtl//13574_Marco_Polo_Sheep_v1_L3.mtl");
+	//meshList[GEO_SHEEP]->textureID = LoadTGA("Models//model_containment//textures//13574_Marco_Polo_Diffuse.tga");
+
+	meshList[GEO_BUCKET] = MeshBuilder::GenerateOBJMTL("dog", "Models//model_containment//obj//rv_bucket.obj", "Models//model_containment//mtl//rv_bucket.mtl");
+	meshList[GEO_BUCKET]->textureID = LoadTGA("Models//model_containment//textures//goal_bucket.tga");
+
 	// 16 x 16 is the number of columns and rows for the text
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Images//Georgia.tga");
@@ -164,7 +169,7 @@ void Scene04::Init()
 	light[0].position = glm::vec3(camera.position.x, camera.position.y, camera.position.z);
 	light[0].color = glm::vec3(1, 1, 0.5);
 	light[0].type = Light::LIGHT_POINT;
-	light[0].power = 0;
+	light[0].power = 1;
 	light[0].kC = 1.f;
 	light[0].kL = 0.01f;
 	light[0].kQ = 0.001f;
@@ -198,6 +203,18 @@ void Scene04::Init()
 		bounce_balls[i].ball.pos.y = 10;
 		bounce_balls[i].ball.pos.x = 2*i;
 	}
+	//baucket innit
+	for (int i = 0; i < ring_num; i++) {
+		rings[i].bucket.bounciness = 1;
+		
+	}
+
+	rings[0].bucket.pos.z = rings[0].radius*2;
+	rings[1].bucket.pos.x = rings[0].radius * 2;
+	rings[1].bucket.pos.z = -rings[0].radius * 2;
+	rings[2].bucket.pos.x = -rings[0].radius * 2;
+	rings[2].bucket.pos.z = -rings[0].radius * 2;
+
 	player.mass = 0;
 	player.bounciness = 1;
 	player.pos.y = 10;
@@ -226,13 +243,12 @@ void Scene04::Update(double dt)
 	HandleKeyPress(dt);
 
 	// Prevent camera from going below ground after camera updates
-	if (camera.position.y < 3.0f) {
-		camera.position.y = 3.0f;
-		if (camera.target.y < 3.0f)
-			camera.target.y = 3.0f;
+	if (camera.position.y < 15.0f) {
+		camera.position.y = 15.0f;
+		if (camera.target.y < 15.0f)
+			camera.target.y = 15.f;
 		camera.Init(camera.position, camera.target, camera.up);
 	}
-
 	camera.Update(dt);
 
 	
@@ -249,15 +265,13 @@ void Scene04::balls_update(double dt) {
 				ResolveCollisionBall(cd);
 			}
 		}
-		//ball agaisnt player test
-		if (OverlapCircle2Circle(bounce_balls[i].ball, bounce_balls[i].radius, player, bounce_balls[i].radius, cd)) {
-			//std::cout << "ball_touching" << std::endl;
-			//ResolveCollisionBall(cd);
-		}
 		//ball against floor
 		if (OverlapCircle2AABB(bounce_balls[i].ball, bounce_balls[i].radius, floor, glm::vec3 (floor_space, floor_height, floor_space),cd)) {
 			walls_resolve(cd);
-			//std::cout << "ball collide with floor" << std::endl;
+		}
+		//ball agaisnt buckets
+		for (int l = 0; l < ring_num; l++) {
+			ResolveCircle2Ring(bounce_balls[i].ball, bounce_balls[i].radius, rings[l].bucket, rings[l].radius, rings[l].sradius, rings[l].height);
 		}
 		
 	}
@@ -376,29 +390,34 @@ void Scene04::Render()
 
 	balls_render();
 	walls_render();
+	buckets_render();
 }
 
 void Scene04::balls_render() {
 	for (int i = 0; i < ball_num; i++) {
-		if (show_col == true) {
+		if (bounce_balls[i].thrown == true) {
+			if (show_col == true) {
+				modelStack.PushMatrix();
+				modelStack.Translate(bounce_balls[i].ball.pos.x, bounce_balls[i].ball.pos.y, bounce_balls[i].ball.pos.z);
+				modelStack.Scale((bounce_balls[i].radius), (bounce_balls[i].radius), (bounce_balls[i].radius));
+				meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+				meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
+				meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+				meshList[GEO_SPHERE]->material.kShininess = 5.0f;
+				RenderMesh(meshList[GEO_SPHERE], true);
+				modelStack.PopMatrix();
+			}
+
 			modelStack.PushMatrix();
-			modelStack.Translate(bounce_balls[i].ball.pos.x, bounce_balls[i].ball.pos.y, bounce_balls[i].ball.pos.z);
+			modelStack.Translate(bounce_balls[i].ball.pos.x, bounce_balls[i].ball.pos.y - (.5f), bounce_balls[i].ball.pos.z);
 			modelStack.Scale((bounce_balls[i].radius), (bounce_balls[i].radius), (bounce_balls[i].radius));
-			modelStack.Rotate(bounce_balls[i].ball.rotation.x, 1.f, 0.f, 0.f);
-			modelStack.Rotate(bounce_balls[i].ball.rotation.y, 0.f, 1.f, 0.f);
-			modelStack.Rotate(bounce_balls[i].ball.rotation.z, 0.f, 0.f, 1.f);
-			RenderMesh(meshList[GEO_SPHERE], true);
+			meshList[GEO_DEER]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+			meshList[GEO_DEER]->material.kDiffuse = glm::vec3(0.1f, 0.1f, 0.1f);
+			meshList[GEO_DEER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+			meshList[GEO_DEER]->material.kShininess = 1.0f;
+			RenderMesh(meshList[GEO_DEER], true);
 			modelStack.PopMatrix();
 		}
-
-		modelStack.PushMatrix();
-		modelStack.Translate(bounce_balls[i].ball.pos.x, bounce_balls[i].ball.pos.y-(.5f), bounce_balls[i].ball.pos.z);
-		modelStack.Scale((bounce_balls[i].radius), (bounce_balls[i].radius), (bounce_balls[i].radius));
-		modelStack.Rotate(bounce_balls[i].ball.rotation.x, 1.f, 0.f, 0.f);
-		modelStack.Rotate(bounce_balls[i].ball.rotation.y, 0.f, 1.f, 0.f);
-		modelStack.Rotate(bounce_balls[i].ball.rotation.z, 0.f, 0.f, 1.f);
-		RenderMesh(meshList[GEO_DEER], true);
-		modelStack.PopMatrix();
 	}
 }
 
@@ -416,7 +435,17 @@ void Scene04::walls_render(){
 }
 
 void Scene04::buckets_render() {
-
+	for (int i = 0; i < ring_num; i++) {
+		modelStack.PushMatrix();
+		modelStack.Translate(rings[i].bucket.pos.x, rings[i].bucket.pos.y, rings[i].bucket.pos.z);
+		modelStack.Scale((rings[i].radius), (rings[i].height), (rings[i].radius));
+		meshList[GEO_BUCKET]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+		meshList[GEO_BUCKET]->material.kDiffuse = glm::vec3(0.1f, 0.1f, 0.1f);
+		meshList[GEO_BUCKET]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[GEO_BUCKET]->material.kShininess = 1.0f;
+		RenderMesh(meshList[GEO_BUCKET], true);
+		modelStack.PopMatrix();
+	}
 }
 
 void Scene04::RenderSkybox(float scale,glm::vec3 camerapos)
@@ -777,17 +806,6 @@ void Scene04::HandleKeyPress(double dt)
 		light[0].position.y += static_cast<float>(dt) * 5.f;
 	*/
 	// Clamp camera height to adjusted limits
-	if (camera.position.y < 3.3f) {
-		camera.position.y = 3.3f;
-		if (camera.target.y < 3.3f)
-			camera.target.y = 3.3f;
-	}
-	if (camera.position.y > 3.8f) {
-		camera.position.y = 3.8f;
-		if (camera.target.y > 3.8f)
-			camera.target.y = 3.8f;
-	}
-
 }
 
 void Scene04::HandleMouseInput() {
@@ -862,13 +880,13 @@ void Scene04::ResolveCollisionBall(CollisionData cd) {
 
     if (o2.mass > 0.f) {
 		o2.pos += oc;
-		o2.vel = (o1.vel * (o2.bounciness));
+		//o2.vel = (o1.vel * (o2.bounciness));
 		o2.AddImpulse((cd.collisionNormal * (o2.bounciness))*o2.mass);
 		o2.angularVel = o2.vel;
 	}
 	if (o1.mass > 0.f) {
 		o1.pos -= oc;
-		o1.vel = -(o2.vel * (o1.bounciness));
+		//o1.vel = -(o2.vel * (o1.bounciness));
 		o1.AddImpulse((-cd.collisionNormal * (o1.bounciness))* o1.mass);
 		o1.angularVel = o1.vel;
 	}

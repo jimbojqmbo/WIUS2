@@ -161,6 +161,7 @@
     <ClCompile Include="Source\Mesh.cpp" />
     <ClCompile Include="Source\MeshBuilder.cpp" />
     <ClCompile Include="Source\PhysicsObject.cpp" />
+    <ClCompile Include="Source\ringbuck.cpp" />
     <ClCompile Include="Source\Scene01.cpp" />
     <ClCompile Include="Source\Scene02.cpp" />
     <ClCompile Include="Source\Scene03.cpp" />
@@ -191,6 +192,7 @@
     <ClInclude Include="Source\Mesh.h" />
     <ClInclude Include="Source\MeshBuilder.h" />
     <ClInclude Include="Source\PhysicsObject.h" />
+    <ClInclude Include="Source\ringbuck.h" />
     <ClInclude Include="Source\Scene.h" />
     <ClInclude Include="Source\Scene01.h" />
     <ClInclude Include="Source\Scene02.h" />
