@@ -41,6 +41,7 @@ public:
 		GEO_DEER,
 		GEO_COW,
 		GEO_SHEEP,
+		GEO_TENT,
 
 		GEO_NOTE,
 		BUMPERCAR,
@@ -76,6 +77,8 @@ public:
 		ENTERBUMPERCARGAMEPROMPT,
 		EXITBUMPERCARGAMEPROMPT,
 		ENTERBASKETBALLPROMPT,
+		ENTERBALLBOUNCERPROMPT,
+		ENTERDUCKSHOOTINGPROMPT,
 
 		NUM_GEOMETRY,
 	};
@@ -124,7 +127,9 @@ public:
 	virtual void Render();
 	virtual void Exit();
 
+	bool scene02request = false;
 	bool scene03request = false;
+	bool scene04request = false;
 
 private:
 	void HandleKeyPress1(FPCamera& cam, double dt);
@@ -183,6 +188,12 @@ private:
 
 	bool BasketballGameEntered = false;
 	bool EnterBasketballGamePrompt = false;
+
+	bool BallBouncerGameEntered = false;
+	bool EnterBallBouncerGamePrompt = false;
+
+	bool DuckShootingGameEntered = false;
+	bool EnterDuckShootingGamePrompt = false;
 
 	// Physics / bumper-car properties
 	glm::vec3 cameraVelocity1 = glm::vec3(0.0f);
