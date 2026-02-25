@@ -144,10 +144,13 @@ void Scene04::Init()
 
 	meshList[GEO_COW] = MeshBuilder::GenerateOBJMTL("lowkeychillguy", "Models//model_containment//obj//cow.obj", "Models//model_containment//mtl//cow.mtl");
 	meshList[GEO_COW]->textureID = LoadTGA("Models//model_containment//textures//cow.tga");
-	/*
+
 	meshList[GEO_SHEEP] = MeshBuilder::GenerateOBJMTL("demon", "Models//model_containment//obj//13574_Marco_Polo_Sheep_v1_L3.obj", "Models//model_containment//mtl//13574_Marco_Polo_Sheep_v1_L3.mtl");
 	meshList[GEO_SHEEP]->textureID = LoadTGA("Models//model_containment//textures//13574_Marco_Polo_Diffuse.tga");
-	*/
+
+	meshList[GEO_BUCKET] = MeshBuilder::GenerateOBJMTL("lowkeychillguy", "Models//model_containment//obj//goal_bucket.obj", "Models//model_containment//mtl//goal_bucket.mtl");
+	//meshList[GEO_BUCKET]->textureID = LoadTGA("Models//model_containment//textures//goal_bucket.tga");
+
 	// 16 x 16 is the number of columns and rows for the text
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Images//Georgia.tga");
@@ -164,7 +167,7 @@ void Scene04::Init()
 	light[0].position = glm::vec3(camera.position.x, camera.position.y, camera.position.z);
 	light[0].color = glm::vec3(1, 1, 0.5);
 	light[0].type = Light::LIGHT_POINT;
-	light[0].power = 0;
+	light[0].power = 100;
 	light[0].kC = 1.f;
 	light[0].kL = 0.01f;
 	light[0].kQ = 0.001f;
@@ -376,6 +379,7 @@ void Scene04::Render()
 
 	balls_render();
 	walls_render();
+	buckets_render();
 }
 
 void Scene04::balls_render() {
@@ -416,7 +420,16 @@ void Scene04::walls_render(){
 }
 
 void Scene04::buckets_render() {
-
+	for (int i = 0; i < ring_num; i++) {
+		modelStack.PushMatrix();
+		modelStack.Translate(bounce_balls[i].ball.pos.x, bounce_balls[i].ball.pos.y - (.5f), bounce_balls[i].ball.pos.z);
+		modelStack.Scale((bounce_balls[i].radius), (bounce_balls[i].radius), (bounce_balls[i].radius));
+		modelStack.Rotate(bounce_balls[i].ball.rotation.x, 1.f, 0.f, 0.f);
+		modelStack.Rotate(bounce_balls[i].ball.rotation.y, 0.f, 1.f, 0.f);
+		modelStack.Rotate(bounce_balls[i].ball.rotation.z, 0.f, 0.f, 1.f);
+		RenderMesh(meshList[GEO_BUCKET], true);
+		modelStack.PopMatrix();
+	}
 }
 
 void Scene04::RenderSkybox(float scale,glm::vec3 camerapos)

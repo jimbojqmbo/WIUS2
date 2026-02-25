@@ -34,6 +34,7 @@ public:
 		GEO_DEER,
 		GEO_COW,
 		GEO_SHEEP,
+		GEO_BUCKET,
 
 		GEO_NOTE,
 
@@ -153,7 +154,7 @@ private:
 	CollisionData cd;
 	//varibles
 	// game scene
-	float gravity = -20;
+	float gravity = -50;
 
 	float floor_space = 10;
 	float floor_height = 0.25;
