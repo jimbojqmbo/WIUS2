@@ -46,6 +46,7 @@ public:
 		GEO_HOOP,
 		GEO_TORUS,
 		GEO_BLACKWALL,
+		GEO_TENT,
 		NUM_GEOMETRY,
 	};
 
@@ -147,7 +148,7 @@ private:
 	glm::vec3 hoopPosition = glm::vec3(0.f, 0.f, 0.f);
 	glm::vec3 rimOffset = glm::vec3(0.f, 6.37f, 3.2f);
 	glm::vec3 rimPosition = hoopPosition + rimOffset;
-	float hoopSpeed = 0.3f;
+	float hoopSpeed = 0.5f;
 	int hoopDirection = 1;   // 1 = right, -1 = left
 	float hoopLimit = 5.f;  // how far left/right it can move
 
@@ -177,10 +178,13 @@ private:
 	bool showScore = false;
 	bool showCrosshair = false;
 
-	float timelimit = 60.f;
+	float timelimit = 2.f;
 	bool restartgame = false;
 	glm::vec3 startarea;
 	float startarearadius;
+	bool inStartArea = false;
+	bool endgame = false;
+	bool showstart = true;
 };
 
 #endif

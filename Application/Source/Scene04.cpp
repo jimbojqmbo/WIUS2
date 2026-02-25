@@ -138,15 +138,16 @@ void Scene04::Init()
 	meshList[GEO_GRASS] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
 	meshList[GEO_GRASS]->textureID = LoadTGA("Images//coast_sand_rocks_02 copy.tga");
 	//models
-	meshList[GEO_DEER] = MeshBuilder::GenerateOBJMTL("demon","Models//model_containment//obj//13573_Musk_Deer_v1_L3.obj","Models//model_containment//mtl//13573_Musk_Deer_v1_L3.mtl");
+	
+	meshList[GEO_DEER] = MeshBuilder::GenerateOBJMTL("demon","Models//model_containment//obj//musk_deer.obj","Models//model_containment//mtl//musk_deer.mtl");
 	meshList[GEO_DEER]->textureID = LoadTGA("Models//model_containment//textures//musk_deer.tga");
 
 	meshList[GEO_COW] = MeshBuilder::GenerateOBJMTL("lowkeychillguy", "Models//model_containment//obj//cow.obj", "Models//model_containment//mtl//cow.mtl");
 	meshList[GEO_COW]->textureID = LoadTGA("Models//model_containment//textures//cow.tga");
-
+	/*
 	meshList[GEO_SHEEP] = MeshBuilder::GenerateOBJMTL("demon", "Models//model_containment//obj//13574_Marco_Polo_Sheep_v1_L3.obj", "Models//model_containment//mtl//13574_Marco_Polo_Sheep_v1_L3.mtl");
 	meshList[GEO_SHEEP]->textureID = LoadTGA("Models//model_containment//textures//13574_Marco_Polo_Diffuse.tga");
-
+	*/
 	// 16 x 16 is the number of columns and rows for the text
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Images//Georgia.tga");
@@ -239,44 +240,42 @@ void Scene04::Update(double dt)
 }
 
 void Scene04::balls_update(double dt) {
-	float br = bounce_balls[0].radius * 1.5;
-
 	for (int i = 0; i < ball_num; i++) {
 		
 		//collisions
 		// ball against ball
 		for (int j = i + 1; j < ball_num; j++) {
-			if (OverlapCircle2Circle(bounce_balls[i].ball, br, bounce_balls[j].ball, br, cd)) {
+			if (OverlapCircle2Circle(bounce_balls[i].ball, bounce_balls[i].radius, bounce_balls[j].ball, bounce_balls[j].radius,cd)) {
 				ResolveCollisionBall(cd);
 			}
 		}
 		//ball agaisnt player test
-		if (OverlapCircle2Circle(bounce_balls[i].ball, br, player, br, cd)) {
-			ResolveCollisionBall(cd);
+		if (OverlapCircle2Circle(bounce_balls[i].ball, bounce_balls[i].radius, player, bounce_balls[i].radius, cd)) {
+			//std::cout << "ball_touching" << std::endl;
+			//ResolveCollisionBall(cd);
 		}
 		//ball against floor
-		if (OverlapCircle2AABB(bounce_balls[i].ball, br , floor, glm::vec3 (floor_space, floor_height, floor_space),cd)) {
-			ResolveCollision(cd);
+		if (OverlapCircle2AABB(bounce_balls[i].ball, bounce_balls[i].radius, floor, glm::vec3 (floor_space, floor_height, floor_space),cd)) {
+			walls_resolve(cd);
 			//std::cout << "ball collide with floor" << std::endl;
 		}
 		
 	}
 	
-
 	static bool isLeftUp = false;
 	static bool isRightUp = false;
 
 	if (!isLeftUp && MouseController::GetInstance()->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
 
 		isLeftUp = true;
-
 		if (ball_select < 10) {
-			std::cout << "mouse pressed" << std::endl;
+			std::cout << bounce_balls[ball_select].ball.mass << std::endl;
+			bounce_balls[ball_select].ball.vel = glm::vec3(0.f);
 			//camera.target
-			//glm::vec3 direction = camera.target - camera.position;
-			glm::vec3 direction = glm::normalize(camera.front);
+			glm::vec3 direction = camera.target - camera.position;
 			bounce_balls[ball_select].ball.pos = camera.position;
-			bounce_balls[ball_select].ball.AddImpulse(direction * 5.f);
+			bounce_balls[ball_select].ball.AddImpulse(direction * ball_power);
+			ball_select++;
 		}
 
 	}
@@ -384,78 +383,35 @@ void Scene04::balls_render() {
 		modelStack.Rotate(0 , 1.f, 1.f, 1.f);
 		RenderMesh(meshList[GEO_SPHERE], true);
 		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(bounce_balls[i].ball.pos.x, bounce_balls[i].ball.pos.y-(.5f), bounce_balls[i].ball.pos.z);
+		modelStack.Scale((bounce_balls[i].radius), (bounce_balls[i].radius), (bounce_balls[i].radius));
+		modelStack.Rotate(0, 1.f, 1.f, 1.f);
+		RenderMesh(meshList[GEO_DEER], true);
+		modelStack.PopMatrix();
 	}
 }
 
 void Scene04::walls_render(){
 	modelStack.PushMatrix();
-	meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.f, 0.f, 1.f);
-	meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
-	meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-	meshList[GEO_SPHERE]->material.kShininess = 5.0f;
+	meshList[GEO_CUBE]->material.kAmbient = glm::vec3(0.f, 1.f, 1.f);
+	meshList[GEO_CUBE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_CUBE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+	meshList[GEO_CUBE]->material.kShininess = 5.0f;
 	modelStack.Translate(floor.pos.x, floor.pos.y, floor.pos.z);
-	modelStack.Scale(floor_space/9, floor_height, floor_space/9);
+	modelStack.Scale(floor_space/10, floor_height/10, floor_space/10);
 	modelStack.Rotate(0, 1.f, 1.f, 1.f);
 	RenderMesh(meshList[GEO_CUBE], true);
 	modelStack.PopMatrix();
 }
 
+void Scene04::buckets_render() {
+
+}
+
 void Scene04::RenderSkybox(float scale,glm::vec3 camerapos)
 {
-	/*
-	// Front face (no rotation needed if quad faces -Z by default)
-	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 0.f, -500.f);
-	modelStack.Scale(10.f, 10.f, 10.f);
-	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
-	RenderMesh(meshList[GEO_FRONT], false);
-	modelStack.PopMatrix();
-
-	// Back face (rotate 180 degrees around Y)
-	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 0.f, 500.f);
-	modelStack.Rotate(-180.f, 1.f, 1.f, 0.f);
-	modelStack.Scale(10.f, 10.f, 10.f);
-	RenderMesh(meshList[GEO_BACK], false);
-	modelStack.PopMatrix();
-
-	// Left face (rotate 90 degrees around Y)
-	modelStack.PushMatrix();
-	modelStack.Translate(-500.f, 0.f, 0.f);
-	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
-	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
-	modelStack.Scale(10.f, 10.f, 10.f);
-	RenderMesh(meshList[GEO_LEFT], false);
-	modelStack.PopMatrix();
-
-	// Right face (rotate -90 degrees around Y)
-	modelStack.PushMatrix();
-	modelStack.Translate(500.f, 0.f, 0.f);
-	modelStack.Rotate(-90.f, 0.f, 1.f, 0.f);
-	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
-	modelStack.Scale(10.f, 10.f, 10.f);
-	RenderMesh(meshList[GEO_RIGHT], false);
-	modelStack.PopMatrix();
-
-	// Top face (rotate -90 degrees around X)
-	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 500.f, 0.f);
-	modelStack.Translate(0.f, 500.f, 0.f);
-	modelStack.Rotate(90.f, 1.f, 0.f, 0.f);
-	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
-	modelStack.Scale(10.f, 10.f, 10.f);
-	RenderMesh(meshList[GEO_TOP], false);
-	modelStack.PopMatrix();
-
-	// Bottom face (rotate 90 degrees around X)
-	modelStack.PushMatrix();
-	modelStack.Translate(0.f, -500.f, 0.f);
-	modelStack.Scale(10.f, 10.f, 10.f); // CHANGE TO 10
-	modelStack.Rotate(-90.f, 1.f, 0.f, 0.f);
-	modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
-	RenderMesh(meshList[GEO_BOTTOM], false);
-	modelStack.PopMatrix();
-	*/
 	modelStack.PushMatrix();
 	// Offset in Z direction by -50 units
 	modelStack.Translate(camerapos.x , camerapos.y, camerapos.z -(50*scale));
@@ -702,7 +658,7 @@ void Scene04::HandleKeyPress(double dt)
 		// Key press to enable wireframe mode for the polygon
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //wireframe mode
 	}
-
+	/*
 	if (KeyboardController::GetInstance()->IsKeyPressed(VK_SPACE))
 	{
 		// Change to black background
@@ -714,13 +670,13 @@ void Scene04::HandleKeyPress(double dt)
 		//Toggle light on or off
 	   /*enableLight = !enableLight;*/
 
-		//if (light[0].power <= 0.1f)
-			//light[0].power = 1.f;
-		//else
-			///light[0].power = 0.1f;
-		//glUniform1f(m_parameters[U_LIGHT0_POWER], light[0].power);
-	}
-
+	   //if (light[0].power <= 0.1f)
+		   //light[0].power = 1.f;
+	   //else
+		   ///light[0].power = 0.1f;
+	   //glUniform1f(m_parameters[U_LIGHT0_POWER], light[0].power);
+	//}
+	/*
 	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_TAB))
 	{
 		if (light[0].type == Light::LIGHT_POINT) {
@@ -735,7 +691,7 @@ void Scene04::HandleKeyPress(double dt)
 
 		glUniform1i(m_parameters[U_LIGHT0_TYPE], light[0].type);
 	};
-
+	*/
 	// Calculate forward and right vectors based on camera orientation
 	glm::vec3 forward = glm::normalize(camera.target - camera.position);
 	glm::vec3 right = glm::normalize(glm::cross(forward, camera.up));
@@ -785,18 +741,13 @@ void Scene04::HandleKeyPress(double dt)
 		camera.position += right * glm::vec3(0.1);// *speed; 
 		camera.target += right * glm::vec3(0.1);// *speed;
 	}
-	/*
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT_SHIFT))
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_R))
 	{
-		// sprint at 10.f
-		float movement = (1.5 * moveSpeed) * static_cast<float>(dt);
-		camera.position += forward * movement;
-		camera.target += forward * movement;
+		ball_select = 0;
 	}
-	*/
 
 	
-
+	/*
 	if (KeyboardController::GetInstance()->IsKeyDown('I'))
 		light[0].position.z -= static_cast<float>(dt) * 5.f;
 	if (KeyboardController::GetInstance()->IsKeyDown('K'))
@@ -809,7 +760,7 @@ void Scene04::HandleKeyPress(double dt)
 		light[0].position.y -= static_cast<float>(dt) * 5.f;
 	if (KeyboardController::GetInstance()->IsKeyDown('P'))
 		light[0].position.y += static_cast<float>(dt) * 5.f;
-
+	*/
 	// Clamp camera height to adjusted limits
 	if (camera.position.y < 3.3f) {
 		camera.position.y = 3.3f;
@@ -887,7 +838,7 @@ void Scene04::ResolveCollisionBall(CollisionData cd) {
 
 	PhysicsObject&  o1 = *cd.pObj1;
 	PhysicsObject& o2 = *cd.pObj2;
-	/*
+	
 	glm::vec3 oc = (cd.collisionNormal * cd.penetration);
 
 	oc.x = oc.x / 2;
@@ -896,13 +847,15 @@ void Scene04::ResolveCollisionBall(CollisionData cd) {
 
     if (o2.mass > 0.f) {
 		o2.pos += oc;
-		o2.AddImpulse(cd.collisionNormal * (1 + o2.bounciness));
+		o2.vel = (o1.vel * (o2.bounciness));
+		o2.AddImpulse((cd.collisionNormal * (o2.bounciness))*o2.mass);
 	}
 	if (o1.mass > 0.f) {
 		o1.pos -= oc;
-		o1.AddImpulse(-(cd.collisionNormal * (1 + o1.bounciness)));
+		o1.AddImpulse((-cd.collisionNormal * (o1.bounciness))* o1.mass);
 	}
-	*/
+	/*
+	
 	float invMass1 = (o1.mass > 0.f) ? 1.0f / o1.mass : 0.f;
 	float invMass2 = (o2.mass > 0.f) ? 1.0f / o2.mass : 0.f;
 	float totalInvMass = invMass1 + invMass2;
@@ -922,4 +875,60 @@ void Scene04::ResolveCollisionBall(CollisionData cd) {
 	glm::vec3 impulse = j * cd.collisionNormal;
 	if (o1.mass > 0.f) o1.AddImpulse(-impulse * invMass1);
 	if (o2.mass > 0.f) o2.AddImpulse(impulse * invMass2);
+	*/
+}
+
+bool Scene04::OverlapCircle2(const glm::vec3& pos1, float r1, const glm::vec3& pos2, float r2)
+{
+	float x = pos1.x - pos2.x;
+	float y = pos1.y - pos2.y;
+	float z = pos1.z - pos2.z;
+	float r = r1 + r2;
+	return (x * x + y * y + z * z) <= (r * r);
+}
+
+void Scene04::walls_resolve(CollisionData cd) {
+
+	PhysicsObject& o1 = *cd.pObj1;
+	PhysicsObject& o2 = *cd.pObj2;
+
+	glm::vec3 n = glm::normalize(cd.collisionNormal);
+
+	float invMass1 = (o1.mass == 0.f) ? 0.f : 1.f / o1.mass;
+	float invMass2 = (o2.mass == 0.f) ? 0.f : 1.f / o2.mass;
+	float totalInvMass = invMass1 + invMass2;
+	if (totalInvMass == 0.f) return;
+
+	// --- Immediate positional correction ---
+	o1.pos += n * cd.penetration; // fully move sphere out of wall
+
+	// --- Compute relative velocity along normal ---
+	float velAlongNormal = glm::dot(o1.vel - o2.vel, n);
+
+	// --- Apply bounciness ---
+	float restitution = std::fmin(o1.bounciness, o2.bounciness);
+
+	if (velAlongNormal < 0.f) // only if moving into the wall
+	{
+		float j = -(1.f + restitution) * velAlongNormal / totalInvMass;
+		glm::vec3 impulse = j * n;
+
+		o1.vel += impulse * invMass1;
+		o2.vel -= impulse * invMass2; // wall usually has invMass=0
+	}
+
+	// --- Friction along tangent ---
+	glm::vec3 relativeVel = o1.vel - o2.vel;
+	glm::vec3 tangent = relativeVel;// -glm::dot(relativeVel, n) * n;
+	float lenT = glm::length(tangent);
+	if (lenT > 0.001f)
+	{
+		tangent /= lenT;
+		glm::vec3 frictionImpulse = -0.4f * tangent * glm::length(relativeVel); // simple friction
+		o1.vel += frictionImpulse * invMass1;
+		o2.vel -= frictionImpulse * invMass2;
+	}
+
+	// Clamp very small velocities
+	if (glm::length(o1.vel) < 0.01f)o1.vel = glm::vec3(0.f);
 }

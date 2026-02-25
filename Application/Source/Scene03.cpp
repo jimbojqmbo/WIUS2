@@ -1,4 +1,5 @@
 //Alvin
+//add mouse sens adjuster?
 
 #include "Scene03.h"
 #include "Mesh.h"
@@ -152,6 +153,9 @@ void Scene03::Init()
 
 	meshList[GEO_BLACKWALL] = MeshBuilder::GenerateQuad("BlackWall", glm::vec3(0, 0, 0), 1.f);
 
+	meshList[GEO_TENT] = MeshBuilder::GenerateOBJMTL("CarnivalTent", "Models//alvintent.obj", "Models//alvintent.mtl");
+	meshList[GEO_TENT]->textureID = LoadTGA("Images//alvintent.tga");
+
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
 
@@ -289,11 +293,21 @@ bool Scene03::OverlapCircle2AABB(glm::vec3 circlePos, float radius, glm::vec3 bo
 
 void Scene03::Update(double dt)
 {
+	// Toggle score display anytime after game ends
+	if (endgame && KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_C))
+	{
+		showScore = !showScore;
+	}
+
+	if (!showScore) {
+		showCrosshair = false;
+	}
+
 	//int mouseX = MouseController::GetInstance()->GetMousePositionX();
 	//int mouseY = MouseController::GetInstance()->GetMousePositionY();
 	//std::cout << mouseX << ", " << mouseY << std::endl;
 
-	showCrosshair = true;
+	//showCrosshair = true;
 
 	// Get total elapsed time from Application's m_timer
 	if (timerStarted && !timerEnded)
@@ -306,6 +320,8 @@ void Scene03::Update(double dt)
 			timerEnded = true;
 			std::cout << "Timer ended \n";
 			showScore = true;
+			endgame = true;
+			restartgame = false;
 		}
 	}
 
@@ -387,9 +403,43 @@ void Scene03::Update(double dt)
 		spacePressed == false;
 	}*/
 
-	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_R)) {
-		restartgame = true;
+	if (OverlapCircle2Circle(camera.position, 2.f, startarea, startarearadius)) {
+		inStartArea = true;
 	}
+	else {
+		inStartArea = false;
+	}
+
+	if (inStartArea) {
+		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_R))
+		{
+			restartgame = true;
+			endgame = false;
+			timerStarted = false;
+			timerEnded = false;
+			totalElapsedTime = 0.0;
+			pointcounter = 0;
+			showScore = false;
+
+			ballThrown = false;
+			hasBall = true;
+			ball.vel = glm::vec3(0.f);
+			ball.accel = glm::vec3(0.f);
+
+			hoopPosition = glm::vec3(0.f, 0.f, 0.f);
+			hoopDirection = 1;
+
+			camera.position.x = 0.f;
+			camera.position.y = 3.f;
+			camera.position.z = 14.f;
+			camera.target = glm::vec3(0.f, 3.f, 0.f);
+			camera.Init(camera.position, camera.target, glm::vec3(0.f, 1.f, 0.f));
+
+			showstart = false;
+		}
+	}
+
+	
 
 	if (restartgame) {
 		camera.position.x = 0.f;
@@ -521,6 +571,7 @@ void Scene03::Update(double dt)
 			if (isOverlapping && !rimWasOverlapping)
 			{
 				pointcounter += 2;
+				hoopSpeed += 0.25f;
 				std::cout << "Points: " << pointcounter << std::endl;
 			}
 
@@ -533,6 +584,10 @@ void Scene03::Update(double dt)
 				}
 			}
 		}
+	}
+
+	if (restartgame == false) {
+		showstart = true;
 	}
 
 	hoopPosition.x += hoopDirection * hoopSpeed * static_cast<float>(dt);
@@ -874,20 +929,26 @@ void Scene03::Render()
 	RenderMesh(meshList[GEO_BLACKWALL], false);
 	modelStack.PopMatrix();
 
+	modelStack.PushMatrix();
+	modelStack.Translate(light->position.x, light->position.y, light->position.z);
+	modelStack.Scale(3.f, 3.f, 3.f);
+	modelStack.Rotate(225.f, 0.f, 1.f, 0.f);
+	RenderMesh(meshList[GEO_TENT], false);
+	modelStack.PopMatrix();
+
 	//modelStack.PushMatrix();
 	//modelStack.Translate(rimPosition.x, rimPosition.y - 0.5f, rimPosition.z);
 	//modelStack.Scale(0.2f, 0.2, 0.2f);
 	//RenderMesh(meshList[GEO_SPHERE], false);
 	//modelStack.PopMatrix();
 
-	if (restartgame == false) {
-		if (OverlapCircle2Circle(camera.position, 2.f, startarea, startarearadius)) {
+	if (showstart == true) {
+		if (inStartArea == true) {
 			modelStack.PushMatrix();
 			RenderTextOnScreen(meshList[GEO_TEXT], "Press R to start! (Shoot when you are ready)", glm::vec3(1, 1, 1), 20, 140, 200);
 			modelStack.PopMatrix();
 		}
 	}
-
 
 	/*if (OverlapCircle2Circle(camera.position, pickupDistance, ball.pos, ballRadius)) {
 		modelStack.PushMatrix();
@@ -910,6 +971,7 @@ void Scene03::Render()
 	if (showScore == true) {
 		std::string point("Final Score: " + std::to_string(pointcounter));
 		RenderTextOnScreen(meshList[GEO_TEXT], point.substr(0, 15), glm::vec3(0, 1, 0), 40, 238, 282);
+		RenderTextOnScreen(meshList[GEO_TEXT], "(Press C to close and reopen score)", glm::vec3(1, 1, 1), 20, 238, 262);
 		showCrosshair = false;
 	}
 

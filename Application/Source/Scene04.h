@@ -146,13 +146,14 @@ private:
 	PhysicsObject player;//test
 	//AABB
 	PhysicsObject floor;
-	//OOB
-	PhysicsObject ball_slide;
+	//ring
+	static const int  ring_num = 3;
+	fourball rings[ring_num];
 	//else
 	CollisionData cd;
 	//varibles
 	// game scene
-	float gravity = -10;
+	float gravity = -20;
 
 	float floor_space = 10;
 	float floor_height = 0.25;
@@ -160,14 +161,22 @@ private:
 	float skyboxscale = 2 ;
 	//unspecified
 	int ball_select = 0;
+	float ball_power = 50;
+	float power_max = 100;
+	float power_min = 0;
+	bool show_col = true;
 	//functions
 
 	bool OverlapCircle2CYLINDER(const glm::vec3& pos1, float r1, const glm::vec3& pos2, float width,float height);
+
 	void ResolveCollisionBall(CollisionData cd);
 	//object realted
+	bool OverlapCircle2(const glm::vec3& pos1, float r1, const glm::vec3& pos2, float r2);
 	void balls_update(double dt);
 	void balls_render();
 	void walls_render();
+	void buckets_render();
+	void walls_resolve(CollisionData cd);
 
 };
 
