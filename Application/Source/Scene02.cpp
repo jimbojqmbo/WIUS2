@@ -191,11 +191,20 @@ void Scene02::Init()
 	meshList[GEO_CRATES3] = MeshBuilder::GenerateOBJ("Crates1", "Models//DuckShoot//Tent1Crates3.obj");
 	meshList[GEO_CRATES3]->textureID = LoadTGA("Images//DSCrate.tga");
 
+	meshList[GEO_CRATES4] = MeshBuilder::GenerateOBJ("Crates1", "Models//DuckShoot//Tent2Crates1.obj");
+	meshList[GEO_CRATES4]->textureID = LoadTGA("Images//DSCrate.tga");
+
+	meshList[GEO_CRATES5] = MeshBuilder::GenerateOBJ("Crates1", "Models//DuckShoot//Tent2Crates2.obj");
+	meshList[GEO_CRATES5]->textureID = LoadTGA("Images//DSCrate.tga");
+
 	meshList[GEO_BARRELS1] = MeshBuilder::GenerateOBJ("Barrels1", "Models//DuckShoot//Tent1Barrels1.obj");
 	meshList[GEO_BARRELS1]->textureID = LoadTGA("Images//DSBarrel.tga");
 
 	meshList[GEO_BARRELS2] = MeshBuilder::GenerateOBJ("Barrels1", "Models//DuckShoot//Tent1Barrels2.obj");
 	meshList[GEO_BARRELS2]->textureID = LoadTGA("Images//DSBarrel.tga");
+
+	meshList[GEO_BARRELS3] = MeshBuilder::GenerateOBJ("Barrels1", "Models//DuckShoot//Tent2Barrels1.obj");
+	meshList[GEO_BARRELS3]->textureID = LoadTGA("Images//DSBarrel.tga");
 
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
@@ -247,13 +256,24 @@ void Scene02::Init()
 	// Create Invis Walls
 	{
 		// Tent1 Walls
-		walls.push_back(PhysicsObject(1.f, 20.f, 16.f, glm::vec3(23.f, 0.f, 30.f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
-		walls.push_back(PhysicsObject(1.f, 20.f, 23.48f, glm::vec3(14.43f, 0.f, 13.6f), 0.f, 0.2f, glm::vec3(0.f, 45.f, 0.f)));
-		walls.push_back(PhysicsObject(1.f, 20.f, 23.48f, glm::vec3(14.43f, 0.f, 43.6f), 0.f, 0.2f, glm::vec3(0.f, -45.f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 20.f, 17.382f, glm::vec3(12.33f, 0.f, 10.2f), 0.f, 0.2f, glm::vec3(0.f, 63.2f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 20.f, 11.668f, glm::vec3(21.72f, 0.f, 19.f), 0.f, 0.2f, glm::vec3(0.f, 21.86f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 20.f, 15.f, glm::vec3(23.79f, 0.f, 30.1f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 20.f, 11.668f, glm::vec3(21.72f, 0.f, 41.1f), 0.f, 0.2f, glm::vec3(0.f, -21.86f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 20.f, 17.382f, glm::vec3(12.33f, 0.f, 50.2f), 0.f, 0.2f, glm::vec3(0.f, -63.2f, 0.f)));
 
-		walls.push_back(PhysicsObject(1.f, 20.f, 16.f, glm::vec3(-23.f, 0.f, 30.f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
-		walls.push_back(PhysicsObject(1.f, 20.f, 28.5f, glm::vec3(-14.43f, 0.f, 43.6f), 0.f, 0.2f, glm::vec3(0.f, 45.f, 0.f)));
-		walls.push_back(PhysicsObject(1.f, 20.f, 23.48f, glm::vec3(-14.43f, 0.f, 13.6f), 0.f, 0.2f, glm::vec3(0.f, -45.f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 20.f, 17.382f, glm::vec3(-12.33f, 0.f, 10.2f), 0.f, 0.2f, glm::vec3(0.f, -63.2f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 20.f, 11.668f, glm::vec3(-21.72f, 0.f, 19.f), 0.f, 0.2f, glm::vec3(0.f, -21.86f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 20.f, 15.f, glm::vec3(-23.79f, 0.f, 30.1f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 20.f, 11.668f, glm::vec3(-21.72f, 0.f, 41.1f), 0.f, 0.2f, glm::vec3(0.f, 21.86f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 20.f, 17.382f, glm::vec3(-12.33f, 0.f, 50.2f), 0.f, 0.2f, glm::vec3(0.f, 63.2f, 0.f)));
+
+		// Tent1 Barrier
+		walls.push_back(PhysicsObject(2.f, 7.362f, 15.442f, glm::vec3(-1.47f, 0.f, 10.4f), 0.f, 0.2f, glm::vec3(0.f, -61.f, 0.f)));
+		walls.push_back(PhysicsObject(2.f, 7.362f, 8.536f, glm::vec3(-9.82f, 0.f, 17.5f), 0.f, 0.2f, glm::vec3(0.f, -28.f, 0.f)));
+		walls.push_back(PhysicsObject(2.f, 3.786f, 20.06f, glm::vec3(-11.7f, 0.f, 31.1f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
+		walls.push_back(PhysicsObject(2.f, 7.362f, 15.f, glm::vec3(-5.06f, 0.f, 42.3f), 0.f, 0.2f, glm::vec3(0.f, 73.94f, 0.f)));
+		walls.push_back(PhysicsObject(2.f, 7.362f, 11.178f, glm::vec3(2.74f, 0.f, 49.3f), 0.f, 0.2f, glm::vec3(0.f, 10.92f, 0.f)));
 
 		// Tent1 Crates
 		walls.push_back(PhysicsObject(2.f, 3.786f, 13.202f, glm::vec3(0.07f, 0.f, 29.9f), 0.f, 0.5f, glm::vec3(0.f, 0.f, 0.f)));
@@ -265,13 +285,47 @@ void Scene02::Init()
 		walls.push_back(PhysicsObject(2.f, 10.84f, 13.202f, glm::vec3(15.65f, 0.f, 26.8f), 0.f, 0.5f, glm::vec3(0.f, 0.f, 0.f)));
 
 		// Tent2 Walls
-		walls.push_back(PhysicsObject(1.f, 20.f, 16.f, glm::vec3(23.f, 0.f, 106.f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
-		walls.push_back(PhysicsObject(1.f, 20.f, 23.48f, glm::vec3(14.43f, 0.f, 89.6f), 0.f, 0.2f, glm::vec3(0.f, 45.f, 0.f)));
-		walls.push_back(PhysicsObject(1.f, 20.f, 23.48f, glm::vec3(14.43f, 0.f, 119.6f), 0.f, 0.2f, glm::vec3(0.f, -45.f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 20.f, 17.382f, glm::vec3(12.33f, 0.f, 85.2f), 0.f, 0.2f, glm::vec3(0.f, 63.2f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 20.f, 11.668f, glm::vec3(21.72f, 0.f, 94.f), 0.f, 0.2f, glm::vec3(0.f, 21.86f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 20.f, 15.f, glm::vec3(23.79f, 0.f, 105.1f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 20.f, 11.668f, glm::vec3(21.72f, 0.f, 116.1f), 0.f, 0.2f, glm::vec3(0.f, -21.86f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 20.f, 17.382f, glm::vec3(12.33f, 0.f, 125.2f), 0.f, 0.2f, glm::vec3(0.f, -63.2f, 0.f)));
 
-		walls.push_back(PhysicsObject(1.f, 20.f, 16.f, glm::vec3(-23.f, 0.f, 106.f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
-		walls.push_back(PhysicsObject(1.f, 20.f, 28.5f, glm::vec3(-14.43f, 0.f, 119.6f), 0.f, 0.2f, glm::vec3(0.f, 45.f, 0.f)));
-		walls.push_back(PhysicsObject(1.f, 20.f, 23.48f, glm::vec3(-14.43f, 0.f, 89.6f), 0.f, 0.2f, glm::vec3(0.f, -45.f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 20.f, 17.382f, glm::vec3(-12.33f, 0.f, 85.2f), 0.f, 0.2f, glm::vec3(0.f, -63.2f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 20.f, 11.668f, glm::vec3(-21.72f, 0.f, 94.f), 0.f, 0.2f, glm::vec3(0.f, -21.86f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 20.f, 15.f, glm::vec3(-23.79f, 0.f, 105.1f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 20.f, 11.668f, glm::vec3(-21.72f, 0.f, 116.1f), 0.f, 0.2f, glm::vec3(0.f, 21.86f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 20.f, 17.382f, glm::vec3(-12.33f, 0.f, 125.2f), 0.f, 0.2f, glm::vec3(0.f, 63.2f, 0.f)));
+
+		// Tent2 Barrier
+		walls.push_back(PhysicsObject(2.f, 7.362f, 15.442f, glm::vec3(-1.47f, 0.f, 85.4f), 0.f, 0.2f, glm::vec3(0.f, -61.f, 0.f)));
+		walls.push_back(PhysicsObject(2.f, 7.362f, 8.536f, glm::vec3(-9.82f, 0.f, 92.5f), 0.f, 0.2f, glm::vec3(0.f, -28.f, 0.f)));
+		walls.push_back(PhysicsObject(2.f, 3.786f, 20.06f, glm::vec3(-11.7f, 0.f, 106.1f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
+		walls.push_back(PhysicsObject(2.f, 7.362f, 15.f, glm::vec3(-5.06f, 0.f, 117.3f), 0.f, 0.2f, glm::vec3(0.f, 73.94f, 0.f)));
+		walls.push_back(PhysicsObject(2.f, 7.362f, 11.178f, glm::vec3(2.74f, 0.f, 124.3f), 0.f, 0.2f, glm::vec3(0.f, 10.92f, 0.f)));
+
+		// Tent2 Crates
+		walls.push_back(PhysicsObject(2.f, 3.786f, 17.034f, glm::vec3(0.152f, 0.f, 106.f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
+		walls.push_back(PhysicsObject(2.f, 3.786f, 12.828f, glm::vec3(4.623f, 0.f, 96.4f), 0.f, 0.2f, glm::vec3(0.f, 30.37f, 0.f)));
+		walls.push_back(PhysicsObject(2.f, 3.786f, 12.828f, glm::vec3(8.093f, 0.f, 111.f), 0.f, 0.2f, glm::vec3(0.f, -15.5f, 0.f)));
+
+		walls.push_back(PhysicsObject(2.f, 7.53f, 17.034f, glm::vec3(12.83f, 0.f, 104.f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
+		walls.push_back(PhysicsObject(2.f, 11.342f, 17.034f, glm::vec3(15.77f, 0.f, 104.f), 0.f, 0.5f, glm::vec3(0.f, 0.f, 0.f)));
+
+		// Tent2 Barrels
+		walls.push_back(PhysicsObject(2.f, 7.758f, 1.928f, glm::vec3(0.152f, 0.f, 102.5f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
+		walls.push_back(PhysicsObject(2.f, 7.758f, 1.928f, glm::vec3(0.152f, 0.f, 110.f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
+
+		walls.push_back(PhysicsObject(2.f, 7.758f, 1.928f, glm::vec3(4.457f, 0.f, 96.1f), 0.f, 0.2f, glm::vec3(0.f, 30.37f, 0.f)));
+		walls.push_back(PhysicsObject(2.f, 7.758f, 1.928f, glm::vec3(6.523f, 0.f, 99.6f), 0.f, 0.2f, glm::vec3(0.f, 30.37f, 0.f)));
+
+		walls.push_back(PhysicsObject(2.f, 7.758f, 1.928f, glm::vec3(8.579f, 0.f, 109.3f), 0.f, 0.2f, glm::vec3(0.f, -15.5f, 0.f)));
+
+		walls.push_back(PhysicsObject(2.f, 11.65f, 1.928f, glm::vec3(12.83f, 0.f, 100.f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
+		walls.push_back(PhysicsObject(2.f, 11.65f, 1.928f, glm::vec3(12.83f, 0.f, 109.f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
+
+		walls.push_back(PhysicsObject(2.f, 11.65f, 1.928f, glm::vec3(15.77f, 0.f, 104.2f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
+		walls.push_back(PhysicsObject(2.f, 11.65f, 1.928f, glm::vec3(15.77f, 0.f, 108.7f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
 
 		// Fences
 		walls.push_back(PhysicsObject(1.f, 7.85f, 14.f, glm::vec3(5.f, 0.f, -0.68f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
@@ -282,6 +336,23 @@ void Scene02::Init()
 
 		walls.push_back(PhysicsObject(1.f, 7.85f, 21.1f, glm::vec3(5.f, 0.f, 139.44f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
 		walls.push_back(PhysicsObject(1.f, 7.85f, 21.1f, glm::vec3(-5.f, 0.f, 139.44f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
+
+		// Fence Zone Walls
+		walls.push_back(PhysicsObject(1.f, 7.74f, 10.904f, glm::vec3(10.15f, 0.f, 150.59f), 0.f, 0.2f, glm::vec3(0.f, 83.19f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 7.74f, 16.336f, glm::vec3(22.11f, 0.f, 155.5f), 0.f, 0.2f, glm::vec3(0.f, 58.7f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 7.74f, 21.56f, glm::vec3(33.3f, 0.f, 169.5f), 0.f, 0.2f, glm::vec3(0.f, 24.03f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 7.74f, 17.52f, glm::vec3(37.54f, 0.f, 188.f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 7.74f, 21.4f, glm::vec3(32.9f, 0.f, 205.5f), 0.f, 0.2f, glm::vec3(0.f, -24.f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 7.74f, 16.32f, glm::vec3(21.4f, 0.f, 218.f), 0.f, 0.2f, glm::vec3(0.f, -64.f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 7.74f, 10.14f, glm::vec3(9.515f, 0.f, 221.7f), 0.f, 0.2f, glm::vec3(0.f, -88.5f, 0.f)));
+
+		walls.push_back(PhysicsObject(1.f, 7.74f, 10.904f, glm::vec3(-10.15f, 0.f, 150.59f), 0.f, 0.2f, glm::vec3(0.f, -83.19f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 7.74f, 16.336f, glm::vec3(-22.11f, 0.f, 155.5f), 0.f, 0.2f, glm::vec3(0.f, -58.7f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 7.74f, 21.56f, glm::vec3(-33.3f, 0.f, 169.5f), 0.f, 0.2f, glm::vec3(0.f, -24.03f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 7.74f, 17.52f, glm::vec3(-37.54f, 0.f, 188.f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 7.74f, 21.4f, glm::vec3(-32.9f, 0.f, 205.5f), 0.f, 0.2f, glm::vec3(0.f, 24.f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 7.74f, 16.32f, glm::vec3(-21.4f, 0.f, 218.f), 0.f, 0.2f, glm::vec3(0.f, 64.f, 0.f)));
+		walls.push_back(PhysicsObject(1.f, 7.74f, 10.14f, glm::vec3(-9.515f, 0.f, 221.7f), 0.f, 0.2f, glm::vec3(0.f, 88.5f, 0.f)));
 	}
 
 	// Test Create Targets
@@ -431,6 +502,7 @@ void Scene02::Update(double dt)
 	bool isKeyPressed = KeyboardController::GetInstance()->IsKeyDown('B');
 	if (isKeyPressed && !wasKeyPressed)
 	{
+		// Test Create tent1 Targets
 		glm::vec3 startPos = glm::vec3(1.f, 2.2f,24.3f);
 		glm::vec3 endPos = glm::vec3(1.f, 2.2f, 35.5f);
 		float speed = 3.f;
@@ -458,6 +530,43 @@ void Scene02::Update(double dt)
 		repeats = 5;
 
 		SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, -5);
+
+		// Test Create tent2 Targets
+
+		startPos = glm::vec3(1.236f, 2.2f, 98.4f);
+		endPos = glm::vec3(1.236f, 2.2f, 113.9f);
+		speed = 5.f;
+		repeats = 5;
+
+		SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 1);
+
+		startPos = glm::vec3(2.736f, 2.2f, 91.f);
+		endPos = glm::vec3(8.47f, 2.2f, 100.7f);
+		speed = 5.f;
+		repeats = 5;
+
+		SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 1);
+
+		startPos = glm::vec3(7.56f, 2.2f, 117.f);
+		endPos = glm::vec3(10.68f, 2.2f, 105.8f);
+		speed = 5.f;
+		repeats = 5;
+
+		SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 1);
+
+		startPos = glm::vec3(13.94f, 4.2f, 96.1f);
+		endPos = glm::vec3(13.94f, 4.2f, 112.f);
+		speed = 5.f;
+		repeats = 5;
+
+		SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 1);
+			
+		startPos = glm::vec3(16.85f, 6.2f, 112.f);
+		endPos = glm::vec3(16.85f, 6.2f, 96.1f);
+		speed = 5.f;
+		repeats = 5;
+
+		SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 1);
 	}
 
 	wasKeyPressed = isKeyPressed;
@@ -914,6 +1023,16 @@ void Scene02::Render()
 		meshList[GEO_CRATES3]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 		meshList[GEO_CRATES3]->material.kShininess = 5.0f;
 
+		meshList[GEO_CRATES4]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_CRATES4]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_CRATES4]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[GEO_CRATES4]->material.kShininess = 5.0f;
+
+		meshList[GEO_CRATES5]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_CRATES5]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_CRATES5]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[GEO_CRATES5]->material.kShininess = 5.0f;
+
 		meshList[GEO_BARRELS1]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_BARRELS1]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_BARRELS1]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
@@ -923,20 +1042,25 @@ void Scene02::Render()
 		meshList[GEO_BARRELS2]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_BARRELS2]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 		meshList[GEO_BARRELS2]->material.kShininess = 5.0f;
+
+		meshList[GEO_BARRELS3]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_BARRELS3]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[GEO_BARRELS3]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[GEO_BARRELS3]->material.kShininess = 5.0f;
 	}
 
 	// Environment
 	{
 		// Tents
 		{
+			modelStack.PushMatrix();
+			modelStack.Translate(0.f, 0.f, 0.f);
+			modelStack.Scale(1.f, 1.f, 1.f);
+			RenderMesh(meshList[GEO_TENT], true);
+			modelStack.PopMatrix();
+
 			// Tent1
 			{
-				modelStack.PushMatrix();
-				modelStack.Translate(0.f, 0.f, 0.f);
-				modelStack.Scale(1.f, 1.f, 1.f);
-				RenderMesh(meshList[GEO_TENT], true);
-				modelStack.PopMatrix();
-
 				modelStack.PushMatrix();
 				modelStack.Translate(0.f, 0.f, 0.f);
 				modelStack.Scale(1.f, 1.f, 1.f);
@@ -970,7 +1094,35 @@ void Scene02::Render()
 
 			// Tent2
 			{
+				modelStack.PushMatrix();
+				modelStack.Translate(0.f, 0.f, 75.5f);
+				modelStack.Scale(1.f, 1.f, 1.f);
+				RenderMesh(meshList[GEO_CRATES1], true);
+				modelStack.PopMatrix();
 
+				modelStack.PushMatrix();
+				modelStack.Translate(0.f, 0.f, 0.f);
+				modelStack.Scale(1.f, 1.f, 1.f);
+				RenderMesh(meshList[GEO_CRATES4], true);
+				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(0.f, 0.f, 0.f);
+				modelStack.Scale(1.f, 1.f, 1.f);
+				RenderMesh(meshList[GEO_CRATES5], true);
+				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(0.f, 0.f, 75.5f);
+				modelStack.Scale(1.f, 1.f, 1.f);
+				RenderMesh(meshList[GEO_BARRELS1], true);
+				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(0.f, 0.f, 0.f);
+				modelStack.Scale(1.f, 1.f, 1.f);
+				RenderMesh(meshList[GEO_BARRELS3], true);
+				modelStack.PopMatrix();
 			}
 		}
 
