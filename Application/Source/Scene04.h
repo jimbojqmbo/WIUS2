@@ -162,6 +162,8 @@ private:
 	//unspecified
 	int ball_select = 0;
 	float ball_power = 50;
+	float power_max = 100;
+	float power_min = 0;
 	//functions
 
 	bool OverlapCircle2CYLINDER(const glm::vec3& pos1, float r1, const glm::vec3& pos2, float width,float height);
