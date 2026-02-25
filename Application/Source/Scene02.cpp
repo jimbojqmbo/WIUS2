@@ -149,6 +149,24 @@ void Scene02::Init()
 	meshList[GEO_GUI] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_GUI]->textureID = LoadTGA("Images//blackblack.tga");
 
+	meshList[BLACK] = MeshBuilder::GenerateQuad("BLACK", glm::vec3(0.f, 0.f, 0.f), 1.f);
+
+	// RANKS
+	meshList[SRANK] = MeshBuilder::GenerateQuad("SRank", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[SRANK]->textureID = LoadTGA("Images//SRank.tga");
+
+	meshList[ARANK] = MeshBuilder::GenerateQuad("ARank", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[ARANK]->textureID = LoadTGA("Images//ARank.tga");
+
+	meshList[BRANK] = MeshBuilder::GenerateQuad("BRank", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[BRANK]->textureID = LoadTGA("Images//BRank.tga");
+
+	meshList[CRANK] = MeshBuilder::GenerateQuad("CRank", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[CRANK]->textureID = LoadTGA("Images//CRank.tga");
+
+	meshList[DRANK] = MeshBuilder::GenerateQuad("DRank", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[DRANK]->textureID = LoadTGA("Images//DRank.tga");
+
 	meshList[GEO_BLASTER] = MeshBuilder::GenerateOBJ("Blaster", "Models//DuckShoot//Blaster.obj");
 	meshList[GEO_BLASTER]->textureID = LoadTGA("Images///Blaster.tga");
 
@@ -246,6 +264,7 @@ void Scene02::Init()
 
 	blasterAngle = 0.f;
 	score = 0.f;
+	shotsFired = 0;
 
 	targetHitboxSize = glm::vec3(4.f, 5.f, 3.f);
 	targetSize = glm::vec3(0.3f,0.3f,0.3f);
@@ -265,6 +284,8 @@ void Scene02::Init()
 
 	// Create Invis Walls
 	{
+		walls.push_back(PhysicsObject(9.246f, 7.38f, 2.f, glm::vec3(0.f, 0.f, -7.377f), 0.f, 0.2f, glm::vec3(0.f, 0.f, 0.f)));
+
 		// Tent1 Walls
 		walls.push_back(PhysicsObject(1.f, 20.f, 17.382f, glm::vec3(12.33f, 0.f, 10.2f), 0.f, 0.2f, glm::vec3(0.f, 63.2f, 0.f)));
 		walls.push_back(PhysicsObject(1.f, 20.f, 11.668f, glm::vec3(21.72f, 0.f, 19.f), 0.f, 0.2f, glm::vec3(0.f, 21.86f, 0.f)));
@@ -359,7 +380,6 @@ void Scene02::Init()
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	MouseController::GetInstance()->SetKeepMouseCentered(true);
 }
 
 void Scene02::HandleMouseInput(double dt) 
@@ -418,6 +438,9 @@ void Scene02::HandleMouseInput(double dt)
 
 	if (isMousePressed && !wasMousePressed && !gameEnded)
 	{
+		blasterAnimating = true;
+		blasterMovingUp = true;
+
 		PhysicsObject ball;
 
 		ball.sizeX = 0.3f;
@@ -443,9 +466,7 @@ void Scene02::HandleMouseInput(double dt)
 		projectiles.push_back(ball);
 
 		blasterAngle = 0.f;
-
-		blasterAnimating = true;
-		blasterMovingUp = true;
+		shotsFired += 1;
 	}
 
 	// Update previous state
@@ -493,35 +514,6 @@ void Scene02::Update(double dt)
 		light[0].position.y += static_cast<float>(dt) * 5.f;
 
 	camera.Update(dt);
-
-	glm::vec3 oldPos = playerHitbox.pos;
-
-	// Move player
-	playerHitbox.pos += playerHitbox.vel * static_cast<float>(dt);
-
-	// Check collisions against walls
-	for (int j = 0; j < walls.size(); j++) {
-		PhysicsObject& wall = walls[j];
-		CollisionData cd;
-		if (OverlapSphere2OBB(playerHitbox, wall, cd))
-		{
-			playerHitbox.pos = oldPos;
-			break;
-		}
-	}
-
-	// Barriers
-	{
-		CollisionData cd;
-		if (OverlapSphere2OBB(playerHitbox, section1Barrier, cd) && !section1End)
-		{
-			playerHitbox.pos = oldPos;
-		}
-		if (OverlapSphere2OBB(playerHitbox, section2Barrier, cd) && !section2End)
-		{
-			playerHitbox.pos = oldPos;
-		}
-	}
 
 	// Keep camera height consistent
 	camera.position = glm::vec3(playerHitbox.pos.x, 3.3f, playerHitbox.pos.z);
@@ -630,19 +622,19 @@ void Scene02::Update(double dt)
 
 			SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 2);
 
-			startPos = glm::vec3(8.185f, 4.f, 40.8f);
-			endPos = glm::vec3(10.93f, 4.f, 30.f);
+			startPos = glm::vec3(8.185f, 4.2f, 40.8f);
+			endPos = glm::vec3(10.93f, 4.2f, 30.f);
 			speed = 5.f;
 			repeats = 5;
 
-			SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, -5);
+			SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 1);
 
-			startPos = glm::vec3(16.72f, 5.616f, 21.1f);
-			endPos = glm::vec3(16.72f, 5.616f, 32.9f);
+			startPos = glm::vec3(16.72f, 6.2f, 21.1f);
+			endPos = glm::vec3(16.72f, 6.2f, 32.9f);
 			speed = 5.f;
 			repeats = 5;
 
-			SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, -5);
+			SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 1);
 
 			trigger1Activated = true;
 			section1Start = true;
@@ -722,8 +714,6 @@ void Scene02::Update(double dt)
 			}
 		}
 	}
-
-	playerHitbox.UpdatePhysics(dt);
 }
 
 void Scene02::RenderSkybox() {
@@ -788,6 +778,9 @@ void Scene02::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, floa
 {
 	glDisable(GL_DEPTH_TEST);
 
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	glm::mat4 ortho = glm::ortho(0.f, 800.f, 0.f, 600.f, -1000.f, 1000.f); // dimension of screen UI
 
 	projectionStack.PushMatrix();
@@ -801,13 +794,12 @@ void Scene02::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, floa
 
 	// To do: Use modelStack to position GUI on screen
 	modelStack.Translate(x, y, 0);
+	modelStack.Rotate(90.f,0.f,0.f,1.f);
 
 	// To do: Use modelStack to scale the GUI
-	modelStack.Scale(10000, 10000, 1);
+	modelStack.Scale(sizex, sizey, 1);
 
 	RenderMesh(mesh, false); //UI should not have light
-
-	RenderMesh(meshList[GEO_GUI], false);
 
 	projectionStack.PopMatrix();
 	viewStack.PopMatrix();
@@ -852,7 +844,6 @@ void Scene02::RenderText(Mesh* mesh, std::string text, glm::vec3 color)
 	glEnable(GL_CULL_FACE);
 	glDisable(GL_BLEND);
 }
-
 
 void Scene02::RenderTextOnScreen(Mesh* mesh, std::string text, glm::vec3 color, float size, float x, float y)
 {
@@ -992,97 +983,102 @@ void Scene02::Render()
 		meshList[GEO_BLASTER]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_BLASTER]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_BLASTER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[GEO_BLASTER]->material.kShininess = 5.0f;
+		meshList[GEO_BLASTER]->material.kShininess = 5.f;
 
 		meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.6f, 0.6f, 0.6f);
 		meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[GEO_SPHERE]->material.kShininess = 5.0f;
+		meshList[GEO_SPHERE]->material.kShininess = 5.f;
 
 		meshList[GEO_WALL]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
 		meshList[GEO_WALL]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_WALL]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[GEO_WALL]->material.kShininess = 5.0f;
+		meshList[GEO_WALL]->material.kShininess = 5.f;
 
 		meshList[GEO_DUCKTARGET]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
 		meshList[GEO_DUCKTARGET]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_DUCKTARGET]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[GEO_DUCKTARGET]->material.kShininess = 5.0f;
+		meshList[GEO_DUCKTARGET]->material.kShininess = 5.f;
 
 		meshList[GEO_PAPER]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_PAPER]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_PAPER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[GEO_PAPER]->material.kShininess = 5.0f;
+		meshList[GEO_PAPER]->material.kShininess = 5.f;
 
 		meshList[GEO_FENCE1]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_FENCE1]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-		meshList[GEO_FENCE1]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[GEO_FENCE1]->material.kShininess = 5.0f;
+		meshList[GEO_FENCE1]->material.kSpecular = glm::vec3(1.f, 1.f, 1.f);
+		meshList[GEO_FENCE1]->material.kShininess = 5.f;
 
 		meshList[GEO_FENCE2]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_FENCE2]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-		meshList[GEO_FENCE2]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[GEO_FENCE2]->material.kShininess = 5.0f;
+		meshList[GEO_FENCE2]->material.kSpecular = glm::vec3(1.f, 1.f, 1.f);
+		meshList[GEO_FENCE2]->material.kShininess = 5.f;
 
 		meshList[GEO_FENCE3]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_FENCE3]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-		meshList[GEO_FENCE3]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[GEO_FENCE3]->material.kShininess = 5.0f;
+		meshList[GEO_FENCE3]->material.kSpecular = glm::vec3(1.f, 1.f, 1.f);
+		meshList[GEO_FENCE3]->material.kShininess = 5.f;
 
 		meshList[GEO_TENT]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_TENT]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_TENT]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[GEO_TENT]->material.kShininess = 5.0f;
+		meshList[GEO_TENT]->material.kShininess = 5.f;
 
 		meshList[GEO_BARREL]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_BARREL]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_BARREL]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[GEO_BARREL]->material.kShininess = 5.0f;
+		meshList[GEO_BARREL]->material.kShininess = 5.f;
 
 		meshList[GEO_CRATE]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_CRATE]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_CRATE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[GEO_CRATE]->material.kShininess = 5.0f;
+		meshList[GEO_CRATE]->material.kShininess = 5.f;
 
 		meshList[GEO_CRATES1]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_CRATES1]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-		meshList[GEO_CRATES1]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[GEO_CRATES1]->material.kShininess = 5.0f;
+		meshList[GEO_CRATES1]->material.kSpecular = glm::vec3(1.f, 1.f, 1.f);
+		meshList[GEO_CRATES1]->material.kShininess = 5.f;
 
 		meshList[GEO_CRATES2]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_CRATES2]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-		meshList[GEO_CRATES2]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[GEO_CRATES2]->material.kShininess = 5.0f;
+		meshList[GEO_CRATES2]->material.kSpecular = glm::vec3(1.f, 1.f, 1.f);
+		meshList[GEO_CRATES2]->material.kShininess = 5.f;
 
 		meshList[GEO_CRATES3]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_CRATES3]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-		meshList[GEO_CRATES3]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[GEO_CRATES3]->material.kShininess = 5.0f;
+		meshList[GEO_CRATES3]->material.kSpecular = glm::vec3(1.f, 1.f, 1.f);
+		meshList[GEO_CRATES3]->material.kShininess = 5.f;
 
 		meshList[GEO_CRATES4]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_CRATES4]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-		meshList[GEO_CRATES4]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[GEO_CRATES4]->material.kShininess = 5.0f;
+		meshList[GEO_CRATES4]->material.kSpecular = glm::vec3(1.f, 1.f, 1.f);
+		meshList[GEO_CRATES4]->material.kShininess = 5.f;
 
 		meshList[GEO_CRATES5]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_CRATES5]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-		meshList[GEO_CRATES5]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[GEO_CRATES5]->material.kShininess = 5.0f;
+		meshList[GEO_CRATES5]->material.kSpecular = glm::vec3(1.f, 1.f, 1.f);
+		meshList[GEO_CRATES5]->material.kShininess = 5.f;
 
 		meshList[GEO_BARRELS1]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_BARRELS1]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-		meshList[GEO_BARRELS1]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[GEO_BARRELS1]->material.kShininess = 5.0f;
+		meshList[GEO_BARRELS1]->material.kSpecular = glm::vec3(1.f, 1.f, 1.f);
+		meshList[GEO_BARRELS1]->material.kShininess = 5.f;
 
 		meshList[GEO_BARRELS2]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_BARRELS2]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-		meshList[GEO_BARRELS2]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[GEO_BARRELS2]->material.kShininess = 5.0f;
+		meshList[GEO_BARRELS2]->material.kSpecular = glm::vec3(1.f, 1.f, 1.f);
+		meshList[GEO_BARRELS2]->material.kShininess = 5.f;
 
 		meshList[GEO_BARRELS3]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_BARRELS3]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-		meshList[GEO_BARRELS3]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[GEO_BARRELS3]->material.kShininess = 5.0f;
+		meshList[GEO_BARRELS3]->material.kSpecular = glm::vec3(1.f, 1.f, 1.f);
+		meshList[GEO_BARRELS3]->material.kShininess = 5.f;
+
+		meshList[ARANK]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[ARANK]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+		meshList[ARANK]->material.kSpecular = glm::vec3(1.f, 1.f, 1.f);
+		meshList[ARANK]->material.kShininess = 5.f;
 	}
 
 	// Environment
@@ -1181,26 +1177,6 @@ void Scene02::Render()
 			modelStack.Scale(1.f, 1.f, 1.f);
 			RenderMesh(meshList[GEO_FENCE3], true);
 			modelStack.PopMatrix();
-		}
-
-		// Trees
-		{
-
-		}
-
-		// Other props
-		{
-			/*modelStack.PushMatrix();
-			modelStack.Translate(0.f, 0.f, 0.f);
-			modelStack.Scale(0.3f, 0.35f, 0.3f);
-			RenderMesh(meshList[GEO_BARREL], true);
-			modelStack.PopMatrix();*/
-
-			/*modelStack.PushMatrix();
-			modelStack.Translate(0.f, 0.f, 0.f);
-			modelStack.Scale(1.f, 1.f, 1.f);
-			RenderMesh(meshList[GEO_CRATE], true);
-			modelStack.PopMatrix();*/
 		}
 	}
 
@@ -1319,15 +1295,65 @@ void Scene02::Render()
 			RenderTextOnScreen(meshList[GEO_TEXT], temp.substr(0, 9), glm::vec3(0, 1, 0), 20, 0, 580);
 		}
 
-		// SCORE COUNTER
+		if (!gameEnded)
 		{
-			std::string temp("Score:" + std::to_string(score));
-			RenderTextOnScreen(meshList[GEO_TEXT], temp.substr(0,9), glm::vec3(1, 0, 0), 20, 0, 540);
-		}
+			// SCORE COUNTER
+			{
+				RenderTextOnScreen(meshList[GEO_TEXT], "Score:" + std::to_string(score), glm::vec3(1, 0, 0), 20, 0, 540);
+			}
 
-		// TIME COUNTER
+			// TIME COUNTER
+			{
+				RenderTextOnScreen(meshList[GEO_TEXT], "Time: " + elapsedTimeText, glm::vec3(1.f, 1.f, 0.f), 20, 0, 500);
+			}
+
+			// TIME COUNTER
+			{
+				RenderTextOnScreen(meshList[GEO_TEXT], "Shots Fired: " + std::to_string(shotsFired), glm::vec3(1.f, 1.f, 0.f), 20, 0, 460);
+			}
+		}
+		// 800 max X, 600 max Y
+
+		// FINAL SCORE
 		{
-			RenderTextOnScreen(meshList[GEO_TEXT], "Time: " + elapsedTimeText, glm::vec3(1.f, 1.f, 0.f), 20, 0, 500);
+			if (gameEnded)
+			{
+				RenderMeshOnScreen(meshList[BLACK],400.f,300.f,1600.f,600.f);
+				int shotPoints = shotsFired;
+				if (shotsFired <= 9)
+				{
+					shotPoints = round(shotPoints / 9);
+				}
+				else
+				{
+					shotPoints = round(shotPoints / 5);
+				}
+				int finalScore = score * 100 / (shotPoints * round(totalElapsedTime / 60));
+				if (finalScore >= 900)
+				{
+					RenderMeshOnScreen(meshList[SRANK], 500.f, 300.f, 100.f, 100.f);
+				}
+				else if (finalScore >= 800)
+				{
+					RenderMeshOnScreen(meshList[ARANK], 500.f, 300.f, 100.f, 100.f);
+				}
+				else if (finalScore >= 700)
+				{
+					RenderMeshOnScreen(meshList[BRANK], 500.f, 300.f, 100.f, 100.f);
+				}
+				else if (finalScore >= 600)
+				{
+					RenderMeshOnScreen(meshList[CRANK], 500.f, 300.f, 100.f, 100.f);
+				}
+				else
+				{
+					RenderMeshOnScreen(meshList[DRANK], 500.f, 300.f, 100.f, 100.f);
+				}
+				RenderTextOnScreen(meshList[GEO_TEXT], "Score Multiplier: " + std::to_string(score), glm::vec3(1.f, 1.f, 1.f), 20, 180, 340);
+				RenderTextOnScreen(meshList[GEO_TEXT], "Shots Fired: " + std::to_string(shotsFired), glm::vec3(1.f, 1.f, 1.f), 20, 180, 300);
+				RenderTextOnScreen(meshList[GEO_TEXT], "Time Taken: " + elapsedTimeText, glm::vec3(1.f, 1.f, 1.f), 20, 180, 260);
+				RenderTextOnScreen(meshList[GEO_TEXT], "Final Score: " + std::to_string(finalScore), glm::vec3(1.f, 1.f, 1.f), 30, 180, 200);
+			}
 		}
 	}
 }
@@ -1504,6 +1530,17 @@ void Scene02::HandleKeyPress(double dt)
 				}
 			}
 
+			{
+				CollisionData cd;
+				if (OverlapSphere2OBB(test, section1Barrier, cd) && !section1End)
+				{
+					collision = true;
+				}
+				if (OverlapSphere2OBB(test, section2Barrier, cd) && !section2End)
+				{
+					collision = true;
+				}
+			}
 			if (!collision)
 			{
 				// Accept full move
@@ -1535,6 +1572,17 @@ void Scene02::HandleKeyPress(double dt)
 							break;
 						}
 					}
+					{
+						CollisionData cd;
+						if (OverlapSphere2OBB(tx, section1Barrier, cd) && !section1End)
+						{
+							colX = true;
+						}
+						if (OverlapSphere2OBB(tx, section2Barrier, cd) && !section2End)
+						{
+							colX = true;
+						}
+					}
 					if (!colX)
 					{
 						playerHitbox.pos += deltaX;
@@ -1558,6 +1606,17 @@ void Scene02::HandleKeyPress(double dt)
 							break;
 						}
 					}
+					{
+						CollisionData cd;
+						if (OverlapSphere2OBB(tz, section1Barrier, cd) && !section1End)
+						{
+							colZ = true;
+						}
+						if (OverlapSphere2OBB(tz, section2Barrier, cd) && !section2End)
+						{
+							colZ = true;
+						}
+					}
 					if (!colZ)
 					{
 						playerHitbox.pos += deltaZ;
@@ -1566,8 +1625,6 @@ void Scene02::HandleKeyPress(double dt)
 						movedZ = true;
 					}
 				}
-
-				// If neither axis allowed movement then we are blocked (no change).
 			}
 		}
 	}

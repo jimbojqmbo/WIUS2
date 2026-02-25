@@ -29,7 +29,15 @@ public:
 		GEO_BACK,
 		GEO_GUI,
 		GEO_CYLINDER,
+
 		GEO_TEXT,
+		BLACK,
+
+		SRANK,
+		ARANK,
+		BRANK,
+		CRANK,
+		DRANK,
 
 		GEO_WALL,
 
@@ -167,7 +175,8 @@ private:
 
 	bool gameEnded;
 
-	float score;
+	int score;
+	int shotsFired;
 
 	glm::vec3 targetHitboxSize;
 	glm::vec3 targetSize;
