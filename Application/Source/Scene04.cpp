@@ -255,7 +255,7 @@ void Scene04::balls_update(double dt) {
 			//ResolveCollisionBall(cd);
 		}
 		//ball against floor
-		if (OverlapCircle2AABB(bounce_balls[i].ball, bounce_balls[i].radius * 2, floor, glm::vec3 (floor_space, floor_height*2, floor_space),cd)) {
+		if (OverlapCircle2AABB(bounce_balls[i].ball, bounce_balls[i].radius, floor, glm::vec3 (floor_space, floor_height, floor_space),cd)) {
 			walls_resolve(cd);
 			//std::cout << "ball collide with floor" << std::endl;
 		}
@@ -385,7 +385,7 @@ void Scene04::balls_render() {
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(bounce_balls[i].ball.pos.x, bounce_balls[i].ball.pos.y, bounce_balls[i].ball.pos.z);
+		modelStack.Translate(bounce_balls[i].ball.pos.x, bounce_balls[i].ball.pos.y-(.5f), bounce_balls[i].ball.pos.z);
 		modelStack.Scale((bounce_balls[i].radius), (bounce_balls[i].radius), (bounce_balls[i].radius));
 		modelStack.Rotate(0, 1.f, 1.f, 1.f);
 		RenderMesh(meshList[GEO_DEER], true);
@@ -400,7 +400,7 @@ void Scene04::walls_render(){
 	meshList[GEO_CUBE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 	meshList[GEO_CUBE]->material.kShininess = 5.0f;
 	modelStack.Translate(floor.pos.x, floor.pos.y, floor.pos.z);
-	modelStack.Scale(floor_space/9.5, floor_height/9.5, floor_space/9.5);
+	modelStack.Scale(floor_space/10, floor_height/10, floor_space/10);
 	modelStack.Rotate(0, 1.f, 1.f, 1.f);
 	RenderMesh(meshList[GEO_CUBE], true);
 	modelStack.PopMatrix();
@@ -658,7 +658,7 @@ void Scene04::HandleKeyPress(double dt)
 		// Key press to enable wireframe mode for the polygon
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //wireframe mode
 	}
-
+	/*
 	if (KeyboardController::GetInstance()->IsKeyPressed(VK_SPACE))
 	{
 		// Change to black background
@@ -670,13 +670,13 @@ void Scene04::HandleKeyPress(double dt)
 		//Toggle light on or off
 	   /*enableLight = !enableLight;*/
 
-		//if (light[0].power <= 0.1f)
-			//light[0].power = 1.f;
-		//else
-			///light[0].power = 0.1f;
-		//glUniform1f(m_parameters[U_LIGHT0_POWER], light[0].power);
-	}
-
+	   //if (light[0].power <= 0.1f)
+		   //light[0].power = 1.f;
+	   //else
+		   ///light[0].power = 0.1f;
+	   //glUniform1f(m_parameters[U_LIGHT0_POWER], light[0].power);
+	//}
+	/*
 	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_TAB))
 	{
 		if (light[0].type == Light::LIGHT_POINT) {
@@ -691,7 +691,7 @@ void Scene04::HandleKeyPress(double dt)
 
 		glUniform1i(m_parameters[U_LIGHT0_TYPE], light[0].type);
 	};
-
+	*/
 	// Calculate forward and right vectors based on camera orientation
 	glm::vec3 forward = glm::normalize(camera.target - camera.position);
 	glm::vec3 right = glm::normalize(glm::cross(forward, camera.up));
@@ -741,18 +741,13 @@ void Scene04::HandleKeyPress(double dt)
 		camera.position += right * glm::vec3(0.1);// *speed; 
 		camera.target += right * glm::vec3(0.1);// *speed;
 	}
-	/*
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT_SHIFT))
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_R))
 	{
-		// sprint at 10.f
-		float movement = (1.5 * moveSpeed) * static_cast<float>(dt);
-		camera.position += forward * movement;
-		camera.target += forward * movement;
+		ball_select = 0;
 	}
-	*/
 
 	
-
+	/*
 	if (KeyboardController::GetInstance()->IsKeyDown('I'))
 		light[0].position.z -= static_cast<float>(dt) * 5.f;
 	if (KeyboardController::GetInstance()->IsKeyDown('K'))
@@ -765,7 +760,7 @@ void Scene04::HandleKeyPress(double dt)
 		light[0].position.y -= static_cast<float>(dt) * 5.f;
 	if (KeyboardController::GetInstance()->IsKeyDown('P'))
 		light[0].position.y += static_cast<float>(dt) * 5.f;
-
+	*/
 	// Clamp camera height to adjusted limits
 	if (camera.position.y < 3.3f) {
 		camera.position.y = 3.3f;
