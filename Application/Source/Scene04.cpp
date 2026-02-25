@@ -381,7 +381,9 @@ void Scene04::balls_render() {
 			modelStack.PushMatrix();
 			modelStack.Translate(bounce_balls[i].ball.pos.x, bounce_balls[i].ball.pos.y, bounce_balls[i].ball.pos.z);
 			modelStack.Scale((bounce_balls[i].radius), (bounce_balls[i].radius), (bounce_balls[i].radius));
-			modelStack.Rotate(0, 1.f, 1.f, 1.f);
+			modelStack.Rotate(bounce_balls[i].ball.rotation.x, 1.f, 0.f, 0.f);
+			modelStack.Rotate(bounce_balls[i].ball.rotation.y, 0.f, 1.f, 0.f);
+			modelStack.Rotate(bounce_balls[i].ball.rotation.z, 0.f, 0.f, 1.f);
 			RenderMesh(meshList[GEO_SPHERE], true);
 			modelStack.PopMatrix();
 		}
@@ -389,7 +391,9 @@ void Scene04::balls_render() {
 		modelStack.PushMatrix();
 		modelStack.Translate(bounce_balls[i].ball.pos.x, bounce_balls[i].ball.pos.y-(.5f), bounce_balls[i].ball.pos.z);
 		modelStack.Scale((bounce_balls[i].radius), (bounce_balls[i].radius), (bounce_balls[i].radius));
-		modelStack.Rotate(0, 1.f, 1.f, 1.f);
+		modelStack.Rotate(bounce_balls[i].ball.rotation.x, 1.f, 0.f, 0.f);
+		modelStack.Rotate(bounce_balls[i].ball.rotation.y, 0.f, 1.f, 0.f);
+		modelStack.Rotate(bounce_balls[i].ball.rotation.z, 0.f, 0.f, 1.f);
 		RenderMesh(meshList[GEO_DEER], true);
 		modelStack.PopMatrix();
 	}
@@ -929,7 +933,7 @@ void Scene04::walls_resolve(CollisionData cd) {
 	if (lenT > 0.001f)
 	{
 		tangent /= lenT;
-		glm::vec3 frictionImpulse = -0.4f * tangent * glm::length(relativeVel); // simple friction
+		glm::vec3 frictionImpulse = -0.1f * tangent * glm::length(relativeVel); // simple friction
 		o1.vel += frictionImpulse * invMass1;
 		o2.vel -= frictionImpulse * invMass2;
 	}
