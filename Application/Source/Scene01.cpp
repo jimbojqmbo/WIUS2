@@ -2835,8 +2835,8 @@ void Scene01::HandleKeyPress2(FPCamera& cam, double dt)
 			// float dt = Timer::GetDeltaTime(); 
 			float dt = 0.016f; // Placeholder for ~60fps
 
-			const float rotationSpeed = 50.0f; // Adjusted for real dt
-			float turnAmount = rotationSpeed * dt;
+			const float rotationSpeed = 125.0f; // Adjusted for real dt
+			float turnAmount = (rotationSpeed * dt);
 
 			// 2. Update Angles (The Source of Truth)
 			if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_I)) cam.altitude += turnAmount;
