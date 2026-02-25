@@ -151,6 +151,7 @@ private:
 	//ring
 	static const int  ring_num = 3;
 	ringbuck rings[ring_num];
+	float ren_height;
 	//else
 	CollisionData cd;
 	//varibles

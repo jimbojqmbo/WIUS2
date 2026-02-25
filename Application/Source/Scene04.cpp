@@ -271,7 +271,8 @@ void Scene04::balls_update(double dt) {
 		}
 		//ball agaisnt buckets
 		for (int l = 0; l < ring_num; l++) {
-			ResolveCircle2Ring(bounce_balls[i].ball, bounce_balls[i].radius, rings[l].bucket, rings[l].radius, rings[l].sradius, rings[l].height);
+			ren_height = rings[l].height + 2;
+			ResolveCircle2Ring(bounce_balls[i].ball, bounce_balls[i].radius, rings[l].bucket, rings[l].radius, rings[l].sradius, (ren_height + (ren_height / 2)));
 		}
 		
 	}
@@ -436,6 +437,19 @@ void Scene04::walls_render(){
 
 void Scene04::buckets_render() {
 	for (int i = 0; i < ring_num; i++) {
+		if (show_col == true) {
+			ren_height = rings[i].height + 2;
+			modelStack.PushMatrix();
+			modelStack.Translate(rings[i].bucket.pos.x, rings[i].bucket.pos.y, rings[i].bucket.pos.z);
+			modelStack.Scale((rings[i].radius), (ren_height + (ren_height / 2)) , (rings[i].radius));
+			meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+			meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
+			meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+			meshList[GEO_SPHERE]->material.kShininess = 5.0f;
+			RenderMesh(meshList[GEO_SPHERE], true);
+			modelStack.PopMatrix();
+		}
+
 		modelStack.PushMatrix();
 		modelStack.Translate(rings[i].bucket.pos.x, rings[i].bucket.pos.y, rings[i].bucket.pos.z);
 		modelStack.Scale((rings[i].radius), (rings[i].height), (rings[i].radius));
