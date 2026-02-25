@@ -53,6 +53,7 @@ public:
 		GEO_BALLOONSTRING,
 		GEO_BIRCHTREE,
 		GEO_CAROUSEL,
+		GEO_DIALOGUE1,
 		NUM_GEOMETRY,
 	};
 
@@ -192,6 +193,10 @@ private:
 	bool endgame = false;
 	bool showstart = true;
 	float spinspeed = 1000.f;
+
+	float playerRadius = 2.f;        // adjust to match player size
+	float carouselRadius = 11.f;     // adjust to match carousel size
+	glm::vec3 carouselPosition = glm::vec3(-22.5f, 0.f, 31.5f);
 };
 
 #endif

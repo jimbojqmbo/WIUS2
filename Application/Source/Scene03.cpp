@@ -171,6 +171,9 @@ void Scene03::Init()
 	meshList[GEO_CAROUSEL] = MeshBuilder::GenerateOBJMTL("Carousel", "Models//carousel.obj", "Models//carousel.mtl");
 	meshList[GEO_CAROUSEL]->textureID = LoadTGA("Images//carousel.tga");
 
+	meshList[GEO_DIALOGUE1] = MeshBuilder::GenerateQuad("Dialogue", glm::vec3(1.f, 1.f, 1.f), 10.f);
+	meshList[GEO_DIALOGUE1]->textureID = LoadTGA("Images//dialogue1.tga");
+
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
 
@@ -308,6 +311,8 @@ bool Scene03::OverlapCircle2AABB(glm::vec3 circlePos, float radius, glm::vec3 bo
 
 void Scene03::Update(double dt)
 {
+	glm::vec3 previousPosition = camera.position;
+
 	// Toggle score display anytime after game ends
 	if (endgame && KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_C))
 	{
@@ -385,6 +390,8 @@ void Scene03::Update(double dt)
 	if (KeyboardController::GetInstance()->IsKeyDown('P'))
 		light[0].position.y += static_cast<float>(dt) * 5.f;
 
+	std::cout << light->position.x << ", " << light->position.z << std::endl;
+
 	camera.Update(dt);
 
 	// Prevent camera from going below ground after camera updates
@@ -428,9 +435,9 @@ void Scene03::Update(double dt)
 		inStartArea = false;
 	}
 
-	std::cout << light->position.x << ", " <<
-				 light->position.y << ", " <<
-				 light->position.z << std::endl;
+	//std::cout << light->position.x << ", " <<
+	//			 light->position.y << ", " <<
+	//			 light->position.z << std::endl;
 
 	if (inStartArea) {
 		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_R))
@@ -627,6 +634,10 @@ void Scene03::Update(double dt)
 
 	rimPosition = hoopPosition + glm::vec3(0.f, 6.37f, 3.2f);
 
+	if (OverlapCircle2Circle(camera.position, playerRadius, carouselPosition, carouselRadius)) {
+		camera.position = previousPosition;
+	}
+
 	float temp = 1.f / dt;
 	fps = glm::round(temp * 100.f) / 100.f;
 }
@@ -679,32 +690,21 @@ void Scene03::RenderSkybox() {
 void Scene03::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey)
 {
 	glDisable(GL_DEPTH_TEST);
-
 	glm::mat4 ortho = glm::ortho(0.f, 800.f, 0.f, 600.f, -1000.f, 1000.f); // dimension of screen UI
-
 	projectionStack.PushMatrix();
 	projectionStack.LoadMatrix(ortho);
-
 	viewStack.PushMatrix();
 	viewStack.LoadIdentity(); //No need camera for ortho mode
-
 	modelStack.PushMatrix();
 	modelStack.LoadIdentity();
-
 	// To do: Use modelStack to position GUI on screen
 	modelStack.Translate(x, y, 0);
-
 	// To do: Use modelStack to scale the GUI
-	modelStack.Scale(10000, 10000, 1);
-
+	modelStack.Scale(sizex, sizey, 0.f);
 	RenderMesh(mesh, false); //UI should not have light
-
-	RenderMesh(meshList[GEO_GUI], false);
-
 	projectionStack.PopMatrix();
 	viewStack.PopMatrix();
 	modelStack.PopMatrix();
-
 	glEnable(GL_DEPTH_TEST);
 }
 
@@ -1075,13 +1075,17 @@ void Scene03::Render()
 		showCrosshair = false;
 	}
 
-	if (showCrosshair == true) {
-		//tuff crosshair
-		modelStack.PushMatrix();
-		modelStack.Scale(1.f, 1.f, 1.f);
-		RenderTextOnScreen(meshList[GEO_TEXT], "+", glm::vec3(0, 1, 1), 40, 392, 282);
-		modelStack.PopMatrix();
+	if (OverlapCircle2Circle(camera.position, playerRadius, carouselPosition, carouselRadius + 1)) {
+		RenderMeshOnScreen(meshList[GEO_DIALOGUE1], 175, 24, 35, 10);
 	}
+
+	//if (showCrosshair == true) {
+	//	//tuff crosshair
+	//	modelStack.PushMatrix();
+	//	modelStack.Scale(1.f, 1.f, 1.f);
+	//	RenderTextOnScreen(meshList[GEO_TEXT], "+", glm::vec3(0, 1, 1), 40, 392, 282);
+	//	modelStack.PopMatrix();
+	//}
 }
 
 void Scene03::RenderMesh(Mesh* mesh, bool enableLight)
