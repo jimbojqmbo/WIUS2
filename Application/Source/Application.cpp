@@ -256,7 +256,7 @@ void Application::Run()
 		}
 		else if (isEnterUp && KeyboardController::GetInstance()->IsKeyUp(GLFW_KEY_4)) {
 			isEnterUp = false;
-		}
+		}*/
 
 		// === FROM SCENE01 to MAIN MENU ===
 		if (!isEnterUp && KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_BACKSPACE)) {
@@ -274,7 +274,6 @@ void Application::Run()
 		else if (isEnterUp && KeyboardController::GetInstance()->IsKeyUp(GLFW_KEY_BACKSPACE)) {
 			isEnterUp = false;
 		}
-		*/
 
 		{
 			// THE FOLLOWING SCENE SWITCHING MECHANICS ARE FOR SCENE01 ONLY

@@ -236,6 +236,9 @@ void Scene01::Init()
 	meshList[PAUSEMENU] = MeshBuilder::GenerateQuad("pause", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[PAUSEMENU]->textureID = LoadTGA("Images//scene01pausemenuv2.tga");
 
+	meshList[MAINPAUSE] = MeshBuilder::GenerateQuad("pause", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[MAINPAUSE]->textureID = LoadTGA("Images//mainpausemenu.tga");
+
 	meshList[ENTERBUMPERCARGAMEPROMPT] = MeshBuilder::GenerateQuad("enter", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[ENTERBUMPERCARGAMEPROMPT]->textureID = LoadTGA("Images//bumper car game prompts//enterbumpercargame.tga");
 
@@ -2443,7 +2446,7 @@ void Scene01::Render()
 	{
 		glDisable(GL_DEPTH_TEST);
 		glViewport(0, 0, 1600, 900);
-		RenderMeshOnScreen(meshList[PAUSEMENU], 800, 450, 1600, 900);
+		RenderMeshOnScreen(meshList[MAINPAUSE], 800, 450, 1600, 900);
 		glEnable(GL_DEPTH_TEST);
 		return;
 	}
