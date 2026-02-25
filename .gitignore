@@ -30,3 +30,7 @@ Release/
 *.tlog
 *.pdb
 *.idb
+/Application/Models/lowpolycloud/lowpolycloud.mtl
+/Application/Models/cute character/cute_character.mtl
+/Application/Models/lowpolygrassclump/low_poly_grass_clump.mtl
+/.gitignore

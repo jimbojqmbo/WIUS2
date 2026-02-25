@@ -54,6 +54,7 @@ public:
 		BASKETBALLCOURT,
 
 		GEO_SPARKLING_STAR,
+		CUTECHARACTER,
 
 		GEO_PEWPEW,
 
@@ -61,6 +62,7 @@ public:
 		GEO_ABANDONEDHOUSE,
 		GREYGROUND,
 		SOLIDGREENGRASS,
+		GRASSCLUMP,
 
 		GEO_FLASHLIGHT,
 
@@ -166,6 +168,8 @@ private:
 
 	void RenderPathway();
 	void RenderGamePathways();
+	void RenderBirchTrees();
+	void RenderGrassClump();
 
 	glm::vec3 change;
 
@@ -218,7 +222,11 @@ private:
 
 	// Helper to query fence collision
 	bool IsInsideFence(const glm::vec3& p) const;
-	
+
+	// Bumper-car world positions (decoupled from camera)
+	glm::vec3 bumperCarPos1 = glm::vec3(-11.0f, 0.0f, -90.0f);
+	glm::vec3 bumperCarPos2 = glm::vec3(-11.0f, 0.0f, -60.0f);
+
 };
 
 #endif

@@ -151,13 +151,25 @@ void Scene03::Init()
 
 	meshList[GEO_TORUS] = MeshBuilder::GenerateTorus("Torus", glm::vec3(1, 1, 1), 0.02, 1.1);
 
-	meshList[GEO_BLACKWALL] = MeshBuilder::GenerateQuad("BlackWall", glm::vec3(0, 0, 0), 1.f);
+	meshList[GEO_BLACKWALL] = MeshBuilder::GenerateCube("BlackWall", glm::vec3(0, 0, 0), 1.f);
 
 	meshList[GEO_TENT] = MeshBuilder::GenerateOBJMTL("CarnivalTent", "Models//alvintent.obj", "Models//alvintent.mtl");
 	meshList[GEO_TENT]->textureID = LoadTGA("Images//alvintent.tga");
 
 	meshList[GEO_HOTDOG] = MeshBuilder::GenerateOBJMTL("hotdog", "Models//hotdog.obj", "Models//hotdog.mtl");
 	meshList[GEO_HOTDOG]->textureID = LoadTGA("Images//hotdog.tga");
+
+	meshList[GEO_CLOWN] = MeshBuilder::GenerateOBJMTL("Clown", "Models//clown.obj", "Models//clown.mtl");
+	meshList[GEO_CLOWN]->textureID = LoadTGA("Images//clown.tga");
+
+	meshList[GEO_BALLOON] = MeshBuilder::GenerateOBJMTL("Balloon", "Models//red_balloon.obj", "Models//red_balloon.mtl");
+	meshList[GEO_BALLOON]->textureID = LoadTGA("Images//red_balloon.tga");
+
+	meshList[GEO_BIRCHTREE] = MeshBuilder::GenerateOBJMTL("BirchTree", "Models//birchtree//birchtree.obj", "Models//birchtree//birchtree.mtl");
+	meshList[GEO_BIRCHTREE]->textureID = LoadTGA("Images//birchtree//birchtree_baseColor.tga");
+
+	meshList[GEO_CAROUSEL] = MeshBuilder::GenerateOBJMTL("Carousel", "Models//carousel.obj", "Models//carousel.mtl");
+	meshList[GEO_CAROUSEL]->textureID = LoadTGA("Images//carousel.tga");
 
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
@@ -313,6 +325,9 @@ void Scene03::Update(double dt)
 	//showCrosshair = true;
 
 	// Get total elapsed time from Application's m_timer
+
+	spinspeed += 100 * dt;
+
 	if (timerStarted && !timerEnded)
 	{
 		totalElapsedTime += dt;
@@ -883,7 +898,11 @@ void Scene03::Render()
 				camera.position.z + offset.z
 			);
 			modelStack.Scale(0.008f, 0.008f, 0.008f);
-			RenderMesh(meshList[GEO_BASKETBALL], false);
+			meshList[GEO_BASKETBALL]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+			meshList[GEO_BASKETBALL]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
+			meshList[GEO_BASKETBALL]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+			meshList[GEO_BASKETBALL]->material.kShininess = 5.0f;
+			RenderMesh(meshList[GEO_BASKETBALL], true);
 			modelStack.PopMatrix();
 		}
 	}
@@ -891,7 +910,11 @@ void Scene03::Render()
 	modelStack.PushMatrix();
 	modelStack.Translate(hoopPosition.x, hoopPosition.y, hoopPosition.z);
 	modelStack.Scale(2.f, 2.f, 2.f);
-	RenderMesh(meshList[GEO_HOOP], false);
+	meshList[GEO_HOOP]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_HOOP]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_HOOP]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+	meshList[GEO_HOOP]->material.kShininess = 5.0f;
+	RenderMesh(meshList[GEO_HOOP], true);
 	modelStack.PopMatrix();
 
 
@@ -927,28 +950,91 @@ void Scene03::Render()
 	modelStack.PushMatrix();
 	modelStack.Translate(rimPosition.x, rimPosition.y, rimPosition.z);
 	modelStack.Scale(0.5f, 0.5f, 0.5f);
-	RenderMesh(meshList[GEO_TORUS], false);
+	RenderMesh(meshList[GEO_TORUS], true);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	modelStack.Translate(0.f, 4.5f, 1.f);
-	modelStack.Scale(14.f, 9.f, 7.f);
-	RenderMesh(meshList[GEO_BLACKWALL], false);
+	modelStack.Translate(0.f, 4.5f, -0.5f);
+	modelStack.Scale(14.f, 9.f, 3.f);
+	meshList[GEO_BLACKWALL]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_BLACKWALL]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_BLACKWALL]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+	meshList[GEO_BLACKWALL]->material.kShininess = 5.0f;
+	RenderMesh(meshList[GEO_BLACKWALL], true);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
 	modelStack.Translate(25.f, 6.f, -20.f);
 	modelStack.Scale(8.f, 8.f, 8.f);
 	modelStack.Rotate(225.f, 0.f, 1.f, 0.f);
-	RenderMesh(meshList[GEO_TENT], false);
+	meshList[GEO_TENT]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_TENT]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_TENT]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+	meshList[GEO_TENT]->material.kShininess = 5.0f;
+	RenderMesh(meshList[GEO_TENT], true);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
 	modelStack.Translate(-18.f, 0.f, 8.f);
 	modelStack.Scale(1.f, 1.f, 1.f);
 	modelStack.Rotate(-90.f, 0.f, 1.f, 0.f);
-	RenderMesh(meshList[GEO_HOTDOG], false);
+	meshList[GEO_HOTDOG]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_HOTDOG]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_HOTDOG]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+	meshList[GEO_HOTDOG]->material.kShininess = 5.0f;
+	RenderMesh(meshList[GEO_HOTDOG], true);
 	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	modelStack.Translate(15.f, 0.f, -3.f);
+	modelStack.Scale(2.f, 2.f, 2.f);
+	modelStack.Rotate(90.f, 1.f, 0.f, 0.f);
+	meshList[GEO_CLOWN]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_CLOWN]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_CLOWN]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+	meshList[GEO_CLOWN]->material.kShininess = 5.0f;
+	RenderMesh(meshList[GEO_CLOWN], true);
+	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	modelStack.Translate(13.4f, 2.5f, -2.85f);
+	modelStack.Scale(1.f, 1.f, 1.f);
+	modelStack.Rotate(0.f, 0.f, 1.f, 0.f);
+	meshList[GEO_BALLOON]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_BALLOON]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_BALLOON]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+	meshList[GEO_BALLOON]->material.kShininess = 5.0f;
+	RenderMesh(meshList[GEO_BALLOON], true);
+	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	modelStack.Translate(-19, 0, 15);
+	modelStack.Scale(0.03f, 0.03f, 0.03f);
+	modelStack.Rotate(0.f, 0.f, 1.f, 0.f);
+	meshList[GEO_BIRCHTREE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_BIRCHTREE]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_BIRCHTREE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+	meshList[GEO_BIRCHTREE]->material.kShininess = 5.0f;
+	RenderMesh(meshList[GEO_BIRCHTREE], true);
+	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	modelStack.Translate(-22.5, 0, 31.5);
+	modelStack.Scale(80.f, 80.f, 80.f);
+	modelStack.Rotate(spinspeed, 0.f, 1.f, 0.f);
+	meshList[GEO_CAROUSEL]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_CAROUSEL]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_CAROUSEL]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+	meshList[GEO_CAROUSEL]->material.kShininess = 5.0f;
+	RenderMesh(meshList[GEO_CAROUSEL], true);
+	modelStack.PopMatrix();
+
+	//modelStack.PushMatrix();
+	//modelStack.Translate(light->position.x, 4.f, light->position.z);
+	//modelStack.Scale(1.f, 10.f, 1.f);
+	//modelStack.Rotate(0.f, 0.f, 1.f, 0.f);
+	//RenderMesh(meshList[GEO_BALLOONSTRING], false);
+	//modelStack.PopMatrix();
 
 	//modelStack.PushMatrix();
 	//modelStack.Translate(rimPosition.x, rimPosition.y - 0.5f, rimPosition.z);

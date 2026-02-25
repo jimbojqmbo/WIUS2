@@ -48,6 +48,11 @@ public:
 		GEO_BLACKWALL,
 		GEO_TENT,
 		GEO_HOTDOG,
+		GEO_CLOWN,
+		GEO_BALLOON,
+		GEO_BALLOONSTRING,
+		GEO_BIRCHTREE,
+		GEO_CAROUSEL,
 		NUM_GEOMETRY,
 	};
 
@@ -186,6 +191,7 @@ private:
 	bool inStartArea = false;
 	bool endgame = false;
 	bool showstart = true;
+	float spinspeed = 1000.f;
 };
 
 #endif
