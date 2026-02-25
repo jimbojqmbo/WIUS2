@@ -377,12 +377,14 @@ void Scene04::Render()
 
 void Scene04::balls_render() {
 	for (int i = 0; i < ball_num; i++) {
-		modelStack.PushMatrix();
-		modelStack.Translate(bounce_balls[i].ball.pos.x, bounce_balls[i].ball.pos.y, bounce_balls[i].ball.pos.z);
-		modelStack.Scale((bounce_balls[i].radius),(bounce_balls[i].radius),(bounce_balls[i].radius));
-		modelStack.Rotate(0 , 1.f, 1.f, 1.f);
-		RenderMesh(meshList[GEO_SPHERE], true);
-		modelStack.PopMatrix();
+		if (show_col == true) {
+			modelStack.PushMatrix();
+			modelStack.Translate(bounce_balls[i].ball.pos.x, bounce_balls[i].ball.pos.y, bounce_balls[i].ball.pos.z);
+			modelStack.Scale((bounce_balls[i].radius), (bounce_balls[i].radius), (bounce_balls[i].radius));
+			modelStack.Rotate(0, 1.f, 1.f, 1.f);
+			RenderMesh(meshList[GEO_SPHERE], true);
+			modelStack.PopMatrix();
+		}
 
 		modelStack.PushMatrix();
 		modelStack.Translate(bounce_balls[i].ball.pos.x, bounce_balls[i].ball.pos.y-(.5f), bounce_balls[i].ball.pos.z);
@@ -741,11 +743,14 @@ void Scene04::HandleKeyPress(double dt)
 		camera.position += right * glm::vec3(0.1);// *speed; 
 		camera.target += right * glm::vec3(0.1);// *speed;
 	}
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_R))
+	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_R))
 	{
 		ball_select = 0;
 	}
-
+	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_C))
+	{
+		show_col = not(show_col);
+	}
 	
 	/*
 	if (KeyboardController::GetInstance()->IsKeyDown('I'))
