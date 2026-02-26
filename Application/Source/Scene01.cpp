@@ -69,6 +69,10 @@ void Scene01::Init()
 	objectPos = glm::vec3(0.0f, 0.0f, 0.0f);
 	moveSpeed = 5.0f; // units per second
 
+	BasketballGameEntered = false;
+	BallBouncerGameEntered = false;
+	DuckShootingGameEntered = false;
+
 	// Set background color to dark blue
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 
@@ -2602,7 +2606,7 @@ void Scene01::HandleKeyPress1(FPCamera& cam, double dt)
 	{
 		// Use aggregated movement and test fence collisions BEFORE applying.
 		float movement = moveSpeed * static_cast<float>(dt);
-		glm::vec3 moveVec(0.0f);
+		glm::vec3 moveVec(0.f);
 
 		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_W)) moveVec += forward * movement;
 		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_S)) moveVec -= forward * movement;
@@ -2610,7 +2614,7 @@ void Scene01::HandleKeyPress1(FPCamera& cam, double dt)
 		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_D)) moveVec += right * movement;
 
 		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT_SHIFT))
-			moveVec *= 1.5f;
+			moveVec *= 3.f;
 
 		if (glm::length(moveVec) > 0.0001f)
 		{
