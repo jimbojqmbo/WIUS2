@@ -255,6 +255,8 @@ private:
 
 	std::vector<std::pair<glm::vec3, glm::vec3>> basketballBuildingZone;
 
+	std::vector<std::pair<glm::vec3, glm::vec3>> pathSideCollision;
+
 	// Helper to query fence collision
 	bool IsInsideFence(const glm::vec3& p) const;
 
@@ -283,8 +285,8 @@ private:
 	float introDuration = 12.0f;      // seconds to move forward
 	float introReturnDuration = 2.0f; // fast return
 
-	glm::vec3 introStartPos = glm::vec3(-67.f, 3.3f, 63.94f);
-	glm::vec3 introEndPos = glm::vec3(90.f, 3.3f, 10.f);
+	glm::vec3 introStartPos = glm::vec3(-67.f, 3.3f, 53.94f);
+	glm::vec3 introEndPos = glm::vec3(80.f, 3.3f, 10.f);
 };
 
 #endif

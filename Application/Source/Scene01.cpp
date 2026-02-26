@@ -129,13 +129,13 @@ void Scene01::Init()
 	//camera.Init(45.f, 45.f, 10.f);
 
 	camera1.Init(
-		glm::vec3(0.f, 3.f, 10.f),
+		glm::vec3(0.f, 3.f, 1.f),
 		glm::vec3(0.f, 3.f, 0.f),
 		glm::vec3(0.f, 1.f, 0.f)
 	);
 
 	camera2.Init(
-		glm::vec3(14.2f, 3.3f, -37.5f),
+		glm::vec3(20.f, 3.3f, -35.f),
 		glm::vec3(0.f, 3.f, 0.f),
 		glm::vec3(0.f, 1.f, 0.f)
 	);
@@ -167,65 +167,34 @@ void Scene01::Init()
 
 	meshList[GEO_AXES] = MeshBuilder::GenerateAxes("Axes", 10000.f, 10000.f, 10000.f);
 	meshList[GEO_SPHERE] = MeshBuilder::GenerateSphere("Sun", glm::vec3(1.f, 1.f, 1.f), 1.f, 16, 16);
-	//meshList[GEO_CUBE] = MeshBuilder::GenerateCube("Arm", glm::vec3(0.5f, 0.5f, 0.5f), 1.f);
 
 	meshList[GEO_LEFT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
 	meshList[GEO_LEFT]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Left.tga");
-	//meshList[GEO_LEFT]->textureID = LoadTGA("Images//whitesky//whiteskyleft.tga");
-	//meshList[GEO_LEFT]->textureID = LoadTGA("Images//left.tga");
 
 	meshList[GEO_RIGHT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
 	meshList[GEO_RIGHT]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Right.tga");
-	//meshList[GEO_RIGHT]->textureID = LoadTGA("Images//whitesky//whiteskyright.tga");
-	//meshList[GEO_RIGHT]->textureID = LoadTGA("Images//right.tga");
 
 	meshList[GEO_BACK] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
 	meshList[GEO_BACK]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Back.tga");
-	//meshList[GEO_BACK]->textureID = LoadTGA("Images//whitesky//whiteskyback.tga");
-	//meshList[GEO_BACK]->textureID = LoadTGA("Images//back.tga");
 
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
 	meshList[GEO_FRONT]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Front.tga");
-	//meshList[GEO_FRONT]->textureID = LoadTGA("Images//whitesky//whiteskyfront.tga");
-	//meshList[GEO_FRONT]->textureID = LoadTGA("Images//front.tga");
 
 	meshList[GEO_TOP] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
-	//meshList[GEO_TOP]->textureID = LoadTGA("Images//saharatop.tga");
-	//meshList[GEO_TOP]->textureID = LoadTGA("Images//top.tga");
-	//meshList[GEO_TOP]->textureID = LoadTGA("Images//whitesky//whiteskytop.tga");
 	meshList[GEO_TOP]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Top.tga");
 
 	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 100.f);
 	meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//AlvinSkybox//AlvinSkybox_Bottom.tga");
-	//meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//whitesky//whiteskybottom.tga");
-	//meshList[GEO_BOTTOM]->textureID = LoadTGA("Images//bottom.tga");
-
-	//meshList[GEO_QUAD]->textureID = LoadTGA("Images//NYP.tga");
 	meshList[GEO_QUAD] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
 
 	meshList[GEO_CYLINDER] = MeshBuilder::GenerateCylinder("Cylinder", glm::vec3(1.f, 1.f, 1.f), 36, 1.f, 2.f);
 
-	//meshList[GEO_GRASS] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
-	//meshList[GEO_GRASS]->textureID = LoadTGA("Images//coast_sand_rocks_02 copy.tga");
-
 	meshList[SOLIDGREENGRASS] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
 	meshList[SOLIDGREENGRASS]->textureID = LoadTGA("Images//solidgreengrass.tga");
-
-	//meshList[GEO_GUI] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	//meshList[GEO_GUI]->textureID = LoadTGA("Images//color.tga");
 
 	// 16 x 16 is the number of columns and rows for the text
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Images//cascadiamonosemibold.tga");
-
-	//meshList[GEO_GUI] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	//meshList[GEO_GUI]->textureID = LoadTGA("Images//blackblack.tga");
-
-	//meshList[GEO_SHADOW] = MeshBuilder::GenerateOBJMTL("shadow", "Models//swamp_monster.obj", "Models//swamp_monster.mtl");
-	//meshList[GEO_SHADOW]->textureID = LoadTGA("Images//FOREST_MONSTER_V1_mat_diffuse.tga");
-
-	//meshList[GEO_ABANDONEDHOUSE] = MeshBuilder::GenerateOBJMTL("bumper car", "Models//abandoned_house.obj", "Models//abandoned_house.mtl");
-	//meshList[GEO_ABANDONEDHOUSE]->textureID = LoadTGA("Images//abandonedhouseBaseColor.tga");
 
 	{
 		// BUMPER CAR ITEMS
@@ -234,238 +203,237 @@ void Scene01::Init()
 
 		meshList[BUMPERCARTENT] = MeshBuilder::GenerateOBJMTL("bumper car tent", "Models//Bumper Car//bumpercar_tent.obj", "Models//Bumper Car//bumpercar_tent.mtl");
 		meshList[BUMPERCARTENT]->textureID = LoadTGA("Images//Bumper Car//bumpercar_tent.tga");
+
+		meshList[FOREST] = MeshBuilder::GenerateOBJMTL("bumper car", "Models//forest//forest.obj", "Models//forest//forest.mtl");
+		meshList[FOREST]->textureID = LoadTGA("Images//forest//forest_baseColor.tga");
+
+		meshList[CLOWN] = MeshBuilder::GenerateOBJMTL("Clown", "Models//clown.obj", "Models//clown.mtl");
+		meshList[CLOWN]->textureID = LoadTGA("Images//clown.tga");
+
+		//meshList[EXITBUTTON] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+		//meshList[EXITBUTTON]->textureID = LoadTGA("Images//exitScene01button.tga");
+
+		meshList[PAUSEMENU] = MeshBuilder::GenerateQuad("pause", glm::vec3(1.f, 1.f, 1.f), 1.f);
+		meshList[PAUSEMENU]->textureID = LoadTGA("Images//scene01pausemenuv2.tga");
+
+		meshList[MAINPAUSE] = MeshBuilder::GenerateQuad("pause", glm::vec3(1.f, 1.f, 1.f), 1.f);
+		meshList[MAINPAUSE]->textureID = LoadTGA("Images//scene01 UI//mainpausemenu.tga");
+
+		meshList[ENTERBUMPERCARGAMEPROMPT] = MeshBuilder::GenerateQuad("enter", glm::vec3(1.f, 1.f, 1.f), 1.f);
+		meshList[ENTERBUMPERCARGAMEPROMPT]->textureID = LoadTGA("Images//scene01 UI//bumpercargameprompt.tga");
+
+		meshList[EXITBUMPERCARGAMEPROMPT] = MeshBuilder::GenerateQuad("exit", glm::vec3(1.f, 1.f, 1.f), 1.f);
+		meshList[EXITBUMPERCARGAMEPROMPT]->textureID = LoadTGA("Images//scene01 UI//exitbumpercargameprompt.tga");
+
+		meshList[ENTERBASKETBALLPROMPT] = MeshBuilder::GenerateQuad("enter goat", glm::vec3(1.f, 1.f, 1.f), 1.f);
+		meshList[ENTERBASKETBALLPROMPT]->textureID = LoadTGA("Images//scene01 UI//basketballgameprompt.tga");
+
+		meshList[ENTERBALLBOUNCERPROMPT] = MeshBuilder::GenerateQuad("enter bounce", glm::vec3(1.f, 1.f, 1.f), 1.f);
+		meshList[ENTERBALLBOUNCERPROMPT]->textureID = LoadTGA("Images//scene01 UI//ballbouncergameprompt.tga");
+
+		meshList[ENTERDUCKSHOOTINGPROMPT] = MeshBuilder::GenerateQuad("enter duck", glm::vec3(1.f, 1.f, 1.f), 1.f);
+		meshList[ENTERDUCKSHOOTINGPROMPT]->textureID = LoadTGA("Images//scene01 UI//duckshootinggameprompt.tga");
+
+		{
+			meshList[GEO_COW] = MeshBuilder::GenerateOBJMTL("lowkeychillguy", "Models//model_containment//obj//cow.obj", "Models//model_containment//mtl//cow.mtl");
+			meshList[GEO_COW]->textureID = LoadTGA("Images//model_containment//textures//cow.tga");
+		}
+
+		{
+			// LOW POLY BUILDING
+			meshList[LOWPOLYBUILDING] = MeshBuilder::GenerateOBJMTL("building", "Models//low poly building//low_poly_building.obj", "Models//low poly building//low_poly_building.mtl");
+			meshList[LOWPOLYBUILDING]->textureID = LoadTGA("Images//low poly building//lowpolybuilding_baseColor.tga");
+		}
+
+		{
+			// GROUND
+			meshList[GREYGROUND] = MeshBuilder::GenerateQuad("grey ground", glm::vec3(1.f, 1.f, 1.f), 1.f);
+			meshList[GREYGROUND]->textureID = LoadTGA("Images//scene01_ground//greyground.tga");
+		}
+
+		{
+			// LOW POLY TREE
+			meshList[BIRCHTREE] = MeshBuilder::GenerateOBJMTL("tree", "Models//birchtree//birchtree.obj", "Models//birchtree/birchtree.mtl");
+			meshList[BIRCHTREE]->textureID = LoadTGA("Images//birchtree/birchtree_baseColor.tga");
+		}
+
+		{
+			// LOW POLY FENCE
+			meshList[CARTOONFENCE] = MeshBuilder::GenerateOBJMTL("cartoonfence", "Models//low poly fence//low_poly_fence.obj", "Models//low poly fence//low_poly_fence.mtl");
+			meshList[CARTOONFENCE]->textureID = LoadTGA("Images//low poly fence//lowpolyfence.tga");
+		}
+
+		{
+			// CARNIVAL TENT
+			meshList[CARNIVALTENT] = MeshBuilder::GenerateOBJMTL("carnival tent", "Models//tent//carnivaltent.obj", "Models//tent//carnivaltent.mtl");
+
+			meshList[ALVINTENT] = MeshBuilder::GenerateOBJMTL("CarnivalTent", "Models//alvintent.obj", "Models//alvintent.mtl");
+			meshList[ALVINTENT]->textureID = LoadTGA("Images//alvintent.tga");
+		}
+
+		{
+			// BASKETBALL COURT
+			meshList[BASKETBALLCOURT] = MeshBuilder::GenerateOBJMTL("basketball court", "Models//scene01 basketball court//basketball_court_low_poly_purple.obj", "Models//scene01 basketball court//basketball_court_low_poly_purple.mtl");
+			meshList[BASKETBALLCOURT]->textureID = LoadTGA("Images//scene01 basketball court//scene01 basketballcourt.tga");
+		}
+
+		{
+			// SCENE02 TENT
+			meshList[GEO_TENT] = MeshBuilder::GenerateOBJ("Tent", "Models//DuckShoot//Tents.obj");
+			meshList[GEO_TENT]->textureID = LoadTGA("Images//DSTent.tga");
+		}
+		{
+			// CONCERT
+			meshList[CONCERTSTAGE] = MeshBuilder::GenerateOBJMTL("concert", "Models//concert stage//simple_concert_stage.obj", "Models//concert stage//simple_concert_stage.mtl");
+			meshList[CONCERTSTAGE]->textureID = LoadTGA("Images//concert stage//Scene_-_Root_baseColor copy.tga");
+		}
+
+		// Setup invisible fence zones (AABB) using the coordinates provided
+		// Keep Y from -1 to 5 as requested
+		{
+			fenceZones.clear();
+			const float yMin = -1.0f;
+			const float yMax = 5.0f;
+			const float thickness = 4.0f; // thickness around line/segment to make an AABB
+
+			auto addSegmentAABB = [&](float x1, float z1, float x2, float z2)
+				{
+					float minX = (std::min)(x1, x2) - thickness * 0.5f;
+					float maxX = (std::max)(x1, x2) + thickness * 0.5f;
+					float minZ = (std::min)(z1, z2) - thickness * 0.5f;
+					float maxZ = (std::max)(z1, z2) + thickness * 0.5f;
+					fenceZones.emplace_back(glm::vec3(minX, yMin, minZ), glm::vec3(maxX, yMax, maxZ));
+				};
+
+			// Segments requested:
+			// 1) (x -21, z -41) to (x -21, z -111)
+			addSegmentAABB(-21.0f, -41.0f, -21.0f, -111.0f);
+
+			// 2) (x -21, z -111) to (x -76, z -111)
+			addSegmentAABB(-21.0f, -111.0f, 76.0f, -111.0f);
+
+			// 3) (x 76, z -111) to (x 76, z -42)
+			addSegmentAABB(76.0f, -111.0f, 76.0f, -42.0f);
+
+			// 4) (x 76, z -42) to (x 35, z -41) -- diagonal, AABB will cover bounding rectangle
+			addSegmentAABB(76.0f, -42.0f, 35.0f, -41.0f);
+
+			// 5) (x 20, z -41) to (x -21, z -41)
+			addSegmentAABB(20.0f, -41.0f, -21.0f, -41.0f);
+		}
+
+		{
+			concertStageZone.clear();
+			const float yMin = -1.0f;
+			const float yMax = 50.0f;
+			const float thickness = 4.0f; // thickness around line/segment to make an AABB
+
+			auto addSegmentAABB = [&](float x1, float z1, float x2, float z2)
+				{
+					float minX = (std::min)(x1, x2) - thickness * 0.5f;
+					float maxX = (std::max)(x1, x2) + thickness * 0.5f;
+					float minZ = (std::min)(z1, z2) - thickness * 0.5f;
+					float maxZ = (std::max)(z1, z2) + thickness * 0.5f;
+					fenceZones.emplace_back(glm::vec3(minX, yMin, minZ), glm::vec3(maxX, yMax, maxZ));
+				};
+
+			// Segments requested:
+			// (x, z) to (x, z)
+			addSegmentAABB(106, 40, 106, -10);
+			addSegmentAABB(106, -10, 136, -10);
+			addSegmentAABB(136, -10, 136, 40);
+			addSegmentAABB(136, 40, 106, 40);
+		}
+
+		{
+			basketballBuildingZone.clear();
+			const float yMin = -1.0f;
+			const float yMax = 50.0f;
+			const float thickness = 4.0f; // thickness around line/segment to make an AABB
+
+			auto addSegmentAABB = [&](float x1, float z1, float x2, float z2)
+				{
+					float minX = (std::min)(x1, x2) - thickness * 0.5f;
+					float maxX = (std::max)(x1, x2) + thickness * 0.5f;
+					float minZ = (std::min)(z1, z2) - thickness * 0.5f;
+					float maxZ = (std::max)(z1, z2) + thickness * 0.5f;
+					fenceZones.emplace_back(glm::vec3(minX, yMin, minZ), glm::vec3(maxX, yMax, maxZ));
+				};
+
+			// Segments requested:
+			// (x, z) to (x, z)
+			addSegmentAABB(143, 72, 132, 72);
+			addSegmentAABB(93, 75, 79, 75);
+		}
+
+		{
+			pathSideCollision.clear();
+			const float yMin = -1.0f;
+			const float yMax = 50.0f;
+			const float thickness = 1.0f; // thickness around line/segment to make an AABB
+
+			auto addSegmentAABB = [&](float x1, float z1, float x2, float z2)
+				{
+					float minX = (std::min)(x1, x2) - thickness * 0.5f;
+					float maxX = (std::max)(x1, x2) + thickness * 0.5f;
+					float minZ = (std::min)(z1, z2) - thickness * 0.5f;
+					float maxZ = (std::max)(z1, z2) + thickness * 0.5f;
+					fenceZones.emplace_back(glm::vec3(minX, yMin, minZ), glm::vec3(maxX, yMax, maxZ));
+				};
+
+			// Segments requested:
+			// (x, z) to (x, z)
+			addSegmentAABB(-103, -0.6, 12, -10);
+			addSegmentAABB(12, -10, 15, -38);
+			addSegmentAABB(36, -37, 37, -12);
+			addSegmentAABB(37, -12, 75, -9);
+			addSegmentAABB(75, -9, 77, -36);
+			addSegmentAABB(92, 72, 69, 43);
+			addSegmentAABB(69, 43, 26, 51);
+			addSegmentAABB(26, 51, 25, 157);
+			addSegmentAABB(3, 157, 2, 59);
+			addSegmentAABB(2, 59, -74, 80);
+		}
+
+		glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
+		projectionStack.LoadMatrix(projection);
+
+
+		glUniform1i(m_parameters[U_NUMLIGHTS], NUM_LIGHTS);
+
+		light[0].position = glm::vec3(-200, 150, 0);
+		light[0].color = glm::vec3(1, 1, 0.85);
+		light[0].type = Light::LIGHT_DIRECTIONAL;
+		light[0].power = 1;
+		light[0].kC = 1.f;
+		light[0].kL = 0.01f;
+		light[0].kQ = 0.001f;
+		light[0].cosCutoff = 4.f;
+		light[0].cosInner = 30.f;
+		light[0].exponent = 3.f;
+		light[0].spotDirection = glm::vec3(0.f, 1.f, 0.f);
+
+		glUniform3fv(m_parameters[U_LIGHT0_COLOR], 1, &light[0].color.r);
+		glUniform1i(m_parameters[U_LIGHT0_TYPE], light[0].type);
+		glUniform1f(m_parameters[U_LIGHT0_POWER], light[0].power);
+		glUniform1f(m_parameters[U_LIGHT0_KC], light[0].kC);
+		glUniform1f(m_parameters[U_LIGHT0_KL], light[0].kL);
+		glUniform1f(m_parameters[U_LIGHT0_KQ], light[0].kQ);
+		glUniform1f(m_parameters[U_LIGHT0_COSCUTOFF], cosf(glm::radians<float>(light[0].cosCutoff)));
+		glUniform1f(m_parameters[U_LIGHT0_COSINNER], cosf(glm::radians<float>(light[0].cosInner)));
+		glUniform1f(m_parameters[U_LIGHT0_EXPONENT], light[0].exponent);
+
+		enableLight = true;
+
+		m_parameters[U_TEXT_ENABLED] = glGetUniformLocation(m_programID, "textEnabled");
+		m_parameters[U_TEXT_COLOR] = glGetUniformLocation(m_programID, "textColor");
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		player1InCar = false;
+		player2InCar = false;
 	}
-
-	//meshList[TALLTREE] = MeshBuilder::GenerateOBJMTL("bumper car", "Models//tree//VeryTallTree.obj", "Models//tree//VeryTallTree.mtl");
-	//meshList[TALLTREE]->textureID = LoadTGA("Images//TallTree_baseColor.tga");
-
-	meshList[FOREST] = MeshBuilder::GenerateOBJMTL("bumper car", "Models//forest//forest.obj", "Models//forest//forest.mtl");
-	meshList[FOREST]->textureID = LoadTGA("Images//forest//forest_baseColor.tga");
-
-	meshList[CLOWN] = MeshBuilder::GenerateOBJMTL("Clown", "Models//clown.obj", "Models//clown.mtl");
-	meshList[CLOWN]->textureID = LoadTGA("Images//clown.tga");
-
-	//meshList[EXITBUTTON] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	//meshList[EXITBUTTON]->textureID = LoadTGA("Images//exitScene01button.tga");
-
-	meshList[PAUSEMENU] = MeshBuilder::GenerateQuad("pause", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	meshList[PAUSEMENU]->textureID = LoadTGA("Images//scene01pausemenuv2.tga");
-
-	meshList[MAINPAUSE] = MeshBuilder::GenerateQuad("pause", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	meshList[MAINPAUSE]->textureID = LoadTGA("Images//scene01 UI//mainpausemenu.tga");
-
-	meshList[ENTERBUMPERCARGAMEPROMPT] = MeshBuilder::GenerateQuad("enter", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	meshList[ENTERBUMPERCARGAMEPROMPT]->textureID = LoadTGA("Images//scene01 UI//bumpercargameprompt.tga");
-
-	meshList[EXITBUMPERCARGAMEPROMPT] = MeshBuilder::GenerateQuad("exit", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	meshList[EXITBUMPERCARGAMEPROMPT]->textureID = LoadTGA("Images//scene01 UI//exitbumpercargameprompt.tga");
-
-	meshList[ENTERBASKETBALLPROMPT] = MeshBuilder::GenerateQuad("enter goat", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	meshList[ENTERBASKETBALLPROMPT]->textureID = LoadTGA("Images//scene01 UI//basketballgameprompt.tga");
-
-	meshList[ENTERBALLBOUNCERPROMPT] = MeshBuilder::GenerateQuad("enter bounce", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	meshList[ENTERBALLBOUNCERPROMPT]->textureID = LoadTGA("Images//scene01 UI//ballbouncergameprompt.tga");
-
-	meshList[ENTERDUCKSHOOTINGPROMPT] = MeshBuilder::GenerateQuad("enter duck", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	meshList[ENTERDUCKSHOOTINGPROMPT]->textureID = LoadTGA("Images//scene01 UI//duckshootinggameprompt.tga");
-
-	{
-		//meshList[GEO_DEER] = MeshBuilder::GenerateOBJMTL("demon", "Models//model_containment//obj//13573_Musk_Deer_v1_L3.obj", "Models//model_containment//mtl//13573_Musk_Deer_v1_L3.mtl");
-		//meshList[GEO_DEER]->textureID = LoadTGA("Models//model_containment//textures//musk_deer.tga");
-
-		meshList[GEO_COW] = MeshBuilder::GenerateOBJMTL("lowkeychillguy", "Models//model_containment//obj//cow.obj", "Models//model_containment//mtl//cow.mtl");
-		meshList[GEO_COW]->textureID = LoadTGA("Images//model_containment//textures//cow.tga");
-
-		//meshList[GEO_SHEEP] = MeshBuilder::GenerateOBJMTL("demon", "Models//model_containment//obj//13574_Marco_Polo_Sheep_v1_L3.obj", "Models//model_containment//mtl//13574_Marco_Polo_Sheep_v1_L3.mtl");
-		//meshList[GEO_SHEEP]->textureID = LoadTGA("Models//model_containment//textures//13574_Marco_Polo_Diffuse.tga");
-	}
-
-	{
-		// LOW POLY BUILDING
-		meshList[LOWPOLYBUILDING] = MeshBuilder::GenerateOBJMTL("building", "Models//low poly building//low_poly_building.obj", "Models//low poly building//low_poly_building.mtl");
-		meshList[LOWPOLYBUILDING]->textureID = LoadTGA("Images//low poly building//lowpolybuilding_baseColor.tga");
-	}
-
-	{
-		// PLAYER INDICATOR
-		//meshList[PLAYER1INDICATORUI] = MeshBuilder::GenerateQuad("player1", glm::vec3(1.f, 1.f, 1.f), 1.f);
-		//meshList[PLAYER1INDICATORUI]->textureID = LoadTGA("Images//scene01 UI//scene01player1_indicatorUI.tga");
-
-		//meshList[PLAYER2INDICATORUI] = MeshBuilder::GenerateQuad("player2", glm::vec3(1.f, 1.f, 1.f), 1.f);
-		//meshList[PLAYER2INDICATORUI]->textureID = LoadTGA("Images//scene01 UI//scene01player2_indicatorUI.tga");
-	}
-
-	{
-		// GROUND
-		meshList[GREYGROUND] = MeshBuilder::GenerateQuad("grey ground", glm::vec3(1.f, 1.f, 1.f), 1.f);
-		meshList[GREYGROUND]->textureID = LoadTGA("Images//scene01_ground//greyground.tga");
-	}
-
-	{
-		// LOW POLY TREE
-		meshList[BIRCHTREE] = MeshBuilder::GenerateOBJMTL("tree", "Models//birchtree//birchtree.obj", "Models//birchtree/birchtree.mtl");
-		meshList[BIRCHTREE]->textureID = LoadTGA("Images//birchtree/birchtree_baseColor.tga");
-	}
-
-	{
-		// LOW POLY FENCE
-		meshList[CARTOONFENCE] = MeshBuilder::GenerateOBJMTL("cartoonfence", "Models//low poly fence//low_poly_fence.obj", "Models//low poly fence//low_poly_fence.mtl");
-		meshList[CARTOONFENCE]->textureID = LoadTGA("Images//low poly fence//lowpolyfence.tga");
-	}
-
-	{
-		// CARNIVAL TENT
-		meshList[CARNIVALTENT] = MeshBuilder::GenerateOBJMTL("carnival tent", "Models//tent//carnivaltent.obj", "Models//tent//carnivaltent.mtl");
-
-		meshList[ALVINTENT] = MeshBuilder::GenerateOBJMTL("CarnivalTent", "Models//alvintent.obj", "Models//alvintent.mtl");
-		meshList[ALVINTENT]->textureID = LoadTGA("Images//alvintent.tga");
-	}
-
-	{
-		// BASKETBALL COURT
-		meshList[BASKETBALLCOURT] = MeshBuilder::GenerateOBJMTL("basketball court", "Models//scene01 basketball court//basketball_court_low_poly_purple.obj", "Models//scene01 basketball court//basketball_court_low_poly_purple.mtl");
-		meshList[BASKETBALLCOURT]->textureID = LoadTGA("Images//scene01 basketball court//scene01 basketballcourt.tga");
-	}
-
-	{
-		// SCENE02 TENT
-		meshList[GEO_TENT] = MeshBuilder::GenerateOBJ("Tent", "Models//DuckShoot//Tents.obj");
-		meshList[GEO_TENT]->textureID = LoadTGA("Images//DSTent.tga");
-	}
-
-	{
-		// MCDONALDS
-		//meshList[MCDONALDS] = MeshBuilder::GenerateOBJMTL("mcd", "Models//mcdonalds//mcdonalds.obj", "Models//mcdonalds//mcdonalds.mtl");
-		//meshList[MCDONALDS]->textureID = LoadTGA("Images//mcondalds//mcdonalds_baseColor2.tga");
-	}
-
-	{
-		// CUTE CHARACTER
-		//meshList[CUTECHARACTER] = MeshBuilder::GenerateOBJMTL("cutre", "Models//cute character//cute_character.obj", "Models//cute character//cute_character.mtl");
-	}
-
-	{
-		// CONCERT
-		meshList[CONCERTSTAGE] = MeshBuilder::GenerateOBJMTL("concert", "Models//concert stage//simple_concert_stage.obj", "Models//concert stage//simple_concert_stage.mtl");
-		meshList[CONCERTSTAGE]->textureID = LoadTGA("Images//concert stage//Scene_-_Root_baseColor copy.tga");
-	}
-
-	// Setup invisible fence zones (AABB) using the coordinates provided
-	// Keep Y from -1 to 5 as requested
-	{
-		fenceZones.clear();
-		const float yMin = -1.0f;
-		const float yMax = 5.0f;
-		const float thickness = 4.0f; // thickness around line/segment to make an AABB
-
-		auto addSegmentAABB = [&](float x1, float z1, float x2, float z2)
-			{
-				float minX = (std::min)(x1, x2) - thickness * 0.5f;
-				float maxX = (std::max)(x1, x2) + thickness * 0.5f;
-				float minZ = (std::min)(z1, z2) - thickness * 0.5f;
-				float maxZ = (std::max)(z1, z2) + thickness * 0.5f;
-				fenceZones.emplace_back(glm::vec3(minX, yMin, minZ), glm::vec3(maxX, yMax, maxZ));
-			};
-
-		// Segments requested:
-		// 1) (x -21, z -41) to (x -21, z -111)
-		addSegmentAABB(-21.0f, -41.0f, -21.0f, -111.0f);
-
-		// 2) (x -21, z -111) to (x -76, z -111)
-		addSegmentAABB(-21.0f, -111.0f, 76.0f, -111.0f);
-
-		// 3) (x 76, z -111) to (x 76, z -42)
-		addSegmentAABB(76.0f, -111.0f, 76.0f, -42.0f);
-
-		// 4) (x 76, z -42) to (x 35, z -41) -- diagonal, AABB will cover bounding rectangle
-		addSegmentAABB(76.0f, -42.0f, 35.0f, -41.0f);
-
-		// 5) (x 20, z -41) to (x -21, z -41)
-		addSegmentAABB(20.0f, -41.0f, -21.0f, -41.0f);
-	}
-
-	{
-		concertStageZone.clear();
-		const float yMin = -1.0f;
-		const float yMax = 50.0f;
-		const float thickness = 4.0f; // thickness around line/segment to make an AABB
-
-		auto addSegmentAABB = [&](float x1, float z1, float x2, float z2)
-			{
-				float minX = (std::min)(x1, x2) - thickness * 0.5f;
-				float maxX = (std::max)(x1, x2) + thickness * 0.5f;
-				float minZ = (std::min)(z1, z2) - thickness * 0.5f;
-				float maxZ = (std::max)(z1, z2) + thickness * 0.5f;
-				fenceZones.emplace_back(glm::vec3(minX, yMin, minZ), glm::vec3(maxX, yMax, maxZ));
-			};
-
-		// Segments requested:
-		// (x, z) to (x, z)
-		addSegmentAABB(106, 40, 106, -10);
-		addSegmentAABB(106, -10, 136, -10);
-		addSegmentAABB(136, -10, 136, 40);
-		addSegmentAABB(136, 40, 106, 40);
-	}
-
-	{
-		basketballBuildingZone.clear();
-		const float yMin = -1.0f;
-		const float yMax = 50.0f;
-		const float thickness = 4.0f; // thickness around line/segment to make an AABB
-
-		auto addSegmentAABB = [&](float x1, float z1, float x2, float z2)
-			{
-				float minX = (std::min)(x1, x2) - thickness * 0.5f;
-				float maxX = (std::max)(x1, x2) + thickness * 0.5f;
-				float minZ = (std::min)(z1, z2) - thickness * 0.5f;
-				float maxZ = (std::max)(z1, z2) + thickness * 0.5f;
-				fenceZones.emplace_back(glm::vec3(minX, yMin, minZ), glm::vec3(maxX, yMax, maxZ));
-			};
-
-		// Segments requested:
-		// (x, z) to (x, z)
-		addSegmentAABB(143, 72, 132, 72);
-		addSegmentAABB(93, 75, 79, 75);
-	}
-
-	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
-	projectionStack.LoadMatrix(projection);
-
-
-	glUniform1i(m_parameters[U_NUMLIGHTS], NUM_LIGHTS);
-
-	light[0].position = glm::vec3(-200, 150, 0);
-	light[0].color = glm::vec3(1, 1, 0.85);
-	light[0].type = Light::LIGHT_DIRECTIONAL;
-	light[0].power = 1;
-	light[0].kC = 1.f;
-	light[0].kL = 0.01f;
-	light[0].kQ = 0.001f;
-	light[0].cosCutoff = 4.f;
-	light[0].cosInner = 30.f;
-	light[0].exponent = 3.f;
-	light[0].spotDirection = glm::vec3(0.f, 1.f, 0.f);
-
-	glUniform3fv(m_parameters[U_LIGHT0_COLOR], 1, &light[0].color.r);
-	glUniform1i(m_parameters[U_LIGHT0_TYPE], light[0].type);
-	glUniform1f(m_parameters[U_LIGHT0_POWER], light[0].power);
-	glUniform1f(m_parameters[U_LIGHT0_KC], light[0].kC);
-	glUniform1f(m_parameters[U_LIGHT0_KL], light[0].kL);
-	glUniform1f(m_parameters[U_LIGHT0_KQ], light[0].kQ);
-	glUniform1f(m_parameters[U_LIGHT0_COSCUTOFF], cosf(glm::radians<float>(light[0].cosCutoff)));
-	glUniform1f(m_parameters[U_LIGHT0_COSINNER], cosf(glm::radians<float>(light[0].cosInner)));
-	glUniform1f(m_parameters[U_LIGHT0_EXPONENT], light[0].exponent);
-
-	enableLight = true;
-
-	m_parameters[U_TEXT_ENABLED] = glGetUniformLocation(m_programID, "textEnabled");
-	m_parameters[U_TEXT_COLOR] = glGetUniformLocation(m_programID, "textColor");
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	player1InCar = false;
-	player2InCar = false;
 }
 
 void Scene01::HandleMouseInput(FPCamera& cam) {
@@ -2368,16 +2336,6 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 		}
 
 		modelStack.PushMatrix();
-		modelStack.Translate(0.f, 0.f, -25.f);
-		modelStack.Scale(1, 1, 1);
-		meshList[GEO_COW]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-		meshList[GEO_COW]->material.kDiffuse = glm::vec3(1, 1, 1);
-		meshList[GEO_COW]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[GEO_COW]->material.kShininess = 5.0f;
-		RenderMesh(meshList[GEO_COW], false);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
 		modelStack.Translate(-130, 0, 10);
 		modelStack.Scale(10, 10, 10);
 		meshList[ALVINTENT]->material.kAmbient = glm::vec3(0.1, 0.1, 0.1);
@@ -2499,6 +2457,7 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 		}
 
 		{
+			/*
 			modelStack.PushMatrix();
 
 			// Apply translation
@@ -2507,7 +2466,7 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 			modelStack.Scale(0.1, 0.1, 0.1);
 			RenderMesh(meshList[CLOWN], false);
 			modelStack.PopMatrix();
-
+			*/
 		}
 
 		if (!player1InCar)
@@ -2529,13 +2488,21 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 			RenderText(meshList[GEO_TEXT], "Player 1's car!", glm::vec3(1, 0, 0));
 			modelStack.PopMatrix();
 
+			modelStack.PushMatrix();
+			modelStack.Translate(-11, 8, -85);
+			modelStack.Scale(1, 1, 1);
+			modelStack.Rotate(90, 0, 1, 0);
+			RenderText(meshList[GEO_TEXT], "E to enter", glm::vec3(1, 0, 0));
+			modelStack.PopMatrix();
+
 			// ----- Render Player 1 Model -----
 			if (!isCamera1)  // If current view is NOT camera1
 			{
 				modelStack.PushMatrix();
 				modelStack.Translate(camera1.position.x, 0.5, camera1.position.z);
 				modelStack.Scale(2, 2, 2);
-				modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+				modelStack.Rotate(270, 0, 1, 0);
+				modelStack.Rotate(90, 1, 0, 0);
 
 				// Make the model face the direction camera1 is facing:
 				{
@@ -2545,12 +2512,6 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 					// Rotate the model around world Y so it faces the same horizontal direction
 					modelStack.Rotate(yaw, 0.f, -1.f, 0.f);
 				}
-
-				meshList[GEO_COW]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
-				meshList[GEO_COW]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-				meshList[GEO_COW]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-				meshList[GEO_COW]->material.kShininess = 5.0f;
-				RenderMesh(meshList[GEO_COW], true);
 				modelStack.PopMatrix();
 			}
 		}
@@ -2574,13 +2535,18 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 			RenderText(meshList[GEO_TEXT], "Player 2's car!", glm::vec3(1, 0, 0));
 			modelStack.PopMatrix();
 
+			modelStack.PushMatrix();
+			modelStack.Translate(-11, 10, -55);
+			modelStack.Scale(1, 1, 1);
+			modelStack.Rotate(90, 0, 1, 0);
+			RenderText(meshList[GEO_TEXT], "C to enter", glm::vec3(1, 0, 0));
+			modelStack.PopMatrix();
+
 			// ----- Render Player 2 Model -----
 			if (isCamera1)  // If current view IS camera1
 			{
 				modelStack.PushMatrix();
 				modelStack.Translate(camera2.position.x, 0.5, camera2.position.z);
-				modelStack.Scale(2, 2, 2);
-				modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
 
 				// Make the model face the direction camera2 is facing:
 				{
@@ -2590,12 +2556,6 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 					// Rotate the model around world Y so it faces the same horizontal direction
 					modelStack.Rotate(yaw, 0.f, -1.f, 0.f);
 				}
-
-				meshList[GEO_COW]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
-				meshList[GEO_COW]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-				meshList[GEO_COW]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-				meshList[GEO_COW]->material.kShininess = 5.0f;
-				RenderMesh(meshList[GEO_COW], true);
 				modelStack.PopMatrix();
 			}
 		}
@@ -2647,18 +2607,11 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 				cowPos1 += -forward1 * behindDistance;
 			}
 			modelStack.Translate(cowPos1.x, 1.f, cowPos1.z);
-			modelStack.Scale(2.f, 2.f, 2.f);
-			modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
 			{
 				glm::vec3 pForward = glm::normalize(camera1.target - camera1.position);
 				float yaw = glm::degrees(atan2(pForward.z, pForward.x));
 				modelStack.Rotate(yaw, 0.f, -1.f, 0.f);
 			}
-			meshList[GEO_COW]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
-			meshList[GEO_COW]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-			meshList[GEO_COW]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-			meshList[GEO_COW]->material.kShininess = 5.0f;
-			RenderMesh(meshList[GEO_COW], true);
 			modelStack.PopMatrix();
 		}
 		if (player2InCar)
@@ -2706,18 +2659,11 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 				cowPos2 += -forward2 * behindDistance;
 			}
 			modelStack.Translate(cowPos2.x, 1, cowPos2.z);
-			modelStack.Scale(2.f, 2.f, 2.f);
-			modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
 			{
 				glm::vec3 pForward = glm::normalize(camera2.target - camera2.position);
 				float yaw = glm::degrees(atan2(pForward.z, pForward.x));
 				modelStack.Rotate(yaw, 0.f, -1.f, 0.f);
 			}
-			meshList[GEO_COW]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
-			meshList[GEO_COW]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-			meshList[GEO_COW]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-			meshList[GEO_COW]->material.kShininess = 5.0f;
-			RenderMesh(meshList[GEO_COW], true);
 			modelStack.PopMatrix();
 		}
 	}
