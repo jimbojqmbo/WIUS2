@@ -176,10 +176,6 @@ private:
 	//physics objects
 	//circle
 	PhysicsObject player;//test
-
-	PhysicsObject red_cow;//test
-
-	PhysicsObject green_cow;//test
 	//AABB
 	PhysicsObject floor;
 

@@ -244,8 +244,6 @@ void Scene04::Init()
 	rings[2].bucket.pos.x = -rings[0].radius * 2;
 	rings[2].bucket.pos.z = -rings[0].radius * 2;
 
-	green_cow.pos = glm::vec3(-25.f, 0.f, 0.f);
-
 	player.mass = 0;
 	player.bounciness = 1;
 	player.pos.y = 10;
@@ -331,7 +329,6 @@ void Scene04::Update(double dt)
 			bounce_balls[i].thrown = false;
 		}
 		ball_select = 0;
-		camera.position.x = -50;
 	}
 
 	score = 0;
@@ -351,6 +348,10 @@ void Scene04::balls_update(double dt) {
 		//ball against floor
 		if (OverlapCircle2AABB(bounce_balls[i].ball, bounce_balls[i].radius, floor, glm::vec3 (floor_space, floor_height, floor_space),cd)) {
 			walls_resolve(cd);
+		}
+
+		if (OverlapCircle2(bounce_balls[i].ball.pos, 5.f, bounce_balls[i].ball.pos, 5.f)) {
+
 		}
 
 		//ball agaisnt buckets
@@ -996,7 +997,29 @@ void Scene04::Exit()
 	glDeleteProgram(m_programID);
 }
 
-void Scene04::HandleKeyPress(double dt){
+void Scene04::HandleKeyPress(double dt)
+{
+	if (KeyboardController::GetInstance()->IsKeyPressed(0x31))
+	{
+		// Key press to enable culling
+		glEnable(GL_CULL_FACE);
+	}
+	if (KeyboardController::GetInstance()->IsKeyPressed(0x32))
+	{
+		// Key press to disable culling
+		glDisable(GL_CULL_FACE);
+	}
+	if (KeyboardController::GetInstance()->IsKeyPressed(0x33))
+	{
+		// Key press to enable fill mode for the polygon
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); //default fill mode
+	}
+	if (KeyboardController::GetInstance()->IsKeyPressed(0x34))
+	{
+		// Key press to enable wireframe mode for the polygon
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //wireframe mode
+	}
+
 	// Calculate forward and right vectors based on camera orientation
 	glm::vec3 forward = glm::normalize(camera.target - camera.position);
 	glm::vec3 right = glm::normalize(glm::cross(forward, camera.up));
