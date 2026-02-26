@@ -142,16 +142,16 @@ void Scene04::Init()
 	//models
 	
 	meshList[GEO_DEER] = MeshBuilder::GenerateOBJMTL("demon","Models//model_containment//obj//musk_deer.obj","Models//model_containment//mtl//musk_deer.mtl");
-	meshList[GEO_DEER]->textureID = LoadTGA("Models//model_containment//textures//musk_deer.tga");
+	meshList[GEO_DEER]->textureID = LoadTGA("Images//model_containment//textures//musk_deer.tga");
 
 	meshList[GEO_COW] = MeshBuilder::GenerateOBJMTL("lowkeychillguy", "Models//model_containment//obj//cow.obj", "Models//model_containment//mtl//cow.mtl");
-	meshList[GEO_COW]->textureID = LoadTGA("Models//model_containment//textures//cow.tga");
+	meshList[GEO_COW]->textureID = LoadTGA("Images//model_containment//textures//cow.tga");
 
 	//meshList[GEO_SHEEP] = MeshBuilder::GenerateOBJMTL("demon", "Models//model_containment//obj//13574_Marco_Polo_Sheep_v1_L3.obj", "Models//model_containment//mtl//13574_Marco_Polo_Sheep_v1_L3.mtl");
 	//meshList[GEO_SHEEP]->textureID = LoadTGA("Models//model_containment//textures//13574_Marco_Polo_Diffuse.tga");
 
 	meshList[GEO_BUCKET] = MeshBuilder::GenerateOBJMTL("dog", "Models//model_containment//obj//rv_bucket.obj", "Models//model_containment//mtl//rv_bucket.mtl");
-	meshList[GEO_BUCKET]->textureID = LoadTGA("Models//model_containment//textures//goal_bucket.tga");
+	meshList[GEO_BUCKET]->textureID = LoadTGA("Images//model_containment//textures//goal_bucket.tga");
 
 	// 16 x 16 is the number of columns and rows for the text
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
@@ -198,7 +198,7 @@ void Scene04::Init()
 
 	//ball innit
 	for (int i = 0; i < ball_num; i++) {
-		bounce_balls[i].ball.mass = 2;
+		bounce_balls[i].ball.mass = 10;
 		bounce_balls[i].ball.bounciness = 1;
 		bounce_balls[i].ball.pos.y = 10;
 		bounce_balls[i].ball.pos.x = 2*i;
@@ -206,7 +206,6 @@ void Scene04::Init()
 	//baucket innit
 	for (int i = 0; i < ring_num; i++) {
 		rings[i].bucket.bounciness = 1;
-		
 	}
 
 	rings[0].bucket.pos.z = rings[0].radius*2;
@@ -224,8 +223,6 @@ void Scene04::Init()
 	floor.bounciness = 1;
 	floor.pos.y = 0;
 	floor.pos.x = 0;
-	
-
 }
 
 
@@ -234,8 +231,6 @@ void Scene04::Update(double dt)
 {
 	player.pos = camera.position;
 	
-	//std::cout << player.pos.x<< " " <<player.pos.z << std::endl;
-	//std::cout << ball[0].pos.x << " " << ball[0].pos.z << std::endl;
 	//physics
 	balls_update(dt);
 	//handle inputs
@@ -243,10 +238,17 @@ void Scene04::Update(double dt)
 	HandleKeyPress(dt);
 
 	// Prevent camera from going below ground after camera updates
-	if (camera.position.y < 15.0f) {
-		camera.position.y = 15.0f;
-		if (camera.target.y < 15.0f)
-			camera.target.y = 15.f;
+	float ch;
+	if (playing == true) {
+		ch = 15.0f;
+	}
+	else{
+		ch = 3.0f;
+	}
+	if (camera.position.y < ch) {
+		camera.position.y = ch;
+		if (camera.target.y < ch)
+			camera.target.y = ch;
 		camera.Init(camera.position, camera.target, camera.up);
 	}
 	camera.Update(dt);
@@ -271,7 +273,97 @@ void Scene04::balls_update(double dt) {
 		}
 		//ball agaisnt buckets
 		for (int l = 0; l < ring_num; l++) {
-			ResolveCircle2Ring(bounce_balls[i].ball, bounce_balls[i].radius, rings[l].bucket, rings[l].radius, rings[l].sradius, rings[l].height);
+			/*
+			rings[l].wall[0].pos = glm::vec3(rings[l].bucket.pos.x, rings[l].bucket.pos.y , rings[l].bucket.pos.z + rings[l].radius);
+			rings[l].wall[1].pos = glm::vec3(rings[l].bucket.pos.x + rings[l].radius, rings[l].bucket.pos.y, rings[l].bucket.pos.z );
+			rings[l].wall[2].pos = glm::vec3(rings[l].bucket.pos.x, rings[l].bucket.pos.y , rings[l].bucket.pos.z - rings[l].radius);
+			rings[l].wall[3].pos = glm::vec3(rings[l].bucket.pos.x - rings[l].radius, rings[l].bucket.pos.y , rings[i].bucket.pos.z );
+
+			if (OverlapCircle2AABB(bounce_balls[i].ball, bounce_balls[i].radius, rings[l].wall[0], glm::vec3(rings[i].radius, rings[i].height*10, rings[i].radius), cd)) {
+				walls_resolve(cd);
+				std::cout << "wall collide"<<std::endl;
+			}
+			if (OverlapCircle2AABB(bounce_balls[i].ball, bounce_balls[i].radius, rings[l].wall[1], glm::vec3(rings[i].wradius, rings[i].height*10, rings[i].radius), cd)) {
+				walls_resolve(cd);
+				std::cout << "wall collide" << std::endl;
+			}
+			if (OverlapCircle2AABB(bounce_balls[i].ball, bounce_balls[i].radius, rings[l].wall[2], glm::vec3(rings[i].radius, rings[i].height * 10, rings[i].radius), cd)) {
+				walls_resolve(cd);
+				std::cout << "wall collide" << std::endl;
+			}
+			if (OverlapCircle2AABB(bounce_balls[i].ball, bounce_balls[i].radius, rings[l].wall[3], glm::vec3(rings[i].radius, rings[i].height * 10, rings[i].radius), cd)) {
+				walls_resolve(cd);
+				std::cout << "wall collide" << std::endl;
+			}
+			*/
+			rings[l].wall[0].pos = glm::vec3(
+				rings[l].bucket.pos.x,
+				rings[l].bucket.pos.y + rings[l].height,
+				rings[l].bucket.pos.z + rings[l].radius);
+
+			rings[l].wall[1].pos = glm::vec3(
+				rings[l].bucket.pos.x + rings[l].radius,
+				rings[l].bucket.pos.y + rings[l].height,
+				rings[l].bucket.pos.z);
+
+			rings[l].wall[2].pos = glm::vec3(
+				rings[l].bucket.pos.x,
+				rings[l].bucket.pos.y + rings[l].height,
+				rings[l].bucket.pos.z - rings[l].radius);
+
+			rings[l].wall[3].pos = glm::vec3(
+				rings[l].bucket.pos.x - rings[l].radius,
+				rings[l].bucket.pos.y + rings[l].height,
+				rings[l].bucket.pos.z);
+
+			// Define wall half sizes correctly
+			glm::vec3 halfSizeFrontBack(
+				rings[l].wradius,
+				rings[l].height*1.5,
+				rings[l].wall_thin);
+
+			glm::vec3 halfSizeLeftRight(
+				rings[l].wall_thin,
+				rings[l].height * 1.5,
+				rings[l].wradius);
+
+			// Check 4 walls
+			if (OverlapCircle2AABB(bounce_balls[i].ball,
+				bounce_balls[i].radius,
+				rings[l].wall[0],
+				halfSizeFrontBack,
+				cd))
+			{
+				walls_resolve(cd);
+			}
+
+			if (OverlapCircle2AABB(bounce_balls[i].ball,
+				bounce_balls[i].radius,
+				rings[l].wall[1],
+				halfSizeLeftRight,
+				cd))
+			{
+				walls_resolve(cd);
+			}
+
+			if (OverlapCircle2AABB(bounce_balls[i].ball,
+				bounce_balls[i].radius,
+				rings[l].wall[2],
+				halfSizeFrontBack,
+				cd))
+			{
+				walls_resolve(cd);
+			}
+
+			if (OverlapCircle2AABB(bounce_balls[i].ball,
+				bounce_balls[i].radius,
+				rings[l].wall[3],
+				halfSizeLeftRight,
+				cd))
+			{
+				walls_resolve(cd);
+			}
+			
 		}
 		
 	}
@@ -436,9 +528,51 @@ void Scene04::walls_render(){
 
 void Scene04::buckets_render() {
 	for (int i = 0; i < ring_num; i++) {
+		if (show_col == true) {
+			modelStack.PushMatrix();
+			meshList[GEO_CUBE]->material.kAmbient = glm::vec3(0.f, 0.f, 1.f);
+			meshList[GEO_CUBE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
+			meshList[GEO_CUBE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+			meshList[GEO_CUBE]->material.kShininess = 5.0f;
+			modelStack.Translate(rings[i].bucket.pos.x, rings[i].bucket.pos.y + rings[i].height, rings[i].bucket.pos.z+ rings[i].radius);
+			modelStack.Scale(rings[i].wradius/10, rings[i].height / 10, rings[i].wall_thin / 10);
+			RenderMesh(meshList[GEO_CUBE], true);
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			meshList[GEO_CUBE]->material.kAmbient = glm::vec3(0.f, 0.f, 1.f);
+			meshList[GEO_CUBE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
+			meshList[GEO_CUBE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+			meshList[GEO_CUBE]->material.kShininess = 5.0f;
+			modelStack.Translate(rings[i].bucket.pos.x + rings[i].radius, rings[i].bucket.pos.y + rings[i].height, rings[i].bucket.pos.z );
+			modelStack.Scale(rings[i].wall_thin / 10, rings[i].height / 10, rings[i].wradius / 10);
+			RenderMesh(meshList[GEO_CUBE], true);
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			meshList[GEO_CUBE]->material.kAmbient = glm::vec3(0.f, 0.f, 1.f);
+			meshList[GEO_CUBE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
+			meshList[GEO_CUBE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+			meshList[GEO_CUBE]->material.kShininess = 5.0f;
+			modelStack.Translate(rings[i].bucket.pos.x - rings[i].radius, rings[i].bucket.pos.y + rings[i].height, rings[i].bucket.pos.z);
+			modelStack.Scale(rings[i].wall_thin / 10, rings[i].height / 10, rings[i].wradius / 10);
+			RenderMesh(meshList[GEO_CUBE], true);
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			meshList[GEO_CUBE]->material.kAmbient = glm::vec3(0.f, 0.f, 1.f);
+			meshList[GEO_CUBE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
+			meshList[GEO_CUBE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+			meshList[GEO_CUBE]->material.kShininess = 5.0f;
+			modelStack.Translate(rings[i].bucket.pos.x , rings[i].bucket.pos.y + rings[i].height, rings[i].bucket.pos.z - rings[i].radius);
+			modelStack.Scale(rings[i].wradius / 10, rings[i].height / 10, rings[i].wall_thin / 10);
+			RenderMesh(meshList[GEO_CUBE], true);
+			modelStack.PopMatrix();
+		}
+
 		modelStack.PushMatrix();
 		modelStack.Translate(rings[i].bucket.pos.x, rings[i].bucket.pos.y, rings[i].bucket.pos.z);
-		modelStack.Scale((rings[i].radius), (rings[i].height), (rings[i].radius));
+		modelStack.Scale((rings[i].radius), (rings[i].height)/2, (rings[i].radius));
 		meshList[GEO_BUCKET]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
 		meshList[GEO_BUCKET]->material.kDiffuse = glm::vec3(0.1f, 0.1f, 0.1f);
 		meshList[GEO_BUCKET]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
@@ -790,6 +924,14 @@ void Scene04::HandleKeyPress(double dt)
 	{
 		show_col = not(show_col);
 	}
+	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_H))
+	{
+		playing = not(playing);
+	}
+	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_J))
+	{
+		go_back();
+	}
 	
 	/*
 	if (KeyboardController::GetInstance()->IsKeyDown('I'))
@@ -911,42 +1053,72 @@ void Scene04::walls_resolve(CollisionData cd) {
 	float invMass1 = (o1.mass == 0.f) ? 0.f : 1.f / o1.mass;
 	float invMass2 = (o2.mass == 0.f) ? 0.f : 1.f / o2.mass;
 	float totalInvMass = invMass1 + invMass2;
-	if (totalInvMass == 0.f) return;
 
-	// --- Immediate positional correction ---
-	o1.pos += n * cd.penetration; // fully move sphere out of wall
+	if (totalInvMass == 0.f)
+		return;
 
-	// --- Compute relative velocity along normal ---
-	float velAlongNormal = glm::dot(o1.vel - o2.vel, n);
+	// -------------------------------
+	// 1) POSITIONAL CORRECTION
+	// -------------------------------
+	float percent = 1.f; // correction percentage
+	glm::vec3 correction = (cd.penetration / totalInvMass) * percent * n;
 
-	// --- Apply bounciness ---
+	o1.pos += correction * invMass1;
+	o2.pos -= correction * invMass2;
+
+	// -------------------------------
+	// 2) NORMAL IMPULSE (BOUNCE)
+	// -------------------------------
+	glm::vec3 relativeVel = o1.vel - o2.vel;
+	float velAlongNormal = glm::dot(relativeVel, n);
+
+	if (velAlongNormal > 0.f)
+		return; // separating already
+
 	float restitution = std::fmin(o1.bounciness, o2.bounciness);
 
-	if (velAlongNormal < 0.f) // only if moving into the wall
-	{
-		float j = -(1.f + restitution) * velAlongNormal / totalInvMass;
-		glm::vec3 impulse = j * n;
+	float j = -(1.f + restitution) * velAlongNormal;
+	j /= totalInvMass;
 
-		o1.vel += impulse * invMass1;
-		o2.vel -= impulse * invMass2; // wall usually has invMass=0
-		o1.angularVel = o1.vel;
-		o2.angularVel = o2.vel;
-	}
+	glm::vec3 impulse = j * n;
 
-	// --- Friction along tangent ---
-	glm::vec3 relativeVel = o1.vel - o2.vel;
-	glm::vec3 tangent = relativeVel;// -glm::dot(relativeVel, n) * n;
-	float lenT = glm::length(tangent);
-	if (lenT > 0.001f)
-	{
-		tangent /= lenT;
-		glm::vec3 frictionImpulse = -0.1f * tangent * glm::length(relativeVel); // simple friction
-		o1.vel += frictionImpulse * invMass1;
-		o2.vel -= frictionImpulse * invMass2;
-		o1.angularVel = o1.vel;
-		o2.angularVel = o2.vel;
-	}
+	o1.vel += impulse * invMass1;
+	o2.vel -= impulse * invMass2;
 
-	// Clamp very small velocities
-	if (glm::length(o1.vel) < 0.01f)o1.vel = glm::vec3(0.f);
+	// -------------------------------
+	// 3) FRICTION
+	// -------------------------------
+	relativeVel = o1.vel - o2.vel;
+
+	glm::vec3 tangent =
+		relativeVel - glm::dot(relativeVel, n) * n;
+
+	if (glm::length(tangent) > 0.0001f)
+		tangent = glm::normalize(tangent);
+	else
+		return;
+
+	float jt = -glm::dot(relativeVel, tangent);
+	jt /= totalInvMass;
+
+	float mu = 0.3f; // friction coefficient
+
+	// Coulomb friction clamp
+	if (fabs(jt) > j * mu)
+		jt = j * mu * (jt < 0.f ? -1.f : 1.f);
+
+	glm::vec3 frictionImpulse = jt * tangent;
+
+	o1.vel += frictionImpulse * invMass1;
+	o2.vel -= frictionImpulse * invMass2;
+
+	// -------------------------------
+	// 4) Small velocity clamp
+	// -------------------------------
+	if (glm::length(o1.vel) < 0.01f)
+		o1.vel = glm::vec3(0.f);
+}
+
+void Scene04::go_back() {
+	scene01request = true;
 }

@@ -11,11 +11,23 @@
 #include "FPCamera.h"
 #include "fourball.h"
 #include "ringbuck.h"
+#include "Scene01.h"
+#include "Scene02.h"
+#include "SceneGUI.h"
 
 
 class Scene04 : public Scene
 {
 public:
+	enum SCENE_NUM
+	{
+		SCENE_GUI = 0,
+		SCENE_01,
+		SCENE_02,
+		SCENE_03,
+		SCENE_04,
+		TOTAL_SCENE
+	};
 	enum GEOMETRY_TYPE
 	{
 		GEO_AXES,
@@ -99,6 +111,9 @@ public:
 	virtual void Update(double dt);
 	virtual void Render();
 	virtual void Exit();
+	bool scene02request = false;
+	bool scene03request = false;
+	bool scene01request = false;
 
 private:
 	void HandleKeyPress(double dt);
@@ -148,25 +163,29 @@ private:
 	PhysicsObject player;//test
 	//AABB
 	PhysicsObject floor;
-	//ring
+
 	static const int  ring_num = 3;
 	ringbuck rings[ring_num];
 	//else
 	CollisionData cd;
 	//varibles
 	// game scene
+	Scene* main_scene = new Scene01;
+	Scene* scene = this;
 	float gravity = -50;
 
-	float floor_space = 10;
+	float floor_space = 50
+		;
 	float floor_height = 0.25;
 
-	float skyboxscale = 2 ;
+	float skyboxscale = 4 ;
 	//unspecified
 	int ball_select = 0;
 	float ball_power = 50;
 	float power_max = 100;
 	float power_min = 0;
 	bool show_col = false;
+	bool playing = false;
 	//functions
 
 	bool OverlapCircle2CYLINDER(const glm::vec3& pos1, float r1, const glm::vec3& pos2, float width,float height);
@@ -179,6 +198,7 @@ private:
 	void walls_render();
 	void buckets_render();
 	void walls_resolve(CollisionData cd);
+	void go_back();
 
 };
 

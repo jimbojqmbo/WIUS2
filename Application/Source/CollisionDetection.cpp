@@ -537,7 +537,6 @@ void ResolveCircle2Ring(PhysicsObject& ball, float radius, PhysicsObject& ring, 
 	glm::vec3 toBall = ball.pos - ring.pos;
 	glm::vec3 flat = glm::vec3(toBall.x, 0.f, toBall.z);
 	float distToCenter = glm::length(flat);
-
 	if (distToCenter > 0.0001f)
 	{
 		glm::vec3 closestCirclePoint =
@@ -546,7 +545,13 @@ void ResolveCircle2Ring(PhysicsObject& ball, float radius, PhysicsObject& ring, 
 		float distToTube =
 			glm::length(ball.pos - closestCirclePoint);
 
-		if (distToTube <= (sradius + radius))
+		// --- Height check ---
+		float Height = height*100;
+		bool withinHeight =
+			(ball.pos.y >= ring.pos.y - Height - radius) &&
+			(ball.pos.y <= ring.pos.y + Height + radius);
+
+		if (withinHeight && distToTube <= (sradius + radius))
 		{
 			glm::vec3 normal =
 				glm::normalize(ball.pos - closestCirclePoint);
@@ -559,8 +564,44 @@ void ResolveCircle2Ring(PhysicsObject& ball, float radius, PhysicsObject& ring, 
 			if (glm::dot(ball.vel, normal) < 0.f)
 			{
 				ball.vel = glm::reflect(ball.vel, normal);
+				ball.vel *= 0.9f;
+			}
+		}
+	}
+	/*
+	glm::vec3 toBall = ball.pos - ring.pos;
+	glm::vec3 flat(toBall.x, 0.f, toBall.z);
+	float distToCenter = glm::length(flat);
+
+	if (distToCenter > 0.0001f)
+	{
+		float angle = atan2(flat.z, flat.x);
+
+		// Skip collision if ball is in a hole region
+		if (IsInHole(angle, holes)) return;
+
+		glm::vec3 closestCirclePoint =
+			cyl.pos + glm::normalize(flat) * bradius;
+
+		float distToTube = glm::length(ball.pos - closestCirclePoint);
+
+		float halfHeight = height * 0.5f;
+		bool withinHeight =
+			(ball.pos.y >= cyl.pos.y - halfHeight - radius) &&
+			(ball.pos.y <= cyl.pos.y + halfHeight + radius);
+
+		if (withinHeight && distToTube <= (sradius + radius))
+		{
+			glm::vec3 normal = glm::normalize(ball.pos - closestCirclePoint);
+			float penetration = (sradius + radius) - distToTube;
+			ball.pos += normal * penetration;
+
+			if (glm::dot(ball.vel, normal) < 0.f)
+			{
+				ball.vel = glm::reflect(ball.vel, normal);
 				ball.vel *= 0.7f;
 			}
 		}
 	}
+	*/
 }
