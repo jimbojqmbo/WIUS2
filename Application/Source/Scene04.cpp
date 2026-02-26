@@ -147,8 +147,8 @@ void Scene04::Init()
 	meshList[GEO_COW] = MeshBuilder::GenerateOBJMTL("lowkeychillguy", "Models//model_containment//obj//cow.obj", "Models//model_containment//mtl//cow.mtl");
 	meshList[GEO_COW]->textureID = LoadTGA("Images//model_containment//textures//cow.tga");
 
-	//meshList[GEO_SHEEP] = MeshBuilder::GenerateOBJMTL("demon", "Models//model_containment//obj//13574_Marco_Polo_Sheep_v1_L3.obj", "Models//model_containment//mtl//13574_Marco_Polo_Sheep_v1_L3.mtl");
-	//meshList[GEO_SHEEP]->textureID = LoadTGA("Models//model_containment//textures//13574_Marco_Polo_Diffuse.tga");
+	meshList[GEO_SHEEP] = MeshBuilder::GenerateOBJMTL("demon", "Models//model_containment//obj//sheep.obj", "Models//model_containment//mtl//sheep.mtl");
+	meshList[GEO_SHEEP]->textureID = LoadTGA("Images//model_containment//textures//sheep.tga");
 
 	meshList[GEO_BUCKET] = MeshBuilder::GenerateOBJMTL("dog", "Models//model_containment//obj//rv_bucket.obj", "Models//model_containment//mtl//rv_bucket.mtl");
 	meshList[GEO_BUCKET]->textureID = LoadTGA("Images//model_containment//textures//goal_bucket.tga");
@@ -499,16 +499,40 @@ void Scene04::balls_render() {
 				RenderMesh(meshList[GEO_SPHERE], true);
 				modelStack.PopMatrix();
 			}
-
-			modelStack.PushMatrix();
-			modelStack.Translate(bounce_balls[i].ball.pos.x, bounce_balls[i].ball.pos.y - (.5f), bounce_balls[i].ball.pos.z);
-			modelStack.Scale((bounce_balls[i].radius), (bounce_balls[i].radius), (bounce_balls[i].radius));
-			meshList[GEO_DEER]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
-			meshList[GEO_DEER]->material.kDiffuse = glm::vec3(0.1f, 0.1f, 0.1f);
-			meshList[GEO_DEER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-			meshList[GEO_DEER]->material.kShininess = 1.0f;
-			RenderMesh(meshList[GEO_DEER], true);
-			modelStack.PopMatrix();
+			if (i< 1) {
+				modelStack.PushMatrix();
+				modelStack.Translate(bounce_balls[i].ball.pos.x, bounce_balls[i].ball.pos.y, bounce_balls[i].ball.pos.z);
+				modelStack.Scale((bounce_balls[i].radius), (bounce_balls[i].radius), (bounce_balls[i].radius));
+				meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+				meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
+				meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+				meshList[GEO_SPHERE]->material.kShininess = 5.0f;
+				RenderMesh(meshList[GEO_SPHERE], true);
+				modelStack.PopMatrix();
+			}
+			else if (i<5) {
+				modelStack.PushMatrix();
+				modelStack.Translate(bounce_balls[i].ball.pos.x, bounce_balls[i].ball.pos.y - (.5f), bounce_balls[i].ball.pos.z);
+				modelStack.Scale((bounce_balls[i].radius), (bounce_balls[i].radius), (bounce_balls[i].radius));
+				meshList[GEO_SHEEP]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[GEO_SHEEP]->material.kDiffuse = glm::vec3(0.1f, 0.1f, 0.1f);
+				meshList[GEO_SHEEP]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+				meshList[GEO_SHEEP]->material.kShininess = 1.0f;
+				RenderMesh(meshList[GEO_SHEEP], true);
+				modelStack.PopMatrix();
+			}
+			
+			else {
+				modelStack.PushMatrix();
+				modelStack.Translate(bounce_balls[i].ball.pos.x, bounce_balls[i].ball.pos.y - (.5f), bounce_balls[i].ball.pos.z);
+				modelStack.Scale((bounce_balls[i].radius), (bounce_balls[i].radius), (bounce_balls[i].radius));
+				meshList[GEO_DEER]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[GEO_DEER]->material.kDiffuse = glm::vec3(0.1f, 0.1f, 0.1f);
+				meshList[GEO_DEER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+				meshList[GEO_DEER]->material.kShininess = 1.0f;
+				RenderMesh(meshList[GEO_DEER], true);
+				modelStack.PopMatrix();
+			}
 		}
 	}
 }
