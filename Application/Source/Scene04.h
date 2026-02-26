@@ -172,17 +172,17 @@ private:
 	// game scene
 	Scene* main_scene = new Scene01;
 	Scene* scene = this;
-	float gravity = -50;
+	float gravity = -10;
 
 	float floor_space = 50
 		;
 	float floor_height = 0.25;
 
-	float skyboxscale = 4 ;
+	float skyboxscale = 10 ;
 	//unspecified
 	int ball_select = 0;
-	float ball_power = 50;
-	float power_max = 100;
+	float ball_power = 250;
+	float power_max = 500;
 	float power_min = 0;
 	bool show_col = false;
 	bool playing = false;

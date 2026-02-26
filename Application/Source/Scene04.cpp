@@ -395,7 +395,7 @@ void Scene04::balls_update(double dt) {
 
 	for (int i = 0; i < ball_num; i++) {
 		//gravity 
-		bounce_balls[i].ball.AddForce(glm::vec3(0, gravity, 0));
+		bounce_balls[i].ball.AddForce(glm::vec3(0, gravity*(bounce_balls[i].ball.mass), 0));
 		
 		//resolve collision
 		bounce_balls[i].ball.UpdatePhysics(dt);
@@ -932,7 +932,20 @@ void Scene04::HandleKeyPress(double dt)
 	{
 		go_back();
 	}
-	
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_E))
+	{
+		ball_power++;
+		if (ball_power >= power_max) {
+			ball_power = power_max;
+		}
+	}
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_Q))
+	{
+		ball_power--;
+		if (ball_power <= power_min) {
+			ball_power = power_min;
+		}
+	}
 	/*
 	if (KeyboardController::GetInstance()->IsKeyDown('I'))
 		light[0].position.z -= static_cast<float>(dt) * 5.f;
