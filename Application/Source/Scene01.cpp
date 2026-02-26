@@ -237,22 +237,22 @@ void Scene01::Init()
 	meshList[PAUSEMENU]->textureID = LoadTGA("Images//scene01pausemenuv2.tga");
 
 	meshList[MAINPAUSE] = MeshBuilder::GenerateQuad("pause", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	meshList[MAINPAUSE]->textureID = LoadTGA("Images//mainpausemenu.tga");
+	meshList[MAINPAUSE]->textureID = LoadTGA("Images//scene01 UI//mainpausemenu.tga");
 
 	meshList[ENTERBUMPERCARGAMEPROMPT] = MeshBuilder::GenerateQuad("enter", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	meshList[ENTERBUMPERCARGAMEPROMPT]->textureID = LoadTGA("Images//bumper car game prompts//enterbumpercargame.tga");
+	meshList[ENTERBUMPERCARGAMEPROMPT]->textureID = LoadTGA("Images//scene01 UI//bumpercargameprompt.tga");
 
 	meshList[EXITBUMPERCARGAMEPROMPT] = MeshBuilder::GenerateQuad("exit", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	meshList[EXITBUMPERCARGAMEPROMPT]->textureID = LoadTGA("Images//bumper car game prompts//exitbumpercargame.tga");
+	meshList[EXITBUMPERCARGAMEPROMPT]->textureID = LoadTGA("Images//scene01 UI//exitbumpercargameprompt.tga");
 
 	meshList[ENTERBASKETBALLPROMPT] = MeshBuilder::GenerateQuad("enter goat", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	meshList[ENTERBASKETBALLPROMPT]->textureID = LoadTGA("Images//scene01 UI//teleporttobasketball.tga");
+	meshList[ENTERBASKETBALLPROMPT]->textureID = LoadTGA("Images//scene01 UI//basketballgameprompt.tga");
 
 	meshList[ENTERBALLBOUNCERPROMPT] = MeshBuilder::GenerateQuad("enter bounce", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	meshList[ENTERBALLBOUNCERPROMPT]->textureID = LoadTGA("Images//scene01 UI//teleporttoballbouncer.tga");
+	meshList[ENTERBALLBOUNCERPROMPT]->textureID = LoadTGA("Images//scene01 UI//ballbouncergameprompt.tga");
 
 	meshList[ENTERDUCKSHOOTINGPROMPT] = MeshBuilder::GenerateQuad("enter duck", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	meshList[ENTERDUCKSHOOTINGPROMPT]->textureID = LoadTGA("Images//scene01 UI//teleporttoduckshooting.tga");
+	meshList[ENTERDUCKSHOOTINGPROMPT]->textureID = LoadTGA("Images//scene01 UI//duckshootinggameprompt.tga");
 
 	{
 		//meshList[GEO_DEER] = MeshBuilder::GenerateOBJMTL("demon", "Models//model_containment//obj//13573_Musk_Deer_v1_L3.obj", "Models//model_containment//mtl//13573_Musk_Deer_v1_L3.mtl");
@@ -365,10 +365,10 @@ void Scene01::Init()
 
 	glUniform1i(m_parameters[U_NUMLIGHTS], NUM_LIGHTS);
 
-	light[0].position = glm::vec3(200, 250, 0);
-	light[0].color = glm::vec3(1, 1, 0.7);
+	light[0].position = glm::vec3(200, -150, 0);
+	light[0].color = glm::vec3(1, 1, 0.1);
 	light[0].type = Light::LIGHT_DIRECTIONAL;
-	light[0].power = 1;
+	light[0].power = 0.6;
 	light[0].kC = 1.f;
 	light[0].kL = 0.01f;
 	light[0].kQ = 0.001f;
@@ -811,6 +811,11 @@ void Scene01::Update(double dt)
 		{
 			EnterBumperCarGamePrompt = true;
 
+			if (EnterBumperCarGamePrompt)
+			{
+				PlaySound(TEXT("Sounds//paper-ripping.wav"), NULL, SND_FILENAME | SND_ASYNC);
+			}
+
 			if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_ENTER))
 			{
 				BumperCarGameEntered = true;
@@ -831,6 +836,10 @@ void Scene01::Update(double dt)
 		if (BumperCarGameEntered && !inside)
 		{
 			ExitBumperCarGamePrompt = true;
+			if (ExitBumperCarGamePrompt)
+			{
+				PlaySound(TEXT("Sounds//paper-ripping.wav"), NULL, SND_FILENAME | SND_ASYNC);
+			}
 
 			if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_ENTER))
 			{
@@ -872,6 +881,10 @@ void Scene01::Update(double dt)
 		if (!BasketballGameEntered && inside)
 		{
 			EnterBasketballGamePrompt = true;
+			if (EnterBasketballGamePrompt)
+			{
+				PlaySound(TEXT("Sounds//paper-ripping.wav"), NULL, SND_FILENAME | SND_ASYNC);
+			}
 
 			if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_ENTER))
 			{
@@ -909,6 +922,10 @@ void Scene01::Update(double dt)
 		if (!BallBouncerGameEntered && inside)
 		{
 			EnterBallBouncerGamePrompt = true;
+			if (EnterBallBouncerGamePrompt)
+			{
+				PlaySound(TEXT("Sounds//paper-ripping.wav"), NULL, SND_FILENAME | SND_ASYNC);
+			}
 
 			if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_ENTER))
 			{
@@ -946,6 +963,10 @@ void Scene01::Update(double dt)
 		if (!DuckShootingGameEntered && inside)
 		{
 			EnterDuckShootingGamePrompt = true;
+			if (EnterDuckShootingGamePrompt)
+			{
+				PlaySound(TEXT("Sounds//paper-ripping.wav"), NULL, SND_FILENAME | SND_ASYNC);
+			}
 
 			if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_ENTER))
 			{
@@ -1573,10 +1594,36 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 		bool isCamera1 = (&cam == &camera1);
 		bool isCamera2 = (&cam == &camera2);
 
+		/*
 		viewStack.LoadIdentity();
 		viewStack.LookAt(
 			cam.position.x, cam.position.y, cam.position.z,
 			cam.target.x, cam.target.y, cam.target.z,
+			cam.up.x, cam.up.y, cam.up.z
+		);*/
+
+		glm::vec3 renderPos = cam.position;
+		glm::vec3 renderTarget = cam.target;
+
+		// tweak these to taste
+		const float renderBackDistance = 25.f;  // move camera backward along its forward vector
+		const float renderUpOffset = 1.5f;      // lift camera up in world Y
+
+		// If this camera belongs to a player who is in their car, offset the render camera.
+		// This does NOT modify cam.position/cam.target (physics/state remain the same).
+		if ((&cam == &camera1 && player1InCar) || (&cam == &camera2 && player2InCar))
+		{
+			// world forward from camera (direction camera is currently facing)
+			glm::vec3 forward = glm::normalize(cam.target - cam.position);
+			// move the render position backwards and a bit up
+			renderPos = cam.position - forward * renderBackDistance + glm::vec3(0.0f, renderUpOffset, 0.0f);
+			// keep renderTarget == cam.target so the camera looks slightly down at the same world point
+		}
+
+		viewStack.LoadIdentity();
+		viewStack.LookAt(
+			renderPos.x, renderPos.y, renderPos.z,
+			renderTarget.x, renderTarget.y, renderTarget.z,
 			cam.up.x, cam.up.y, cam.up.z
 		);
 
@@ -2350,89 +2397,115 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 
 		if (player1InCar)
 		{
-			// ----- Render Player 1 Model -----
-			if (!isCamera1)  // If current view is NOT camera1
+			// Render Player 1 Model so that both other cameras AND the player's own camera can see it.
+			// When the current camera is camera1 (isCamera1 == true) we offset the model slightly behind
+			// the camera so the player can still see their own car (simple 3rd-person view).
+			modelStack.PushMatrix();
+
+			// Compute draw position: either at the car position (other cameras) or slightly behind for own-camera view
+			glm::vec3 drawPos1 = camera1.position;
+			if (isCamera1)
 			{
-				modelStack.PushMatrix();
-				modelStack.Translate(camera1.position.x, 0.5, camera1.position.z);
-				modelStack.Scale(3.f, 3.f, 3.f);
-
-				// Make the model face the direction camera1 is facing:
-				{
-					glm::vec3 pForward = glm::normalize(camera1.target - camera1.position);
-					// Yaw in degrees from X axis
-					float yaw = glm::degrees(atan2(pForward.z, pForward.x));
-					// Rotate the model around world Y so it faces the same horizontal direction
-					modelStack.Rotate(yaw, 0.f, -1.f, 0.f);
-				}
-
-				meshList[BUMPERCAR]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
-				meshList[BUMPERCAR]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-				meshList[BUMPERCAR]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-				meshList[BUMPERCAR]->material.kShininess = 5.0f;
-				RenderMesh(meshList[BUMPERCAR], true);
-				modelStack.PopMatrix();
-
-				modelStack.PushMatrix();
-				modelStack.Translate(camera1.position.x, 1.f, camera1.position.z);
-				modelStack.Scale(2.f, 2.f, 2.f);
-				modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
-				// Make the model face the direction camera1 is facing:
-				{
-					glm::vec3 pForward = glm::normalize(camera1.target - camera1.position);
-					// Yaw in degrees from X axis
-					float yaw = glm::degrees(atan2(pForward.z, pForward.x));
-					// Rotate the model around world Y so it faces the same horizontal direction
-					modelStack.Rotate(yaw, 0.f, -1.f, 0.f);
-				}
-				meshList[GEO_COW]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
-				meshList[GEO_COW]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-				meshList[GEO_COW]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-				meshList[GEO_COW]->material.kShininess = 5.0f;
-				RenderMesh(meshList[GEO_COW], true);
-				modelStack.PopMatrix();
+				glm::vec3 forward1 = glm::normalize(camera1.target - camera1.position);
+				const float behindDistance = 8.0f; // tweak to taste
+				drawPos1 += -forward1 * behindDistance;
 			}
+
+			modelStack.Translate(drawPos1.x, 0.5f, drawPos1.z);
+			modelStack.Scale(3.f, 3.f, 3.f);
+
+			// Make the model face the direction camera1 is facing:
+			{
+				glm::vec3 pForward = glm::normalize(camera1.target - camera1.position);
+				float yaw = glm::degrees(atan2(pForward.z, pForward.x));
+				modelStack.Rotate(yaw, 0.f, -1.f, 0.f);
+			}
+
+			meshList[BUMPERCAR]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+			meshList[BUMPERCAR]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+			meshList[BUMPERCAR]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+			meshList[BUMPERCAR]->material.kShininess = 5.0f;
+			RenderMesh(meshList[BUMPERCAR], true);
+			modelStack.PopMatrix();
+
+			// Render the cow model on/near the car as before (also offset for own-camera)
+			modelStack.PushMatrix();
+			glm::vec3 cowPos1 = camera1.position;
+			if (isCamera1)
+			{
+				glm::vec3 forward1 = glm::normalize(camera1.target - camera1.position);
+				const float behindDistance = 8.0f;
+				cowPos1 += -forward1 * behindDistance;
+			}
+			modelStack.Translate(cowPos1.x, 1.f, cowPos1.z);
+			modelStack.Scale(2.f, 2.f, 2.f);
+			modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+			{
+				glm::vec3 pForward = glm::normalize(camera1.target - camera1.position);
+				float yaw = glm::degrees(atan2(pForward.z, pForward.x));
+				modelStack.Rotate(yaw, 0.f, -1.f, 0.f);
+			}
+			meshList[GEO_COW]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+			meshList[GEO_COW]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+			meshList[GEO_COW]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+			meshList[GEO_COW]->material.kShininess = 5.0f;
+			RenderMesh(meshList[GEO_COW], true);
+			modelStack.PopMatrix();
 		}
 		if (player2InCar)
 		{
-			// ----- Render Player 2 Model -----
-			if (isCamera1)  // If current view IS camera1
+			// Render Player 2 Model so that both other cameras AND the player's own camera can see it.
+			// When the current camera is camera2 (isCamera2 == true) we offset the model slightly behind
+			// the camera so the player can still see their own car.
+			modelStack.PushMatrix();
+
+			glm::vec3 drawPos2 = camera2.position;
+			if (isCamera2)
 			{
-				modelStack.PushMatrix();
-				modelStack.Translate(camera2.position.x, 0.5, camera2.position.z);
-				modelStack.Scale(3.f, 3.f, 3.f);
-
-				// Make the model face the direction camera2 is facing:
-				{
-					glm::vec3 pForward = glm::normalize(camera2.target - camera2.position);
-					float yaw = glm::degrees(atan2(pForward.z, pForward.x));
-					modelStack.Rotate(yaw, 0.f, -1.f, 0.f);
-				}
-
-				meshList[BUMPERCAR]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
-				meshList[BUMPERCAR]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-				meshList[BUMPERCAR]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-				meshList[BUMPERCAR]->material.kShininess = 5.0f;
-				RenderMesh(meshList[BUMPERCAR], true);
-				modelStack.PopMatrix();
-
-				modelStack.PushMatrix();
-				modelStack.Translate(camera2.position.x, 1, camera2.position.z);
-				modelStack.Scale(2.f, 2.f, 2.f);
-				modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
-				// Make the model face the direction camera2 is facing:
-				{
-					glm::vec3 pForward = glm::normalize(camera2.target - camera2.position);
-					float yaw = glm::degrees(atan2(pForward.z, pForward.x));
-					modelStack.Rotate(yaw, 0.f, -1.f, 0.f);
-				}
-				meshList[GEO_COW]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
-				meshList[GEO_COW]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-				meshList[GEO_COW]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-				meshList[GEO_COW]->material.kShininess = 5.0f;
-				RenderMesh(meshList[GEO_COW], true);
-				modelStack.PopMatrix();
+				glm::vec3 forward2 = glm::normalize(camera2.target - camera2.position);
+				const float behindDistance = 8.0f; // same adjustable distance
+				drawPos2 += -forward2 * behindDistance;
 			}
+
+			modelStack.Translate(drawPos2.x, 0.5, drawPos2.z);
+			modelStack.Scale(3.f, 3.f, 3.f);
+
+			// Make the model face the direction camera2 is facing:
+			{
+				glm::vec3 pForward = glm::normalize(camera2.target - camera2.position);
+				float yaw = glm::degrees(atan2(pForward.z, pForward.x));
+				modelStack.Rotate(yaw, 0.f, -1.f, 0.f);
+			}
+
+			meshList[BUMPERCAR]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+			meshList[BUMPERCAR]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+			meshList[BUMPERCAR]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+			meshList[BUMPERCAR]->material.kShininess = 5.0f;
+			RenderMesh(meshList[BUMPERCAR], true);
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			glm::vec3 cowPos2 = camera2.position;
+			if (isCamera2)
+			{
+				glm::vec3 forward2 = glm::normalize(camera2.target - camera2.position);
+				const float behindDistance = 8.0f;
+				cowPos2 += -forward2 * behindDistance;
+			}
+			modelStack.Translate(cowPos2.x, 1, cowPos2.z);
+			modelStack.Scale(2.f, 2.f, 2.f);
+			modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+			{
+				glm::vec3 pForward = glm::normalize(camera2.target - camera2.position);
+				float yaw = glm::degrees(atan2(pForward.z, pForward.x));
+				modelStack.Rotate(yaw, 0.f, -1.f, 0.f);
+			}
+			meshList[GEO_COW]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+			meshList[GEO_COW]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+			meshList[GEO_COW]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+			meshList[GEO_COW]->material.kShininess = 5.0f;
+			RenderMesh(meshList[GEO_COW], true);
+			modelStack.PopMatrix();
 		}
 	}
 }
