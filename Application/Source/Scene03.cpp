@@ -172,7 +172,13 @@ void Scene03::Init()
 	meshList[GEO_CAROUSEL]->textureID = LoadTGA("Images//carousel.tga");
 
 	meshList[GEO_DIALOGUE1] = MeshBuilder::GenerateQuad("Dialogue", glm::vec3(1.f, 1.f, 1.f), 10.f);
-	meshList[GEO_DIALOGUE1]->textureID = LoadTGA("Images//dialogue1.tga");
+	meshList[GEO_DIALOGUE1]->textureID = LoadTGA("Images//alvindialogue1.tga");
+
+	meshList[GEO_DIALOGUE2] = MeshBuilder::GenerateQuad("Dialogue", glm::vec3(1.f, 1.f, 1.f), 10.f);
+	meshList[GEO_DIALOGUE2]->textureID = LoadTGA("Images//alvindialogue2.tga");
+
+	meshList[GEO_DIALOGUE3] = MeshBuilder::GenerateQuad("Dialogue", glm::vec3(1.f, 1.f, 1.f), 10.f);
+	meshList[GEO_DIALOGUE3]->textureID = LoadTGA("Images//alvindialogue3.tga");
 
 	meshList[GEO_FOODCART] = MeshBuilder::GenerateOBJMTL("Foodcart", "Models//foodcart.obj", "Models//foodcart.mtl");
 	meshList[GEO_FOODCART]->textureID = LoadTGA("Images//foodcart.tga");
@@ -186,6 +192,9 @@ void Scene03::Init()
 	meshList[GEO_BUCKET] = MeshBuilder::GenerateOBJMTL("Bucket", "Models//alvinbucket.obj", "Models//alvinbucket.mtl");
 	meshList[GEO_BUCKET]->textureID = LoadTGA("Images//alvinbucket.tga");
 
+	meshList[GEO_TRUCK] = MeshBuilder::GenerateOBJMTL("foodtruck", "Models//foodtruck.obj", "Models//foodtruck.mtl");
+	meshList[GEO_TRUCK]->textureID = LoadTGA("Images//foodtruck.tga");
+
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
 
@@ -195,7 +204,7 @@ void Scene03::Init()
 	light[0].position = glm::vec3(camera.position.x, camera.position.y, camera.position.z);
 	light[0].color = glm::vec3(1, 1, 0.5);
 	light[0].type = Light::LIGHT_POINT;
-	light[0].power = 0;
+	light[0].power = 1;
 	light[0].kC = 1.f;
 	light[0].kL = 0.01f;
 	light[0].kQ = 0.001f;
@@ -233,6 +242,21 @@ void Scene03::Init()
 
 	ballbouncearea = glm::vec3(-9, 0, -37.2);
 	ballbounceAreaRadius = 18.f;
+
+	blackwallMin = glm::vec3(-7.f, 0.f, -1.5f);
+	blackwallMax = glm::vec3(7.f, 9.f, 0.f);
+
+	hotdogMin = glm::vec3(-18.5f, -0.5f, 7.5f);
+	hotdogMax = glm::vec3(-15.5f, 4.5f, 10.5f);
+
+	foodCartMin = glm::vec3(-33, 0, -8);
+	foodCartMax = glm::vec3(-23, 5, 6);
+
+	hotdogMin2 = glm::vec3(-23.5f, -0.5f, 4.5f);
+	hotdogMax2 = glm::vec3(-14.5f, 4.5f, 12.5f);
+
+	foodCartMin2 = glm::vec3(-35, 2, -7);
+	foodCartMax2 = glm::vec3(-22, 7, 2); 
 }
 
 void Scene03::HandleMouseInput() {
@@ -318,10 +342,17 @@ bool Scene03::OverlapCircle2AABB(glm::vec3 circlePos, float radius, glm::vec3 bo
 		closest.y = boxMax.y;
 	}
 
+	if (closest.z < boxMin.z) {
+		closest.z = boxMin.z;
+	}
+	else if (closest.z > boxMax.z) {
+		closest.z = boxMax.z;
+	}
+
 	glm::vec3 diff = circlePos - closest;
 
 	// Step 3: distance check
-	float distSq = diff.x * diff.x + diff.y * diff.y;
+	float distSq = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
 
 	if (distSq <= radius * radius) {
 		return true;
@@ -394,7 +425,7 @@ void Scene03::Update(double dt)
 		camera.position.y = 3.f;
 	}
 
-	//std::cout << camera.position.x << ", " << camera.position.y << ", " << camera.position.z << std::endl;
+	std::cout << camera.position.x << ", " << camera.position.y << ", " << camera.position.z << std::endl;
 
 	HandleKeyPress(dt);
 
@@ -424,30 +455,6 @@ void Scene03::Update(double dt)
 	}*/
 
 	HandleMouseInput();
-
-	/*if (spacePressed == false) {
-		if (KeyboardController::GetInstance()->IsKeyPressed(VK_SPACE) && isGrounded && spacePressed == false)
-		{
-			spacePressed = true;
-			playerYVelocity = jumpForce;
-			isGrounded = false;
-		}
-	}
-
-	playerYVelocity -= gravity * dt;
-	camera.position.y += playerYVelocity * dt;
-	camera.target.y += playerYVelocity * dt;
-
-	if (camera.position.y <= 2.f)
-	{
-		camera.position.y = 2.f;
-		playerYVelocity = 0.f;
-		isGrounded = true;
-	}
-
-	if (isGrounded == true) {
-		spacePressed == false;
-	}*/
 
 	if (OverlapCircle2Circle(camera.position, 2.f, startarea, startarearadius)) {
 		inStartArea = true;
@@ -686,6 +693,18 @@ void Scene03::Update(double dt)
 		camera.position = previousPosition;
 	}
 
+	if (OverlapCircle2AABB(camera.position, playerRadius, blackwallMin, blackwallMax)) {
+		camera.position = previousPosition;
+	}
+
+	if (OverlapCircle2AABB(camera.position, playerRadius, hotdogMin, hotdogMax)) {
+		camera.position = previousPosition;
+	}
+
+	if (OverlapCircle2AABB(camera.position, playerRadius, foodCartMin, foodCartMax)) {
+		camera.position = previousPosition;
+	}
+
 	float temp = 1.f / dt;
 	fps = glm::round(temp * 100.f) / 100.f;
 }
@@ -738,6 +757,10 @@ void Scene03::RenderSkybox() {
 void Scene03::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey)
 {
 	glDisable(GL_DEPTH_TEST);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	glm::mat4 ortho = glm::ortho(0.f, 800.f, 0.f, 600.f, -1000.f, 1000.f); // dimension of screen UI
 	projectionStack.PushMatrix();
 	projectionStack.LoadMatrix(ortho);
@@ -988,8 +1011,8 @@ void Scene03::Render()
 			}
 		}
 		// keep the ambient material tweak from original code
-		meshList[GEO_GRASS]->material.kAmbient = glm::vec3(0.7f, 0.7f, 0.7f);
-		meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
+		meshList[GEO_GRASS]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+		meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
 		meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 		meshList[GEO_SPHERE]->material.kShininess = 5.0f;
 	}
@@ -1087,6 +1110,19 @@ void Scene03::Render()
 	meshList[GEO_FOODCART]->material.kShininess = 5.0f;
 	RenderMesh(meshList[GEO_FOODCART], true);
 	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	modelStack.Translate(-29.4, 3.3, -2);
+	modelStack.Scale(2.f, 2.f, 2.f);
+	modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+	meshList[GEO_TRUCK]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_TRUCK]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_TRUCK]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+	meshList[GEO_TRUCK]->material.kShininess = 5.0f;
+	RenderMesh(meshList[GEO_TRUCK], true);
+	modelStack.PopMatrix();
+
+	//modelStack.Translate(light->position.x, 0, light->position.z);
 
 	//bumper cart scene switch
 	
@@ -1235,9 +1271,23 @@ void Scene03::Render()
 		showCrosshair = false;
 	}
 
-	/*if (OverlapCircle2Circle(camera.position, playerRadius, carouselPosition, carouselRadius + 1)) {
-		RenderMeshOnScreen(meshList[GEO_DIALOGUE1], light->position.x, light->position.z, 35, 10);
-	}*/
+	if (OverlapCircle2Circle(camera.position, playerRadius, carouselPosition, carouselRadius + 1)) {
+		modelStack.PushMatrix();
+		RenderMeshOnScreen(meshList[GEO_DIALOGUE1], 400, 63.6, 44, 13);
+		modelStack.PopMatrix();
+	}
+
+	if (OverlapCircle2AABB(camera.position, playerRadius, hotdogMin2, hotdogMax2)) {
+		modelStack.PushMatrix();
+		RenderMeshOnScreen(meshList[GEO_DIALOGUE2], 400, 205, 70, 55);
+		modelStack.PopMatrix();
+	}
+
+	if (OverlapCircle2AABB(camera.position, playerRadius, foodCartMin2, foodCartMax2)) {
+		modelStack.PushMatrix();
+		RenderMeshOnScreen(meshList[GEO_DIALOGUE3], 400, 205, 70, 55);
+		modelStack.PopMatrix();
+	}
 
 	//if (showCrosshair == true) {
 	//	//tuff crosshair

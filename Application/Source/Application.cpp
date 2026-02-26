@@ -292,7 +292,7 @@ void Application::Run()
 						scene2->Exit();      // exit Scene01
 						scene3->Init();
 						//PlaySound(NULL, 0, 0);
-						PlaySound(TEXT("Sounds//rupertgamingboy.wav"), NULL, SND_FILENAME | SND_ASYNC);
+						PlaySound(TEXT("Sounds//rah.wav"), NULL, SND_FILENAME | SND_ASYNC);
 
 						scene = scene3;
 						sceneNum = SCENE_02;
@@ -310,7 +310,7 @@ void Application::Run()
 						scene2->Exit();      // exit Scene01
 						scene4->Init();      // Scene03 is scene4 in your setup
 						//PlaySound(NULL, 0, 0);
-						PlaySound(TEXT("Sounds//rupertgamingboy.wav"), NULL, SND_FILENAME | SND_ASYNC);
+						PlaySound(TEXT("Sounds//rah.wav"), NULL, SND_FILENAME | SND_ASYNC);
 
 						scene = scene4;
 						sceneNum = SCENE_03;
@@ -328,7 +328,7 @@ void Application::Run()
 						scene2->Exit();      // exit Scene01
 						scene5->Init();
 						//PlaySound(NULL, 0, 0);
-						PlaySound(TEXT("Sounds//rupertgamingboy.wav"), NULL, SND_FILENAME | SND_ASYNC);
+						PlaySound(TEXT("Sounds//rah.wav"), NULL, SND_FILENAME | SND_ASYNC);
 
 						scene = scene5;
 						sceneNum = SCENE_04;
@@ -347,7 +347,7 @@ void Application::Run()
 					scene3->Exit();      // exit Scene02
 					scene2->Init();      // init Scene01
 					//PlaySound(NULL, 0, 0);
-					PlaySound(TEXT("Sounds//rupertgamingboy.wav"), NULL, SND_FILENAME | SND_ASYNC);
+					PlaySound(TEXT("Sounds//rah.wav"), NULL, SND_FILENAME | SND_ASYNC);
 
 					scene = scene2;
 					sceneNum = SCENE_01;
@@ -370,7 +370,7 @@ void Application::Run()
 					scene4->Exit();      // exit Scene03
 					scene2->Init();
 					//PlaySound(NULL, 0, 0);
-					PlaySound(TEXT("Sounds//speed.wav"), NULL, SND_FILENAME | SND_ASYNC);
+					PlaySound(TEXT("Sounds//fah.wav"), NULL, SND_FILENAME | SND_ASYNC);
 
 					scene = scene2;
 					sceneNum = SCENE_01;
@@ -388,7 +388,7 @@ void Application::Run()
 					scene4->Exit();      // exit Scene03
 					scene3->Init();
 					//PlaySound(NULL, 0, 0);
-					PlaySound(TEXT("Sounds//speed.wav"), NULL, SND_FILENAME | SND_ASYNC);
+					PlaySound(TEXT("Sounds//fah.wav"), NULL, SND_FILENAME | SND_ASYNC);
 
 					scene = scene3;
 					sceneNum = SCENE_02;
@@ -406,7 +406,7 @@ void Application::Run()
 					scene4->Exit();      // exit Scene03
 					scene5->Init();
 					//PlaySound(NULL, 0, 0);
-					PlaySound(TEXT("Sounds//speed.wav"), NULL, SND_FILENAME | SND_ASYNC);
+					PlaySound(TEXT("Sounds//fah.wav"), NULL, SND_FILENAME | SND_ASYNC);
 
 					scene = scene5;
 					sceneNum = SCENE_04;
