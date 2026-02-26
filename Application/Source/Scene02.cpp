@@ -19,6 +19,7 @@
 #include "KeyboardController.h"
 #include "LoadTGA.h"
 #include "MouseController.h"
+
 #include <iostream>
 
 // repo cloning text test
@@ -705,7 +706,7 @@ void Scene02::Update(double dt)
 				startPos = glm::vec3(5.692f, 4.f, 14.2f);
 				endPos = glm::vec3(10.93f, 4.f, 25.f);
 				speed = 4.f;
-				repeats = 3;
+				repeats = 2;
 
 				SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, -1);
 
@@ -719,7 +720,7 @@ void Scene02::Update(double dt)
 				startPos = glm::vec3(16.72f, 6.2f, 21.1f);
 				endPos = glm::vec3(16.72f, 6.2f, 32.9f);
 				speed = 4.f;
-				repeats = 3;
+				repeats = 2;
 
 				SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, -1);
 			}
@@ -740,15 +741,15 @@ void Scene02::Update(double dt)
 
 				startPos = glm::vec3(1.236f, 2.2f, 98.4f);
 				endPos = glm::vec3(1.236f, 2.2f, 113.9f);
-				speed = 5.f;
-				repeats = 5;
+				speed = 4.f;
+				repeats = 2;
 
 				SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, -1);
 
 				startPos = glm::vec3(2.736f, 2.2f, 91.f);
 				endPos = glm::vec3(8.47f, 2.2f, 100.7f);
-				speed = 4.f;
-				repeats = 3;
+				speed = 5.f;
+				repeats = 5;
 
 				SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 1);
 
@@ -762,14 +763,14 @@ void Scene02::Update(double dt)
 				startPos = glm::vec3(13.94f, 4.2f, 96.1f);
 				endPos = glm::vec3(13.94f, 4.2f, 112.f);
 				speed = 4.f;
-				repeats = 3;
+				repeats = 2;
 
 				SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, -1);
 
 				startPos = glm::vec3(16.85f, 6.2f, 112.f);
 				endPos = glm::vec3(16.85f, 6.2f, 96.1f);
 				speed = 4.f;
-				repeats = 3;
+				repeats = 2;
 
 
 				SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, -1);
@@ -1504,9 +1505,9 @@ void Scene02::Render()
 
 		if (!gameEnded)
 		{
-			// TARGETS COUNTER
+			// SCORE COUNTER
 			{
-				RenderTextOnScreen(meshList[GEO_TEXT], "Targets Hit:" + std::to_string(score), glm::vec3(1.f, 1.f, 0.f), 20, 0, 540);
+				RenderTextOnScreen(meshList[GEO_TEXT], "Score Multiplier:" + std::to_string(score), glm::vec3(1.f, 1.f, 0.f), 20, 0, 540);
 			}
 
 			// TIME COUNTER
@@ -1514,7 +1515,7 @@ void Scene02::Render()
 				RenderTextOnScreen(meshList[GEO_TEXT], "Time: " + elapsedTimeText, glm::vec3(1.f, 1.f, 0.f), 20, 0, 500);
 			}
 
-			// TIME COUNTER
+			// SHOTS COUNTER
 			{
 				RenderTextOnScreen(meshList[GEO_TEXT], "Shots Fired: " + std::to_string(shotsFired), glm::vec3(1.f, 1.f, 0.f), 20, 0, 460);
 			}
@@ -1526,41 +1527,62 @@ void Scene02::Render()
 			if (gameEnded)
 			{
 				RenderMeshOnScreen(meshList[BLACK],400.f,300.f,800.f,600.f, 0.f);
-				int shotPoints = shotsFired;
-				if (shotsFired <= validTargets)
+				int shotMultiplier = shotsFired;
+
+				// Shot Multiplier
+				if (validTargets <= 0)
 				{
-					shotPoints = static_cast<int>(std::ceil(shotPoints / validTargets));
+					shotMultiplier = 1;
+				}
+				else if (shotsFired <= validTargets)
+				{
+					shotMultiplier = 1;
 				}
 				else
 				{
-					shotPoints -= validTargets;
-					shotPoints = static_cast<int>(std::ceil(shotPoints / 3.f));
+					shotMultiplier = shotsFired - validTargets;
+					shotMultiplier = shotMultiplier / 3;
 				}
-				int timeMultiplier = round(totalElapsedTime / 60);
-				if (timeMultiplier == 0)
+
+				if (shotMultiplier <= 0)
+				{
+					shotMultiplier = 1;
+				}
+
+				int timeMultiplier = totalElapsedTime / 60;
+				if (timeMultiplier <= 0)
 				{
 					timeMultiplier = 1;
 				}
-				int finalScore = score * 100 / (shotPoints * timeMultiplier);
-				if (finalScore >= 900)
+
+				int finalScore = 0;
+				if (shotsFired > 0)
 				{
-					RenderMeshOnScreen(meshList[SRANK], 540.f, 340.f, 100.f, 100.f, 90.f);
+					finalScore = score * 100 / (shotMultiplier * timeMultiplier);
 				}
-				else if (finalScore >= 750)
+
+				int maxScore = max(1, validTargets * 100);
+
+				// Ranking
+				if (finalScore >= maxScore * 0.8f)
 				{
-					RenderMeshOnScreen(meshList[ARANK], 540.f, 340.f, 100.f, 100.f, 90.f);
+					RenderMeshOnScreen(meshList[SRANK], 540, 340, 100, 100, 90);
 				}
-				else if (finalScore >= 600)
+				else if (finalScore >= maxScore * 0.7f)
 				{
-					RenderMeshOnScreen(meshList[BRANK], 540.f, 340.f, 100.f, 100.f, 90.f);
+					RenderMeshOnScreen(meshList[ARANK], 540, 340, 100, 100, 90);
 				}
-				else if (finalScore >= 450)
+				else if (finalScore >= maxScore * 0.6f)
 				{
-					RenderMeshOnScreen(meshList[CRANK], 540.f, 340.f, 100.f, 100.f, 90.f);
+					RenderMeshOnScreen(meshList[BRANK], 540, 340, 100, 100, 90);
+				}
+				else if (finalScore >= maxScore * 0.5f)
+				{
+					RenderMeshOnScreen(meshList[CRANK], 540, 340, 100, 100, 90);
 				}
 				else
 				{
-					RenderMeshOnScreen(meshList[DRANK], 540.f, 340.f, 100.f, 100.f, 90.f);
+					RenderMeshOnScreen(meshList[DRANK], 540, 340, 100, 100, 90);
 				}
 				RenderTextOnScreen(meshList[GEO_TEXT], "Targets Hit: " + std::to_string(score), glm::vec3(1.f, 1.f, 1.f), 20, 220, 380);
 				RenderTextOnScreen(meshList[GEO_TEXT], "Shots Fired: " + std::to_string(shotsFired), glm::vec3(1.f, 1.f, 1.f), 20, 220, 340);
