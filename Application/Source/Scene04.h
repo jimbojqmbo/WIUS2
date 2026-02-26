@@ -171,7 +171,7 @@ private:
 	//additional
 	
 	//objects
-	static const int  ball_num = 10;
+	static const int  ball_num = 11;
 	fourball bounce_balls[ball_num];
 	//physics objects
 	//circle

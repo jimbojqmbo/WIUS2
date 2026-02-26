@@ -196,8 +196,8 @@ void Scene04::Init()
 	glUniform1f(m_parameters[U_LIGHT0_COSINNER], cosf(glm::radians<float>(light[0].cosInner)));
 	glUniform1f(m_parameters[U_LIGHT0_EXPONENT], light[0].exponent);
 
-	light[1].position = glm::vec3(0, 0, 0);
-	light[1].color = glm::vec3(1, 1, 0.5);
+	light[1].position = glm::vec3(0, 10, 0);
+	light[1].color = glm::vec3(0.6, 0.6, 0.1);
 	light[1].type = Light::LIGHT_POINT;
 	light[1].power = 5;
 	light[1].kC = 1.f;
@@ -356,16 +356,16 @@ void Scene04::Update(double dt)
 	}
 	std::cout << score << std::endl;
 
-	if (ball_select >= 10) {
+	if (ball_select > 10) {
 		for (int i = 0; i < ball_select; i++) {
 			if (bounce_balls[i].in == true) {
 				bounce_balls[i].in = false;
 			}
 		}
-		playing = false;
 		std::string result = "your score is "+(std::to_string(score)+" balls");
 		score = 0;
 		send_message(result);
+		playing = false;
 		change_height  = true;
 		for (int i = 0; i < ball_num; i++) {
 			bounce_balls[i].thrown = false;
@@ -376,7 +376,6 @@ void Scene04::Update(double dt)
 
 		camera.target = camera.position + view;
 	}
-	light[1].position = bounce_balls[ball_select].ball.pos;
 	score = 0;
 	camera.Update(dt);
 }
@@ -403,17 +402,17 @@ void Scene04::balls_update(double dt) {
 				rings[l].bucket.pos.y + rings[l].height*0.5,
 				rings[l].bucket.pos.z + rings[l].radius);
 
-			rings[l].wall[0].sizeX = rings[l].radius * 2;
-			rings[l].wall[0].sizeY = rings[l].height * 2;
-			rings[l].wall[0].sizeZ = rings[l].radius * 2;
+			rings[l].wall[0].sizeX = rings[l].radius;
+			rings[l].wall[0].sizeY = rings[l].height * 2.5;
+			rings[l].wall[0].sizeZ = rings[l].radius *0.5;
 
 			rings[l].wall[1].pos = glm::vec3(
 				rings[l].bucket.pos.x + rings[l].radius,
 				rings[l].bucket.pos.y + rings[l].height* 0.5,
 				rings[l].bucket.pos.z);
 
-			rings[l].wall[1].sizeX = rings[l].radius;
-			rings[l].wall[1].sizeY = rings[l].height * 2;
+			rings[l].wall[1].sizeX = rings[l].radius * 0.5;
+			rings[l].wall[1].sizeY = rings[l].height * 2.5;
 			rings[l].wall[1].sizeZ = rings[l].radius;
 
 			rings[l].wall[2].pos = glm::vec3(
@@ -422,16 +421,16 @@ void Scene04::balls_update(double dt) {
 				rings[l].bucket.pos.z - rings[l].radius);
 
 			rings[l].wall[2].sizeX = rings[l].radius;
-			rings[l].wall[2].sizeY = rings[l].height * 2;
-			rings[l].wall[2].sizeZ = rings[l].radius;
+			rings[l].wall[2].sizeY = rings[l].height * 2.5;
+			rings[l].wall[2].sizeZ = rings[l].radius * 0.5;
 
 			rings[l].wall[3].pos = glm::vec3(
 				rings[l].bucket.pos.x - rings[l].radius,
 				rings[l].bucket.pos.y + rings[l].height* 0.5,
 				rings[l].bucket.pos.z);
 
-			rings[l].wall[3].sizeX = rings[l].radius;
-			rings[l].wall[3].sizeY = rings[l].height * 2;
+			rings[l].wall[3].sizeX = rings[l].radius * 0.5;
+			rings[l].wall[3].sizeY = rings[l].height * 2.5;
 			rings[l].wall[3].sizeZ = rings[l].radius;
 
 	
@@ -448,8 +447,8 @@ void Scene04::balls_update(double dt) {
 
 		for (int l = 0; l < ring_num; l++) {
 
-			rings[l].bucket.sizeX = rings[l].radius*1.5;
-			rings[l].bucket.sizeY = rings[l].height * 2;
+			rings[l].bucket.sizeX = rings[l].radius * 1.5;
+			rings[l].bucket.sizeY = rings[l].height * 2.5;
 			rings[l].bucket.sizeZ = rings[l].radius * 1.5;
 
 			if (OverlapSphere2OBB(
@@ -477,7 +476,7 @@ void Scene04::balls_update(double dt) {
 
 		isLeftUp = true;
 		if (playing == true) {
-			if (ball_select < 10) {
+			if (ball_select < 11) {
 				std::cout << bounce_balls[ball_select].ball.mass << std::endl;
 				bounce_balls[ball_select].ball.vel = glm::vec3(0.f);
 				//camera.target
