@@ -245,6 +245,8 @@ void Scene04::Init()
 	rings[2].bucket.pos.z = -rings[0].radius * 2;
 
 	green_cow.pos = glm::vec3(-25.f, 0.f, 0.f);
+	red_cow.pos = glm::vec3(-75.f, 0.f, -25.f);
+	blue_cow.pos = glm::vec3(- 130.f, 0.f, -25.f);
 
 	player.mass = 0;
 	player.bounciness = 1;
@@ -319,6 +321,31 @@ void Scene04::Update(double dt)
 
 		camera.target = camera.position + view;
 	}
+	static bool isRightUp = false;
+
+	if (OverlapCircle2(player.pos, 5.f, red_cow.pos, 5.f)) {
+		if (!isRightUp && MouseController::GetInstance()->IsButtonDown(GLFW_MOUSE_BUTTON_RIGHT)) {
+			isRightUp = true;
+			animal = not(animal);
+			if (animal == true) {
+				send_message("animal balls are now in use");
+			}
+			if (animal == false) {
+				send_message("regular balls are now in use");
+			}
+		}
+		else if (isRightUp && MouseController::GetInstance()->IsButtonUp(GLFW_MOUSE_BUTTON_RIGHT))
+		{
+			isRightUp = false;
+		}
+	}
+	if (OverlapCircle2(player.pos, 5.f, blue_cow.pos, 5.f)) {
+		send_message("press j to go back to main scene");
+		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_J))
+		{
+			go_back();
+		}
+	}
 
 
 	int score = 0;
@@ -367,36 +394,41 @@ void Scene04::balls_update(double dt) {
 		for (int l = 0; l < ring_num; l++) {
 			rings[l].wall[0].pos = glm::vec3(
 				rings[l].bucket.pos.x,
-				rings[l].bucket.pos.y + rings[l].height*2,
+				rings[l].bucket.pos.y + rings[l].height*0.5,
 				rings[l].bucket.pos.z + rings[l].radius);
+
+			rings[l].wall[0].sizeX = rings[l].radius * 2;
+			rings[l].wall[0].sizeY = rings[l].height * 2;
+			rings[l].wall[0].sizeZ = rings[l].radius * 2;
 
 			rings[l].wall[1].pos = glm::vec3(
 				rings[l].bucket.pos.x + rings[l].radius,
-				rings[l].bucket.pos.y + rings[l].height*2,
+				rings[l].bucket.pos.y + rings[l].height* 0.5,
 				rings[l].bucket.pos.z);
+
+			rings[l].wall[1].sizeX = rings[l].radius;
+			rings[l].wall[1].sizeY = rings[l].height * 2;
+			rings[l].wall[1].sizeZ = rings[l].radius;
 
 			rings[l].wall[2].pos = glm::vec3(
 				rings[l].bucket.pos.x,
-				rings[l].bucket.pos.y + rings[l].height * 2,
+				rings[l].bucket.pos.y + rings[l].height * 0.5,
 				rings[l].bucket.pos.z - rings[l].radius);
+
+			rings[l].wall[2].sizeX = rings[l].radius;
+			rings[l].wall[2].sizeY = rings[l].height * 2;
+			rings[l].wall[2].sizeZ = rings[l].radius;
 
 			rings[l].wall[3].pos = glm::vec3(
 				rings[l].bucket.pos.x - rings[l].radius,
-				rings[l].bucket.pos.y + rings[l].height*2,
+				rings[l].bucket.pos.y + rings[l].height* 0.5,
 				rings[l].bucket.pos.z);
 
-			// Define wall half sizes correctly
-			/*
-			glm::vec3 halfSizeFrontBack(
-				rings[l].radius * 2,
-				rings[l].height,
-				rings[l].radius * 2);
+			rings[l].wall[3].sizeX = rings[l].radius;
+			rings[l].wall[3].sizeY = rings[l].height * 2;
+			rings[l].wall[3].sizeZ = rings[l].radius;
 
-			glm::vec3 halfSizeLeftRight(
-				rings[l].radius * 2,
-				rings[l].height,
-				rings[l].radius * 2);
-			*/
+	
 			// Check 4 walls
 			for (int j=0; j < 4; j++) {
 				CollisionData cd;
@@ -410,11 +442,9 @@ void Scene04::balls_update(double dt) {
 
 		for (int l = 0; l < ring_num; l++) {
 
-			glm::vec3 halfSize(
-				rings[l].radius*2,
-				rings[l].height * 2,
-				rings[l].radius*2
-			);
+			rings[l].bucket.sizeX = rings[l].radius*1.5;
+			rings[l].bucket.sizeY = rings[l].height * 2;
+			rings[l].bucket.sizeZ = rings[l].radius * 1.5;
 
 			if (OverlapSphere2OBB(
 				bounce_balls[i].ball,
@@ -423,7 +453,7 @@ void Scene04::balls_update(double dt) {
 			{
 				// Make sure ball is below rim
 				if (bounce_balls[i].ball.pos.y <
-					rings[l].bucket.pos.y + rings[l].height)
+					rings[l].bucket.pos.y + rings[l].height*2)
 				{
 					insideAny = true;
 					break;
@@ -436,7 +466,6 @@ void Scene04::balls_update(double dt) {
 	}
 	
 	static bool isLeftUp = false;
-	static bool isRightUp = false;
 
 	if (!isLeftUp && MouseController::GetInstance()->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
 
@@ -591,6 +620,18 @@ void Scene04::cows_render() {
 	meshList[GEO_COW]->material.kShininess = 1.f;
 	RenderMesh(meshList[GEO_COW], true);
 	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	modelStack.Translate(-130.f, 0.f, -25.f);
+	modelStack.Scale(1.f, 1.f, 1.f);
+	//modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+	// keep original rotations so the tile faces the same way as before
+	meshList[GEO_COW]->material.kAmbient = glm::vec3(0.f, 0.f, 1.0f);
+	meshList[GEO_COW]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 0.0f);
+	meshList[GEO_COW]->material.kSpecular = glm::vec3(0.3f, 0.3f, 0.3f);
+	meshList[GEO_COW]->material.kShininess = 1.f;
+	RenderMesh(meshList[GEO_COW], true);
+	modelStack.PopMatrix();
 };
 
 void Scene04::models_render() {
@@ -698,8 +739,7 @@ void Scene04::balls_render() {
 				RenderMesh(meshList[GEO_SPHERE], true);
 				modelStack.PopMatrix();
 			}
-			
-			if (i< 1) {
+			if (animal == false) {
 				modelStack.PushMatrix();
 				modelStack.Translate(bounce_balls[i].ball.pos.x, bounce_balls[i].ball.pos.y, bounce_balls[i].ball.pos.z);
 				modelStack.Scale((bounce_balls[i].radius), (bounce_balls[i].radius), (bounce_balls[i].radius));
@@ -710,28 +750,30 @@ void Scene04::balls_render() {
 				RenderMesh(meshList[GEO_SPHERE], true);
 				modelStack.PopMatrix();
 			}
-			else if (i<5) {
-				modelStack.PushMatrix();
-				modelStack.Translate(bounce_balls[i].ball.pos.x, bounce_balls[i].ball.pos.y - (.5f), bounce_balls[i].ball.pos.z);
-				modelStack.Scale((bounce_balls[i].radius), (bounce_balls[i].radius), (bounce_balls[i].radius));
-				meshList[GEO_SHEEP]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
-				meshList[GEO_SHEEP]->material.kDiffuse = glm::vec3(0.1f, 0.1f, 0.1f);
-				meshList[GEO_SHEEP]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-				meshList[GEO_SHEEP]->material.kShininess = 1.0f;
-				RenderMesh(meshList[GEO_SHEEP], true);
-				modelStack.PopMatrix();
-			}
-			
 			else {
-				modelStack.PushMatrix();
-				modelStack.Translate(bounce_balls[i].ball.pos.x, bounce_balls[i].ball.pos.y - (.5f), bounce_balls[i].ball.pos.z);
-				modelStack.Scale((bounce_balls[i].radius), (bounce_balls[i].radius), (bounce_balls[i].radius));
-				meshList[GEO_DEER]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
-				meshList[GEO_DEER]->material.kDiffuse = glm::vec3(0.1f, 0.1f, 0.1f);
-				meshList[GEO_DEER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-				meshList[GEO_DEER]->material.kShininess = 1.0f;
-				RenderMesh(meshList[GEO_DEER], true);
-				modelStack.PopMatrix();
+				if (i < 5) {
+					modelStack.PushMatrix();
+					modelStack.Translate(bounce_balls[i].ball.pos.x, bounce_balls[i].ball.pos.y - (.5f), bounce_balls[i].ball.pos.z);
+					modelStack.Scale((bounce_balls[i].radius), (bounce_balls[i].radius), (bounce_balls[i].radius));
+					meshList[GEO_SHEEP]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+					meshList[GEO_SHEEP]->material.kDiffuse = glm::vec3(0.1f, 0.1f, 0.1f);
+					meshList[GEO_SHEEP]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+					meshList[GEO_SHEEP]->material.kShininess = 1.0f;
+					RenderMesh(meshList[GEO_SHEEP], true);
+					modelStack.PopMatrix();
+				}
+
+				else {
+					modelStack.PushMatrix();
+					modelStack.Translate(bounce_balls[i].ball.pos.x, bounce_balls[i].ball.pos.y - (.5f), bounce_balls[i].ball.pos.z);
+					modelStack.Scale((bounce_balls[i].radius), (bounce_balls[i].radius), (bounce_balls[i].radius));
+					meshList[GEO_DEER]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+					meshList[GEO_DEER]->material.kDiffuse = glm::vec3(0.1f, 0.1f, 0.1f);
+					meshList[GEO_DEER]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+					meshList[GEO_DEER]->material.kShininess = 1.0f;
+					RenderMesh(meshList[GEO_DEER], true);
+					modelStack.PopMatrix();
+				}
 			}
 		}
 	}
@@ -1005,6 +1047,7 @@ void Scene04::Exit()
 
 void Scene04::HandleKeyPress(double dt)
 {
+	/*
 	if (KeyboardController::GetInstance()->IsKeyPressed(0x31))
 	{
 		// Key press to enable culling
@@ -1025,7 +1068,7 @@ void Scene04::HandleKeyPress(double dt)
 		// Key press to enable wireframe mode for the polygon
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //wireframe mode
 	}
-
+	*/
 	// Calculate forward and right vectors based on camera orientation
 	glm::vec3 forward = glm::normalize(camera.target - camera.position);
 	glm::vec3 right = glm::normalize(glm::cross(forward, camera.up));
@@ -1071,10 +1114,6 @@ void Scene04::HandleKeyPress(double dt)
 
 		camera.position += right * glm::vec3(0.1);// *speed; 
 		camera.target += right * glm::vec3(0.1);// *speed;
-	}
-	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_J))
-	{
-		go_back();
 	}
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_E))
 	{
@@ -1272,7 +1311,6 @@ void Scene04::walls_resolve(CollisionData cd) {
 }
 
 void Scene04::go_back() {
-	send_message("goinhg back to clowntopia");
 	scene01request = true;
 }
 

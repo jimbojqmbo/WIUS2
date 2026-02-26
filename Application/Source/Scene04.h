@@ -205,6 +205,7 @@ private:
 	bool show_col = false;
 	bool playing = false;
 	bool change_height = false;
+	bool animal = false;
 	std::string anouncement = "GO TO GREEN COW TO PLAY";
 	//functions
 
