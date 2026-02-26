@@ -61,6 +61,9 @@ public:
 		GEO_DUCK,
 		GEO_BUCKET,
 		GEO_TRUCK,
+		BUMPERCAR_PROMPT,
+		DUCK_PROMPT,
+		BALLBOUNCER_PROMPT,
 		NUM_GEOMETRY,
 	};
 
@@ -230,14 +233,18 @@ private:
 	glm::vec3 hotdogMin;
 	glm::vec3 hotdogMax;
 
+	glm::vec3 truckMin;
+	glm::vec3 truckMax;
+
 	glm::vec3 foodCartMin;
 	glm::vec3 foodCartMax;
 
 	glm::vec3 hotdogMin2;
 	glm::vec3 hotdogMax2;
 
-	glm::vec3 foodCartMin2;
-	glm::vec3 foodCartMax2;
+	glm::vec3 truckMin2;
+	glm::vec3 truckMax2;
+
 };
 
 #endif

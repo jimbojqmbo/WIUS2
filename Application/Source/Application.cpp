@@ -159,10 +159,10 @@ void Application::Run()
 	Scene* scene4 = new Scene03();
 	Scene* scene5 = new Scene04();
 
-	PlaySound(TEXT("Sounds//roblox.wav"), NULL, SND_FILENAME | SND_ASYNC);
+	//PlaySound(TEXT("Sounds//roblox.wav"), NULL, SND_FILENAME | SND_ASYNC);
 
-	Scene* scene = scene1; //uncomment this after done editing DO NOT COMMIT THIS CHANGE
-	//Scene* scene = scene4; //remove this after done editing DO NOT COMMIT THIS CHANGE
+	//Scene* scene = scene1; //uncomment this after done editing DO NOT COMMIT THIS CHANGE
+	Scene* scene = scene4; //remove this after done editing DO NOT COMMIT THIS CHANGE
 	scene->Init();
 
 	sceneNum = SCENE_GUI;
@@ -412,21 +412,21 @@ void Application::Run()
 					sceneNum = SCENE_04;
 				}
 			}
-			if (sceneNum == SCENE_04)
-			{
-				Scene04* s01 = dynamic_cast<Scene04*>(scene);
-				if (s01 && s01->scene01request)
-				{
-					s01->scene01request = false;
+			//if (sceneNum == SCENE_04)
+			//{
+			//	Scene04* s01 = dynamic_cast<Scene04*>(scene);
+			//	if (s01 && s01->scene01request)
+			//	{
+			//		s01->scene01request = false;
 
-					scene5->Exit();      // exit Scene03
-					scene2->Init();
-					//PlaySound(NULL, 0, 0);
+			//		scene5->Exit();      // exit Scene03
+			//		scene2->Init();
+			//		//PlaySound(NULL, 0, 0);
 
-					scene = scene2;
-					sceneNum = SCENE_01;
-				}
-			}
+			//		scene = scene2;
+			//		sceneNum = SCENE_01;
+			//	}
+			//}
 		}
 
 		if (KeyboardController::GetInstance()->IsKeyPressed('N'))

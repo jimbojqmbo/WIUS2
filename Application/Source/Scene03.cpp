@@ -195,9 +195,17 @@ void Scene03::Init()
 	meshList[GEO_TRUCK] = MeshBuilder::GenerateOBJMTL("foodtruck", "Models//foodtruck.obj", "Models//foodtruck.mtl");
 	meshList[GEO_TRUCK]->textureID = LoadTGA("Images//foodtruck.tga");
 
+	meshList[BUMPERCAR_PROMPT] = MeshBuilder::GenerateQuad("Prompt", glm::vec3(1.f, 1.f, 1.f), 10.f);
+	meshList[BUMPERCAR_PROMPT]->textureID = LoadTGA("Images//scene01 UI//alvinbumperprompt.tga");
+
+	meshList[DUCK_PROMPT] = MeshBuilder::GenerateQuad("Prompt", glm::vec3(1.f, 1.f, 1.f), 10.f);
+	meshList[DUCK_PROMPT]->textureID = LoadTGA("Images//scene01 UI//alvinduckprompt.tga");
+
+	meshList[BALLBOUNCER_PROMPT] = MeshBuilder::GenerateQuad("Prompt", glm::vec3(1.f, 1.f, 1.f), 10.f);
+	meshList[BALLBOUNCER_PROMPT]->textureID = LoadTGA("Images//scene01 UI//alvinballbouncerprompt.tga");
+
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
-
 
 	glUniform1i(m_parameters[U_NUMLIGHTS], NUM_LIGHTS);
 
@@ -249,14 +257,17 @@ void Scene03::Init()
 	hotdogMin = glm::vec3(-18.5f, -0.5f, 7.5f);
 	hotdogMax = glm::vec3(-15.5f, 4.5f, 10.5f);
 
-	foodCartMin = glm::vec3(-33, 0, -8);
-	foodCartMax = glm::vec3(-23, 5, 6);
+	truckMin = glm::vec3(-33, 0, -8);
+	truckMax = glm::vec3(-27, 5, 6);
+
+	foodCartMin = glm::vec3(-17.6f, 0.f, -7.8f);
+	foodCartMax = glm::vec3(-17.1f, 4.f, 2.8f);
 
 	hotdogMin2 = glm::vec3(-23.5f, -0.5f, 4.5f);
 	hotdogMax2 = glm::vec3(-14.5f, 4.5f, 12.5f);
 
-	foodCartMin2 = glm::vec3(-35, 2, -7);
-	foodCartMax2 = glm::vec3(-22, 7, 2); 
+	truckMin2 = glm::vec3(-35, 2, -7);
+	truckMax2 = glm::vec3(-22, 7, 2);
 }
 
 void Scene03::HandleMouseInput() {
@@ -425,7 +436,7 @@ void Scene03::Update(double dt)
 		camera.position.y = 3.f;
 	}
 
-	std::cout << camera.position.x << ", " << camera.position.y << ", " << camera.position.z << std::endl;
+	//std::cout << camera.position.x << ", " << camera.position.y << ", " << camera.position.z << std::endl;
 
 	HandleKeyPress(dt);
 
@@ -466,7 +477,14 @@ void Scene03::Update(double dt)
 	if (OverlapCircle2Circle(camera.position, 2.f, bumperarea, bumperAreaRadius)) {
 		inbumperarea = true;
 		scene01request = true;
-		std::cout << "Bumper \n";
+		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_ENTER)) {
+			scene01request = true;
+			std::cout << "bumper \n";
+		}
+		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_F1)) {
+			camera.position = glm::vec3(17, 3.3, 35);
+			std::cout << "exited \n";
+		}
 	}
 	else {
 		inbumperarea = false;
@@ -474,8 +492,14 @@ void Scene03::Update(double dt)
 
 	if (OverlapCircle2Circle(camera.position, 2.f, duckarea, duckAreaRadius)) {
 		induckarea = true;
-		scene02request = true;
-		std::cout << "Duck \n";
+		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_ENTER)) {
+			scene02request = true;
+			std::cout << "duck \n";
+		}
+		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_F1)) {
+			camera.position = glm::vec3(-35.1, 3.3, -16.5);
+			std::cout << "exited \n";
+		}
 	}
 	else {
 		induckarea = false;
@@ -483,8 +507,14 @@ void Scene03::Update(double dt)
 
 	if (OverlapCircle2Circle(camera.position, 2.f, ballbouncearea, ballbounceAreaRadius)) {
 		inballbouncearea = true;
-		scene04request = true;
-		std::cout << "Ballbounce \n";
+		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_ENTER) ) {
+			scene04request = true;
+			std::cout << "ball bounce \n";
+		}
+		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_F1)) {
+			camera.position = glm::vec3(-9.1, 3.3, -16.9);
+			std::cout << "exited \n";
+		}
 	}
 	else {
 		inballbouncearea = false;
@@ -698,6 +728,10 @@ void Scene03::Update(double dt)
 	}
 
 	if (OverlapCircle2AABB(camera.position, playerRadius, hotdogMin, hotdogMax)) {
+		camera.position = previousPosition;
+	}
+
+	if (OverlapCircle2AABB(camera.position, playerRadius, truckMin, truckMax)) {
 		camera.position = previousPosition;
 	}
 
@@ -1283,9 +1317,30 @@ void Scene03::Render()
 		modelStack.PopMatrix();
 	}
 
-	if (OverlapCircle2AABB(camera.position, playerRadius, foodCartMin2, foodCartMax2)) {
+	if (OverlapCircle2AABB(camera.position, playerRadius, truckMin2, truckMax2)) {
 		modelStack.PushMatrix();
 		RenderMeshOnScreen(meshList[GEO_DIALOGUE3], 400, 205, 70, 55);
+		modelStack.PopMatrix();
+	}
+
+	if (inbumperarea) {
+		modelStack.PushMatrix();
+		modelStack.Rotate(180.f, 0.f, 0.f, 1.f);
+		RenderMeshOnScreen(meshList[BUMPERCAR_PROMPT], 400, 300, 100, 60.5);
+		modelStack.PopMatrix();
+	}
+
+	if (induckarea) {
+		modelStack.PushMatrix();
+		modelStack.Rotate(0.f, 0.f, 1.f, 0.f);
+		RenderMeshOnScreen(meshList[DUCK_PROMPT], 400, 300, 100, 60.5);
+		modelStack.PopMatrix();
+	}
+
+	if (inballbouncearea) {
+		modelStack.PushMatrix();
+		modelStack.Rotate(0.f, 0.f, 1.f, 0.f);
+		RenderMeshOnScreen(meshList[BALLBOUNCER_PROMPT], 400, 300, 100, 60.5);
 		modelStack.PopMatrix();
 	}
 
