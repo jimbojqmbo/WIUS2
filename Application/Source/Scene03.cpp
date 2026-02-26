@@ -63,6 +63,7 @@ void Scene03::Init()
 	m_parameters[U_MATERIAL_DIFFUSE] = glGetUniformLocation(m_programID, "material.kDiffuse");
 	m_parameters[U_MATERIAL_SPECULAR] = glGetUniformLocation(m_programID, "material.kSpecular");
 	m_parameters[U_MATERIAL_SHININESS] = glGetUniformLocation(m_programID, "material.kShininess");
+
 	m_parameters[U_LIGHT0_TYPE] = glGetUniformLocation(m_programID, "lights[0].type");
 	m_parameters[U_LIGHT0_POSITION] = glGetUniformLocation(m_programID, "lights[0].position_cameraspace");
 	m_parameters[U_LIGHT0_COLOR] = glGetUniformLocation(m_programID, "lights[0].color");
@@ -74,6 +75,19 @@ void Scene03::Init()
 	m_parameters[U_LIGHT0_COSCUTOFF] = glGetUniformLocation(m_programID, "lights[0].cosCutoff");
 	m_parameters[U_LIGHT0_COSINNER] = glGetUniformLocation(m_programID, "lights[0].cosInner");
 	m_parameters[U_LIGHT0_EXPONENT] = glGetUniformLocation(m_programID, "lights[0].exponent");
+
+	m_parameters[U_LIGHT1_TYPE] = glGetUniformLocation(m_programID, "lights[1].type");
+	m_parameters[U_LIGHT1_POSITION] = glGetUniformLocation(m_programID, "lights[1].position_cameraspace");
+	m_parameters[U_LIGHT1_COLOR] = glGetUniformLocation(m_programID, "lights[1].color");
+	m_parameters[U_LIGHT1_POWER] = glGetUniformLocation(m_programID, "lights[1].power");
+	m_parameters[U_LIGHT1_KC] = glGetUniformLocation(m_programID, "lights[1].kC");
+	m_parameters[U_LIGHT1_KL] = glGetUniformLocation(m_programID, "lights[1].kL");
+	m_parameters[U_LIGHT1_KQ] = glGetUniformLocation(m_programID, "lights[1].kQ");
+	m_parameters[U_LIGHT1_SPOTDIRECTION] = glGetUniformLocation(m_programID, "lights[1].spotDirection");
+	m_parameters[U_LIGHT1_COSCUTOFF] = glGetUniformLocation(m_programID, "lights[1].cosCutoff");
+	m_parameters[U_LIGHT1_COSINNER] = glGetUniformLocation(m_programID, "lights[1].cosInner");
+	m_parameters[U_LIGHT1_EXPONENT] = glGetUniformLocation(m_programID, "lights[1].exponent");
+
 	m_parameters[U_COLOR_TEXTURE_ENABLED] = glGetUniformLocation(m_programID, "colorTextureEnabled");
 	m_parameters[U_COLOR_TEXTURE] = glGetUniformLocation(m_programID, "colorTexture");
 	m_parameters[U_LIGHTENABLED] = glGetUniformLocation(m_programID, "lightEnabled");
@@ -134,7 +148,7 @@ void Scene03::Init()
 	meshList[GEO_CYLINDER] = MeshBuilder::GenerateCylinder("Cylinder", glm::vec3(1.f, 1.f, 1.f), 36, 1.f, 2.f);
 
 	meshList[GEO_GRASS] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
-	meshList[GEO_GRASS]->textureID = LoadTGA("Images/alvingrass.tga");
+	meshList[GEO_GRASS]->textureID = LoadTGA("Images/happygrass.tga");
 
 	// 16 x 16 is the number of columns and rows for the text
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
@@ -209,14 +223,14 @@ void Scene03::Init()
 
 	glUniform1i(m_parameters[U_NUMLIGHTS], NUM_LIGHTS);
 
-	light[0].position = glm::vec3(camera.position.x, camera.position.y, camera.position.z);
-	light[0].color = glm::vec3(1, 1, 0.5);
-	light[0].type = Light::LIGHT_POINT;
+	light[0].position = glm::vec3(-3.3f, 5.8f, 3.2f);
+	light[0].color = glm::vec3(1, 1, 0);
+	light[0].type = Light::LIGHT_SPOT;
 	light[0].power = 1;
 	light[0].kC = 1.f;
 	light[0].kL = 0.01f;
 	light[0].kQ = 0.001f;
-	light[0].cosCutoff = 4.f;
+	light[0].cosCutoff = 17.f;
 	light[0].cosInner = 30.f;
 	light[0].exponent = 3.f;
 	light[0].spotDirection = glm::vec3(0.f, 1.f, 0.f);
@@ -230,6 +244,28 @@ void Scene03::Init()
 	glUniform1f(m_parameters[U_LIGHT0_COSCUTOFF], cosf(glm::radians<float>(light[0].cosCutoff)));
 	glUniform1f(m_parameters[U_LIGHT0_COSINNER], cosf(glm::radians<float>(light[0].cosInner)));
 	glUniform1f(m_parameters[U_LIGHT0_EXPONENT], light[0].exponent);
+
+	light[1].position = glm::vec3(2.6f, 48.3f, -6.f);
+	light[1].color = glm::vec3(1, 1, 1);
+	light[1].type = Light::LIGHT_DIRECTIONAL;
+	light[1].power = 1;
+	light[1].kC = 1.f;
+	light[1].kL = 0.01f;
+	light[1].kQ = 0.001f;
+	light[1].cosCutoff = 4.f;
+	light[1].cosInner = 30.f;
+	light[1].exponent = 3.f;
+	light[1].spotDirection = glm::vec3(0.f, 1.f, 0.f);
+
+	glUniform3fv(m_parameters[U_LIGHT1_COLOR], 1, &light[1].color.r);
+	glUniform1i(m_parameters[U_LIGHT1_TYPE], light[1].type);
+	glUniform1f(m_parameters[U_LIGHT1_POWER], light[1].power);
+	glUniform1f(m_parameters[U_LIGHT1_KC], light[1].kC);
+	glUniform1f(m_parameters[U_LIGHT1_KL], light[1].kL);
+	glUniform1f(m_parameters[U_LIGHT1_KQ], light[1].kQ);
+	glUniform1f(m_parameters[U_LIGHT1_COSCUTOFF], cosf(glm::radians<float>(light[1].cosCutoff)));
+	glUniform1f(m_parameters[U_LIGHT1_COSINNER], cosf(glm::radians<float>(light[1].cosInner)));
+	glUniform1f(m_parameters[U_LIGHT1_EXPONENT], light[1].exponent);
 
 	enableLight = true;
 
@@ -316,23 +352,8 @@ void Scene03::HandleMouseInput() {
 
 	camera.target = camera.position + glm::normalize(dir);
 
-	// Re-init so FPCamera::Refresh() recalculates 'up' and other derived vectors
 	camera.Init(camera.position, camera.target, glm::vec3(0.0f, 3.0f, 0.0f));
 	
-	/*if (MouseController::GetInstance()->IsButtonPressed(0)) {
-		PhysicsObject ball;
-		ball.pos = camera.position;
-		ball.accel.Set(0, -300.f, 0);
-
-		Vector3 disp = camera.target - camera.position;
-
-		if (disp.IsZero() == false) {
-			disp.Normalize();
-			ball.vel = disp * 200.f;
-		}
-
-		projectiles.push_back(ball);
-	}*/
 }
 
 bool Scene03::OverlapCircle2AABB(glm::vec3 circlePos, float radius, glm::vec3 boxMin, glm::vec3 boxMax)
@@ -386,15 +407,7 @@ void Scene03::Update(double dt)
 		showCrosshair = false;
 	}
 
-	//mouseX = MouseController::GetInstance()->GetMousePositionX();
-	//mouseY = MouseController::GetInstance()->GetMousePositionY();
-	//std::cout << mouseX << ", " << mouseY << std::endl;
-
-	//showCrosshair = true;
-
 	// Get total elapsed time from Application's m_timer
-
-	spinspeed += 100 * dt;
 
 	if (timerStarted && !timerEnded)
 	{
@@ -430,40 +443,21 @@ void Scene03::Update(double dt)
 
 	float boardZ = hoopPosition.z + 2.3f;
 
-	//camera.position.y = 3.f;
-
-	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_COMMA)) {
-		camera.position.y = 3.f;
-	}
-
-	//std::cout << camera.position.x << ", " << camera.position.y << ", " << camera.position.z << std::endl;
+	camera.position.y = 3.3f;
 
 	HandleKeyPress(dt);
 
-	if (KeyboardController::GetInstance()->IsKeyDown('I'))
-		light[0].position.z -= static_cast<float>(dt) * 20.f;
-	if (KeyboardController::GetInstance()->IsKeyDown('K'))
-		light[0].position.z += static_cast<float>(dt) * 20.f;
-	if (KeyboardController::GetInstance()->IsKeyDown('J'))
-		light[0].position.x -= static_cast<float>(dt) * 20.f;
-	if (KeyboardController::GetInstance()->IsKeyDown('L'))
-		light[0].position.x += static_cast<float>(dt) * 20.f;
-	if (KeyboardController::GetInstance()->IsKeyDown('O'))
-		light[0].position.y -= static_cast<float>(dt) * 5.f;
-	if (KeyboardController::GetInstance()->IsKeyDown('P'))
-		light[0].position.y += static_cast<float>(dt) * 5.f;
-
-	//std::cout << light->position.x << ", " << light->position.z << std::endl;
+	light[0].position = rimPosition;
 
 	camera.Update(dt);
 
 	// Prevent camera from going below ground after camera updates
-	/*if (camera.position.y < 3.0f) {
+	if (camera.position.y < 3.0f) {
 		camera.position.y = 3.0f;
 		if (camera.target.y < 3.0f)
 			camera.target.y = 3.0f;
 		camera.Init(camera.position, camera.target, camera.up);
-	}*/
+	}
 
 	HandleMouseInput();
 
@@ -476,10 +470,8 @@ void Scene03::Update(double dt)
 
 	if (OverlapCircle2Circle(camera.position, 2.f, bumperarea, bumperAreaRadius)) {
 		inbumperarea = true;
-		scene01request = true;
 		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_ENTER)) {
 			scene01request = true;
-			std::cout << "bumper \n";
 		}
 		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_F1)) {
 			camera.position = glm::vec3(17, 3.3, 35);
@@ -494,7 +486,6 @@ void Scene03::Update(double dt)
 		induckarea = true;
 		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_ENTER)) {
 			scene02request = true;
-			std::cout << "duck \n";
 		}
 		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_F1)) {
 			camera.position = glm::vec3(-35.1, 3.3, -16.5);
@@ -509,7 +500,6 @@ void Scene03::Update(double dt)
 		inballbouncearea = true;
 		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_ENTER) ) {
 			scene04request = true;
-			std::cout << "ball bounce \n";
 		}
 		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_F1)) {
 			camera.position = glm::vec3(-9.1, 3.3, -16.9);
@@ -552,8 +542,6 @@ void Scene03::Update(double dt)
 			showstart = false;
 		}
 	}
-
-	
 
 	if (restartgame) {
 		camera.position.x = 0.f;
@@ -723,6 +711,10 @@ void Scene03::Update(double dt)
 		camera.position = previousPosition;
 	}
 
+	if (OverlapCircle2Circle(camera.position, playerRadius, glm::vec3(25.f, 0.f, -20.f), 14.f)) {
+		camera.position = previousPosition;
+	}
+
 	if (OverlapCircle2AABB(camera.position, playerRadius, blackwallMin, blackwallMax)) {
 		camera.position = previousPosition;
 	}
@@ -737,6 +729,27 @@ void Scene03::Update(double dt)
 
 	if (OverlapCircle2AABB(camera.position, playerRadius, foodCartMin, foodCartMax)) {
 		camera.position = previousPosition;
+	}
+
+	spinspeed += spinspeedvalue * dt;
+	carouselY += carouselheight * dt;
+
+	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_EQUAL)) {
+		spinspeedvalue = 10000;
+		carouselheight = 5;
+	}
+
+	if (camera.position.x > 48.f) {
+		camera.position.x = 48.f;
+	}
+	if (camera.position.x < -48.f) {
+		camera.position.x = -48.f;
+	}
+	if (camera.position.z > 48.f) {
+		camera.position.z = 48.f;
+	}
+	if (camera.position.z < -48.f) {
+		camera.position.z = -48.f;
 	}
 
 	float temp = 1.f / dt;
@@ -940,43 +953,29 @@ void Scene03::Render()
 		glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
 	}
 
-	// Render objects
-	//RenderMesh(meshList[GEO_AXES], false);
+	if (light[1].type == Light::LIGHT_DIRECTIONAL)
+	{
+		glm::vec3 lightDir(light[1].position.x, light[1].position.y, light[1].position.z);
+		glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
+		glUniform3fv(m_parameters[U_LIGHT1_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
+	}
+	else if (light[0].type == Light::LIGHT_SPOT)
+	{
+		glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[1].position, 1);
+		glUniform3fv(m_parameters[U_LIGHT1_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+		glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[1].spotDirection, 0);
+		glUniform3fv(m_parameters[U_LIGHT1_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
+	}
+	else {
+		// Calculate the light position in camera space
+		glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[1].position, 1);
+		glUniform3fv(m_parameters[U_LIGHT1_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+	}
 
-	// Render light sphere - isolated transformations
-	//modelStack.PushMatrix();
-	//modelStack.Translate(camera.position.x, 15.f, camera.position.z);
-	//modelStack.Scale(0.1f, 0.1f, 0.1f);
-	//meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	//meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
-	//meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-	//meshList[GEO_SPHERE]->material.kShininess = 5.0f;
-	//RenderMesh(meshList[GEO_SPHERE], true);
-	//modelStack.PopMatrix();
+	// Render objects
 
 	// Skybox - now renders at world origin without accumulated transforms
 	RenderSkybox();
-
-	/*modelStack.PushMatrix();
-	modelStack.Translate(camera.position.x, camera.position.y, camera.position.z);
-	glm::vec3 offset = forward * 1.5f + right * 0.7f + up * -0.6f;
-	modelStack.Translate(offset.x, offset.y, offset.z);
-	glm::mat4 viewRotation = viewStack.Top();
-	viewRotation[3] = glm::vec4(0, 0, 0, 1);
-	glm::mat4 inverseRotation = glm::inverse(viewRotation);
-	modelStack.MultMatrix(inverseRotation);
-	modelStack.Scale(0.008f, 0.008f, 0.008f);
-	RenderMesh(meshList[GEO_BASKETBALL], false);
-	modelStack.PopMatrix();*/
-
-	/*for (auto& ball : balls)
-	{
-		modelStack.PushMatrix();
-		modelStack.Translate(ball.pos.x, ball.pos.y, ball.pos.z);
-		modelStack.Scale(0.008f, 0.008f, 0.008f);
-		RenderMesh(meshList[GEO_BASKETBALL], false);
-		modelStack.PopMatrix();
-	}*/
 
 	if (restartgame) {
 		if (ballThrown)
@@ -1003,7 +1002,7 @@ void Scene03::Render()
 				camera.position.z + offset.z
 			);
 			modelStack.Scale(0.008f, 0.008f, 0.008f);
-			meshList[GEO_BASKETBALL]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+			meshList[GEO_BASKETBALL]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 			meshList[GEO_BASKETBALL]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
 			meshList[GEO_BASKETBALL]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 			meshList[GEO_BASKETBALL]->material.kShininess = 5.0f;
@@ -1015,41 +1014,22 @@ void Scene03::Render()
 	modelStack.PushMatrix();
 	modelStack.Translate(hoopPosition.x, hoopPosition.y, hoopPosition.z);
 	modelStack.Scale(2.f, 2.f, 2.f);
-	meshList[GEO_HOOP]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_HOOP]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 	meshList[GEO_HOOP]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
 	meshList[GEO_HOOP]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 	meshList[GEO_HOOP]->material.kShininess = 5.0f;
 	RenderMesh(meshList[GEO_HOOP], true);
 	modelStack.PopMatrix();
 
-
-	// grass tiled from -100 to 100 on X and Z, keep existing scale (5,1,5)
 	modelStack.PushMatrix();
-	{
-		// spacing chosen to match the previous manual placement (50 units)
-		const float start = -250.f;
-		const float end = 250.f;
-		const float step = 50.f;
-		for (float x = start; x <= end; x += step)
-		{
-			for (float z = start; z <= end; z += step)
-			{
-				modelStack.PushMatrix();
-				modelStack.Translate(x, 0.f, z);
-				modelStack.Scale(5.f, 1.f, 5.f);
-				// keep original rotations so the tile faces the same way as before
-				modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
-				modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
-				RenderMesh(meshList[GEO_GRASS], true);
-				modelStack.PopMatrix();
-			}
-		}
-		// keep the ambient material tweak from original code
-		meshList[GEO_GRASS]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
-		meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
-		meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[GEO_SPHERE]->material.kShininess = 5.0f;
-	}
+	modelStack.Translate(0.f, 0.f, 0.f);
+	modelStack.Scale(15, 1.f, 15);
+	modelStack.Rotate(90.f, -1.f, 0.f, 0.f);
+	meshList[GEO_GRASS]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+	meshList[GEO_GRASS]->material.kDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+	meshList[GEO_GRASS]->material.kSpecular = glm::vec3(0.f);
+	meshList[GEO_GRASS]->material.kShininess = 0.1f;
+	RenderMesh(meshList[GEO_GRASS], true);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
@@ -1061,7 +1041,7 @@ void Scene03::Render()
 	modelStack.PushMatrix();
 	modelStack.Translate(0.f, 4.5f, -0.5f);
 	modelStack.Scale(14.f, 9.f, 3.f);
-	meshList[GEO_BLACKWALL]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_BLACKWALL]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 	meshList[GEO_BLACKWALL]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
 	meshList[GEO_BLACKWALL]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 	meshList[GEO_BLACKWALL]->material.kShininess = 5.0f;
@@ -1072,7 +1052,7 @@ void Scene03::Render()
 	modelStack.Translate(25.f, 6.f, -20.f);
 	modelStack.Scale(8.f, 8.f, 8.f);
 	modelStack.Rotate(225.f, 0.f, 1.f, 0.f);
-	meshList[GEO_TENT]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_TENT]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 	meshList[GEO_TENT]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
 	meshList[GEO_TENT]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 	meshList[GEO_TENT]->material.kShininess = 5.0f;
@@ -1083,7 +1063,7 @@ void Scene03::Render()
 	modelStack.Translate(-18.f, 0.f, 8.f);
 	modelStack.Scale(1.f, 1.f, 1.f);
 	modelStack.Rotate(-90.f, 0.f, 1.f, 0.f);
-	meshList[GEO_HOTDOG]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_HOTDOG]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 	meshList[GEO_HOTDOG]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
 	meshList[GEO_HOTDOG]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 	meshList[GEO_HOTDOG]->material.kShininess = 5.0f;
@@ -1094,7 +1074,7 @@ void Scene03::Render()
 	modelStack.Translate(15.f, 0.f, -3.f);
 	modelStack.Scale(2.f, 2.f, 2.f);
 	modelStack.Rotate(90.f, 1.f, 0.f, 0.f);
-	meshList[GEO_CLOWN]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_CLOWN]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 	meshList[GEO_CLOWN]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
 	meshList[GEO_CLOWN]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 	meshList[GEO_CLOWN]->material.kShininess = 5.0f;
@@ -1105,7 +1085,7 @@ void Scene03::Render()
 	modelStack.Translate(13.4f, 2.5f, -2.85f);
 	modelStack.Scale(1.f, 1.f, 1.f);
 	modelStack.Rotate(0.f, 0.f, 1.f, 0.f);
-	meshList[GEO_BALLOON]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_BALLOON]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 	meshList[GEO_BALLOON]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
 	meshList[GEO_BALLOON]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 	meshList[GEO_BALLOON]->material.kShininess = 5.0f;
@@ -1116,7 +1096,7 @@ void Scene03::Render()
 	modelStack.Translate(-19, 0, 15);
 	modelStack.Scale(0.03f, 0.03f, 0.03f);
 	modelStack.Rotate(0.f, 0.f, 1.f, 0.f);
-	meshList[GEO_BIRCHTREE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_BIRCHTREE]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 	meshList[GEO_BIRCHTREE]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
 	meshList[GEO_BIRCHTREE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 	meshList[GEO_BIRCHTREE]->material.kShininess = 5.0f;
@@ -1124,10 +1104,10 @@ void Scene03::Render()
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	modelStack.Translate(-22.5, 0, 31.5);
+	modelStack.Translate(-22.5, carouselY, 31.5);
 	modelStack.Scale(80.f, 80.f, 80.f);
 	modelStack.Rotate(spinspeed, 0.f, 1.f, 0.f);
-	meshList[GEO_CAROUSEL]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_CAROUSEL]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 	meshList[GEO_CAROUSEL]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
 	meshList[GEO_CAROUSEL]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 	meshList[GEO_CAROUSEL]->material.kShininess = 5.0f;
@@ -1138,7 +1118,7 @@ void Scene03::Render()
 	modelStack.Translate(-18, 0, -2.6);
 	modelStack.Scale(0.01f, 0.01f, 0.01f);
 	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
-	meshList[GEO_FOODCART]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_FOODCART]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 	meshList[GEO_FOODCART]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
 	meshList[GEO_FOODCART]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 	meshList[GEO_FOODCART]->material.kShininess = 5.0f;
@@ -1149,7 +1129,7 @@ void Scene03::Render()
 	modelStack.Translate(-29.4, 3.3, -2);
 	modelStack.Scale(2.f, 2.f, 2.f);
 	modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
-	meshList[GEO_TRUCK]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_TRUCK]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 	meshList[GEO_TRUCK]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
 	meshList[GEO_TRUCK]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 	meshList[GEO_TRUCK]->material.kShininess = 5.0f;
@@ -1165,7 +1145,7 @@ void Scene03::Render()
 		modelStack.Translate(41.3, 0, 29.7);
 		modelStack.Scale(3.f, 3.f, 3.f);
 		modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
-		meshList[GEO_BUMPERCAR]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+		meshList[GEO_BUMPERCAR]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_BUMPERCAR]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
 		meshList[GEO_BUMPERCAR]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 		meshList[GEO_BUMPERCAR]->material.kShininess = 5.0f;
@@ -1176,7 +1156,7 @@ void Scene03::Render()
 		modelStack.Translate(38.3, 0, 37.7);
 		modelStack.Scale(3.f, 3.f, 3.f);
 		modelStack.Rotate(135.f, 0.f, 1.f, 0.f);
-		meshList[GEO_BUMPERCAR]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+		meshList[GEO_BUMPERCAR]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_BUMPERCAR]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
 		meshList[GEO_BUMPERCAR]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 		meshList[GEO_BUMPERCAR]->material.kShininess = 5.0f;
@@ -1187,7 +1167,7 @@ void Scene03::Render()
 		modelStack.Translate(30, 0, 41.4);
 		modelStack.Scale(3.f, 3.f, 3.f);
 		modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
-		meshList[GEO_BUMPERCAR]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+		meshList[GEO_BUMPERCAR]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_BUMPERCAR]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
 		meshList[GEO_BUMPERCAR]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 		meshList[GEO_BUMPERCAR]->material.kShininess = 5.0f;
@@ -1199,8 +1179,8 @@ void Scene03::Render()
 		modelStack.Scale(3.f, 3.f, 3.f);
 		modelStack.Rotate(90.f, -1.f, 0.f, 0.f);
 		meshList[GEO_QUAD]->material.kAmbient = glm::vec3(0.f, 0.5f, 0.5f);
-		meshList[GEO_QUAD]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
-		meshList[GEO_QUAD]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[GEO_QUAD]->material.kDiffuse = glm::vec3(0.3f, 0.3f, 0.3f);
+		meshList[GEO_QUAD]->material.kSpecular = glm::vec3(0.3f, 0.3f, 0.3f);
 		meshList[GEO_QUAD]->material.kShininess = 5.0f;
 		RenderMesh(meshList[GEO_QUAD], true);
 		modelStack.PopMatrix();
@@ -1214,9 +1194,9 @@ void Scene03::Render()
 		modelStack.Translate(-38.7, 7, -37.2);
 		modelStack.Scale(30.f, 30.f, 30.f);
 		modelStack.Rotate(45.f, 0.f, 1.f, 0.f);
-		meshList[GEO_DUCK]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+		meshList[GEO_DUCK]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_DUCK]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
-		meshList[GEO_DUCK]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[GEO_DUCK]->material.kSpecular = glm::vec3(0.3f, 0.3f, 0.3f);
 		meshList[GEO_DUCK]->material.kShininess = 5.0f;
 		RenderMesh(meshList[GEO_DUCK], false);
 		modelStack.PopMatrix();
@@ -1226,8 +1206,8 @@ void Scene03::Render()
 		modelStack.Scale(3.f, 3.f, 3.f);
 		modelStack.Rotate(90.f, -1.f, 0.f, 0.f);
 		meshList[GEO_QUAD]->material.kAmbient = glm::vec3(1.f, 1.f, 0.f);
-		meshList[GEO_QUAD]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
-		meshList[GEO_QUAD]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[GEO_QUAD]->material.kDiffuse = glm::vec3(0.3f, 0.3f, 0.3f);
+		meshList[GEO_QUAD]->material.kSpecular = glm::vec3(0.3f, 0.3f, 0.3f);
 		meshList[GEO_QUAD]->material.kShininess = 5.0f;
 		RenderMesh(meshList[GEO_QUAD], true);
 		modelStack.PopMatrix();
@@ -1240,11 +1220,11 @@ void Scene03::Render()
 		modelStack.Translate(-9, 0, -37.2);
 		modelStack.Scale(30.f, 30.f, 30.f);
 		modelStack.Rotate(0.f, 0.f, 1.f, 0.f);
-		meshList[GEO_BUCKET]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+		meshList[GEO_BUCKET]->material.kAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 		meshList[GEO_BUCKET]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
 		meshList[GEO_BUCKET]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 		meshList[GEO_BUCKET]->material.kShininess = 5.0f;
-		RenderMesh(meshList[GEO_BUCKET], false);
+		RenderMesh(meshList[GEO_BUCKET], true);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
@@ -1252,9 +1232,9 @@ void Scene03::Render()
 		modelStack.Scale(3.f, 3.f, 3.f);
 		modelStack.Rotate(90.f, -1.f, 0.f, 0.f);
 		meshList[GEO_QUAD]->material.kAmbient = glm::vec3(1.f, 0.f, 0.f);
-		meshList[GEO_QUAD]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
-		meshList[GEO_QUAD]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[GEO_QUAD]->material.kShininess = 5.0f;
+		meshList[GEO_QUAD]->material.kDiffuse = glm::vec3(0.3f, 0.3f, 0.3f);
+		meshList[GEO_QUAD]->material.kSpecular = glm::vec3(0.3f, 0.3f, 0.3f);
+		meshList[GEO_QUAD]->material.kShininess = 1.0f;
 		RenderMesh(meshList[GEO_QUAD], true);
 		modelStack.PopMatrix();
 	}
@@ -1529,21 +1509,4 @@ void Scene03::HandleKeyPress(double dt)
 			camera.target += right * movement;
 		}
 	}
-
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_SPACE)) {
-		float fly = moveSpeed * static_cast<float>(dt);
-		camera.position.y += fly;
-	}
-
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT_CONTROL)) {
-		float fly = moveSpeed * static_cast<float>(dt);
-		camera.position.y -= fly;
-	}
-
-	/*if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT_CONTROL)) {
-		camera.position.y = 0.5f;
-	}
-	else if (KeyboardController::GetInstance()->IsKeyReleased(GLFW_KEY_LEFT_CONTROL)) {
-		camera.position.y = 2.f;
-	}*/
 }

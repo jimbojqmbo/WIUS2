@@ -87,6 +87,17 @@ public:
 		U_LIGHT0_COSCUTOFF,
 		U_LIGHT0_COSINNER,
 		U_LIGHT0_EXPONENT,
+		U_LIGHT1_TYPE,
+		U_LIGHT1_POSITION,
+		U_LIGHT1_COLOR,
+		U_LIGHT1_POWER,
+		U_LIGHT1_KC,
+		U_LIGHT1_KL,
+		U_LIGHT1_KQ,
+		U_LIGHT1_SPOTDIRECTION,
+		U_LIGHT1_COSCUTOFF,
+		U_LIGHT1_COSINNER,
+		U_LIGHT1_EXPONENT,
 		U_NUMLIGHTS,
 		U_COLOR_TEXTURE_ENABLED,
 		U_COLOR_TEXTURE,
@@ -143,7 +154,7 @@ private:
 
 	MatrixStack modelStack, viewStack, projectionStack;
 
-	static const int NUM_LIGHTS = 1;
+	static const int NUM_LIGHTS = 2;
 	Light light[NUM_LIGHTS];
 	bool enableLight;
 
@@ -207,10 +218,13 @@ private:
 	bool endgame = false;
 	bool showstart = true;
 	float spinspeed = 1000.f;
+	float spinspeedvalue = 100.f;
 
-	float playerRadius = 2.f;        // adjust to match player size
-	float carouselRadius = 11.f;     // adjust to match carousel size
+	float playerRadius = 2.f;
+	float carouselRadius = 11.f;
 	glm::vec3 carouselPosition = glm::vec3(-22.5f, 0.f, 31.5f);
+	float carouselY = 0.f;
+	float carouselheight = 0.f;
 	
 	int mouseX;
 	int mouseY;
