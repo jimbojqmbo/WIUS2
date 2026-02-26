@@ -342,6 +342,11 @@ void Scene04::balls_update(double dt) {
 		if (OverlapCircle2AABB(bounce_balls[i].ball, bounce_balls[i].radius, floor, glm::vec3 (floor_space, floor_height, floor_space),cd)) {
 			walls_resolve(cd);
 		}
+
+		if (OverlapCircle2(bounce_balls[i].ball.pos, 5.f, bounce_balls[i].ball.pos, 5.f)) {
+
+		}
+
 		//ball agaisnt buckets
 		for (int l = 0; l < ring_num; l++) {
 			rings[l].wall[0].pos = glm::vec3(
@@ -575,16 +580,16 @@ void Scene04::Render()
 	models_render();
 	trees_render();
 	tree_render();
+	cows_render();
 
 	RenderTextOnScreen(meshList[GEO_TEXT],anouncement,glm::vec3(1.f,0.f,0.f),25, 10, 550);
 }
 
-void Scene04::models_render() {
-
+void Scene04::cows_render() {
 	modelStack.PushMatrix();
-	modelStack.Translate(-50.f, 0.f, 0.f);
+	modelStack.Translate(-25.f, 0.f, 0.f);
 	modelStack.Scale(1.f, 1.f, 1.f);
-	modelStack.Rotate(-90.f, 0.f,1.f, 0.f);
+	modelStack.Rotate(-90.f, 0.f, 1.f, 0.f);
 	// keep original rotations so the tile faces the same way as before
 	meshList[GEO_COW]->material.kAmbient = glm::vec3(0.0f, 1.f, 0.0f);
 	meshList[GEO_COW]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 0.0f);
@@ -593,7 +598,20 @@ void Scene04::models_render() {
 	RenderMesh(meshList[GEO_COW], true);
 	modelStack.PopMatrix();
 
+	modelStack.PushMatrix();
+	modelStack.Translate(-75.f, 0.f, -25.f);
+	modelStack.Scale(1.f, 1.f, 1.f);
+	//modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+	// keep original rotations so the tile faces the same way as before
+	meshList[GEO_COW]->material.kAmbient = glm::vec3(1.f, 0.f, 0.0f);
+	meshList[GEO_COW]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 0.0f);
+	meshList[GEO_COW]->material.kSpecular = glm::vec3(0.3f, 0.3f, 0.3f);
+	meshList[GEO_COW]->material.kShininess = 1.f;
+	RenderMesh(meshList[GEO_COW], true);
+	modelStack.PopMatrix();
+};
 
+void Scene04::models_render() {
 	modelStack.PushMatrix();
 	modelStack.Translate(-100.f, 0.f, 0.f);
 	modelStack.Scale(1.f, 1.f, 1.f);
@@ -1205,10 +1223,10 @@ void Scene04::ResolveCollisionBall(CollisionData cd) {
 bool Scene04::OverlapCircle2(const glm::vec3& pos1, float r1, const glm::vec3& pos2, float r2)
 {
 	float x = pos1.x - pos2.x;
-	float y = pos1.y - pos2.y;
+	//float y = pos1.y - pos2.y;
 	float z = pos1.z - pos2.z;
 	float r = r1 + r2;
-	return (x * x + y * y + z * z) <= (r * r);
+	return (x * x + z * z) <= (r * r);
 }
 
 void Scene04::walls_resolve(CollisionData cd) {
