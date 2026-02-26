@@ -206,7 +206,7 @@ private:
 	bool playing = false;
 	bool change_height = false;
 	bool animal = false;
-	std::string anouncement = "GO TO GREEN COW TO PLAY";
+	std::string anouncement = "GO TO GREEN COW";
 	//functions
 
 	bool OverlapCircle2CYLINDER(const glm::vec3& pos1, float r1, const glm::vec3& pos2, float width,float height);

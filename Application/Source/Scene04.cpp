@@ -314,7 +314,7 @@ void Scene04::Update(double dt)
 		//camera.Init(camera.position, camera.target, camera.up);
 	}
 
-	if (OverlapCircle2(player.pos, 5.f, green_cow.pos, 5.f)){
+	if (OverlapCircle2(player.pos, 2.5f, green_cow.pos, 2.5f)){
 		playing = true;
 		change_height = true;
 		glm::vec3 view = glm::normalize(camera.target - camera.position);
@@ -323,15 +323,15 @@ void Scene04::Update(double dt)
 	}
 	static bool isRightUp = false;
 
-	if (OverlapCircle2(player.pos, 5.f, red_cow.pos, 5.f)) {
+	if (OverlapCircle2(player.pos, 2.5f, red_cow.pos, 2.5f)) {
 		if (!isRightUp && MouseController::GetInstance()->IsButtonDown(GLFW_MOUSE_BUTTON_RIGHT)) {
 			isRightUp = true;
 			animal = not(animal);
 			if (animal == true) {
-				send_message("animal balls are now in use");
+				send_message("animal balls equiped, regular balls stowed away");
 			}
 			if (animal == false) {
-				send_message("regular balls are now in use");
+				send_message("regular balls euqiped, regular balls stowed away");
 			}
 		}
 		else if (isRightUp && MouseController::GetInstance()->IsButtonUp(GLFW_MOUSE_BUTTON_RIGHT))
@@ -339,8 +339,8 @@ void Scene04::Update(double dt)
 			isRightUp = false;
 		}
 	}
-	if (OverlapCircle2(player.pos, 5.f, blue_cow.pos, 5.f)) {
-		send_message("press j to go back to main scene");
+	if (OverlapCircle2(player.pos, 2.5f, blue_cow.pos, 2.5f)) {
+		send_message("press 'j' to go back to main scene");
 		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_J))
 		{
 			go_back();
@@ -357,8 +357,14 @@ void Scene04::Update(double dt)
 	std::cout << score << std::endl;
 
 	if (ball_select >= 10) {
+		for (int i = 0; i < ball_select; i++) {
+			if (bounce_balls[i].in == true) {
+				bounce_balls[i].in = false;
+			}
+		}
 		playing = false;
-		std::string result = "you have scored an amazing "+(std::to_string(score)+" balls");
+		std::string result = "your score is "+(std::to_string(score)+" balls");
+		score = 0;
 		send_message(result);
 		change_height  = true;
 		for (int i = 0; i < ball_num; i++) {
@@ -1123,7 +1129,7 @@ void Scene04::HandleKeyPress(double dt)
 		if (ball_power >= power_max) {
 			ball_power = power_max;
 		}
-		std::string result = "current throwing strength: " + (std::to_string(ball_power));
+		std::string result = "current throwing strength is: " + (std::to_string(ball_power));
 		send_message(result);
 	}
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_Q))
@@ -1132,7 +1138,7 @@ void Scene04::HandleKeyPress(double dt)
 		if (ball_power <= power_min) {
 			ball_power = power_min;
 		}
-		std::string result = "current throwing strength: " + (std::to_string(ball_power));
+		std::string result = "current throwing strength is: " + (std::to_string(ball_power));
 		send_message(result);
 	}
 }
