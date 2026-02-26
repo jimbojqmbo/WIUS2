@@ -153,6 +153,11 @@ void Scene04::Init()
 	meshList[GEO_BUCKET] = MeshBuilder::GenerateOBJMTL("dog", "Models//model_containment//obj//rv_bucket.obj", "Models//model_containment//mtl//rv_bucket.mtl");
 	meshList[GEO_BUCKET]->textureID = LoadTGA("Images//model_containment//textures//goal_bucket.tga");
 
+	meshList[GEO_TENT] = MeshBuilder::GenerateOBJMTL("carnival tent", "Models//tent//carnivaltent.obj", "Models//tent//carnivaltent.mtl");
+
+	meshList[GEO_TREE] = MeshBuilder::GenerateOBJMTL("tree", "Models//birchtree//birchtree.obj", "Models//birchtree/birchtree.mtl");
+	meshList[GEO_TREE]->textureID = LoadTGA("Images//birchtree/birchtree_baseColor.tga");
+
 	// 16 x 16 is the number of columns and rows for the text
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Images//Georgia.tga");
@@ -223,6 +228,13 @@ void Scene04::Init()
 	floor.bounciness = 1;
 	floor.pos.y = 0;
 	floor.pos.x = 0;
+
+	glm::vec3 view = glm::normalize(camera.target - camera.position);
+
+	camera.position.x += -135;
+
+	camera.target = camera.position + view;
+
 }
 
 
@@ -241,9 +253,21 @@ void Scene04::Update(double dt)
 	float ch;
 	if (playing == true) {
 		ch = 15.0f;
+		if (change_height == true) {
+			camera.position.y = ch;
+			camera.target.y = ch;
+			change_height = false;
+		}
+		
 	}
 	else{
 		ch = 3.0f;
+		if (change_height == true) {
+			camera.position.y = ch;
+			camera.target.y = ch;
+			change_height = false;
+		}
+		
 	}
 	if (camera.position.y < ch) {
 		camera.position.y = ch;
@@ -349,20 +373,24 @@ void Scene04::balls_update(double dt) {
 			}
 			
 		}
-		for (int l = 0; l < ring_num; l++)
-		{
+		bool outsideAll = true;
+		for (int l = 0; l < ring_num; l++) {
 			if (OverlapCircle2AABB(
 				bounce_balls[i].ball,
 				bounce_balls[i].radius,
 				rings[l].bucket,
 				glm::vec3(
 					rings[l].radius,
-					rings[l].height * 2.f,
+					rings[l].height * 0.5f,
 					rings[l].radius),
-				cd))
-			{
+				cd)) {
 				bounce_balls[i].in = true;
-				break;  // stop when found
+				outsideAll = false;
+				break;
+			}
+			if (outsideAll)
+			{
+				bounce_balls[i].in = false;
 			}
 		}
 		
@@ -452,7 +480,7 @@ void Scene04::Render()
 	modelStack.PopMatrix();
 
 	// Skybox - now renders at world origin without accumulated transforms
-	RenderSkybox(skyboxscale,camera.position);
+	RenderSkybox(skyboxscale,player.pos);
 
 	// grass tiled from -100 to 100 on X and Z, keep existing scale (5,1,5)
 	modelStack.PushMatrix();
@@ -471,18 +499,68 @@ void Scene04::Render()
 				// keep original rotations so the tile faces the same way as before
 				modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
 				modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+				meshList[GEO_GRASS]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[GEO_GRASS]->material.kDiffuse = glm::vec3(0.1f, 0.1f, 0.1f);
+				meshList[GEO_GRASS]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+				meshList[GEO_GRASS]->material.kShininess = 1.0f;
 				RenderMesh(meshList[GEO_GRASS], true);
 				modelStack.PopMatrix();
 			}
 		}
 		// keep the ambient material tweak from original code
-		meshList[GEO_GRASS]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
 	}
 	modelStack.PopMatrix();
 
 	balls_render();
 	walls_render();
 	buckets_render();
+	models_render();
+	
+}
+
+void Scene04::models_render() {
+
+	modelStack.LoadIdentity();
+
+	modelStack.PushMatrix();
+	modelStack.Translate(-100.f, 0.f, 0.f);
+	modelStack.Scale(1.f, 1.f, 1.f);
+	// keep original rotations so the tile faces the same way as before
+	meshList[GEO_TENT]->material.kAmbient = glm::vec3(0.1, 0.1, 0.1);
+	meshList[GEO_TENT]->material.kDiffuse = glm::vec3(0.8, 0, 0);
+	meshList[GEO_TENT]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+	meshList[GEO_TENT]->material.kShininess = 5.0f;
+	RenderMesh(meshList[GEO_TENT], true);
+	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	modelStack.Translate(-130.f, 0.f, -65.f);
+	modelStack.Scale(2.1f, 2.5f, 1.f);
+	// keep original rotations so the tile faces the same way as before
+	meshList[GEO_CUBE]->material.kAmbient = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_CUBE]->material.kDiffuse = glm::vec3(0, 0, 0);
+	meshList[GEO_CUBE]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
+	meshList[GEO_CUBE]->material.kShininess = 1.0f;
+	RenderMesh(meshList[GEO_CUBE], true);
+	modelStack.PopMatrix();
+
+	
+	meshList[GEO_TREE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_TREE]->material.kDiffuse = glm::vec3(0.8, 0, 0);
+	meshList[GEO_TREE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+	meshList[GEO_TREE]->material.kShininess = 1.0f;
+	int ii;
+
+	for (int i = 0; i < 5; i++) {
+		ii = (i * 10);
+
+		modelStack.PushMatrix();
+		modelStack.Translate(200.f, 0.f, ii);
+		modelStack.Scale(0.1f, 0.1f, 0.1f);
+		// keep original rotations so the tile faces the same way as before
+		RenderMesh(meshList[GEO_TREE], true);
+		modelStack.PopMatrix();
+	}
 }
 
 void Scene04::balls_render() {
@@ -907,6 +985,7 @@ void Scene04::HandleKeyPress(double dt)
 	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_H))
 	{
 		playing = not(playing);
+		change_height = true;
 	}
 	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_J))
 	{
@@ -1114,4 +1193,8 @@ void Scene04::walls_resolve(CollisionData cd) {
 
 void Scene04::go_back() {
 	scene01request = true;
+}
+
+void Scene04::send_message(std::string slring) {
+	anouncement = slring;
 }

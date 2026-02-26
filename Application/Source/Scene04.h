@@ -48,6 +48,8 @@ public:
 		GEO_COW,
 		GEO_SHEEP,
 		GEO_BUCKET,
+		GEO_TREE,
+		GEO_TENT,
 
 		GEO_NOTE,
 
@@ -186,6 +188,8 @@ private:
 	float power_min = 0;
 	bool show_col = false;
 	bool playing = false;
+	bool change_height = false;
+	std::string anouncement = " ";
 	//functions
 
 	bool OverlapCircle2CYLINDER(const glm::vec3& pos1, float r1, const glm::vec3& pos2, float width,float height);
@@ -196,9 +200,11 @@ private:
 	void balls_update(double dt);
 	void balls_render();
 	void walls_render();
+	void models_render();
 	void buckets_render();
 	void walls_resolve(CollisionData cd);
 	void go_back();
+	void send_message(std::string slring);
 
 };
 
