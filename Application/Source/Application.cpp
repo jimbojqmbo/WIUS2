@@ -159,6 +159,8 @@ void Application::Run()
 	Scene* scene4 = new Scene03();
 	Scene* scene5 = new Scene04();
 
+	PlaySound(TEXT("Sounds//roblox.wav"), NULL, SND_FILENAME | SND_ASYNC);
+
 	Scene* scene = scene1; //uncomment this after done editing DO NOT COMMIT THIS CHANGE
 	//Scene* scene = scene4; //remove this after done editing DO NOT COMMIT THIS CHANGE
 	scene->Init();
@@ -190,7 +192,7 @@ void Application::Run()
 				PlaySound(NULL, 0, 0);
 				scene = scene2;
 				sceneNum = SCENE_01;
-				PlaySound(TEXT("Sounds//roblox.wav"), NULL, SND_FILENAME | SND_ASYNC);
+				PlaySound(TEXT("Sounds//lowkirkenuinely.wav"), NULL, SND_FILENAME | SND_ASYNC);
 			}
 		}
 
