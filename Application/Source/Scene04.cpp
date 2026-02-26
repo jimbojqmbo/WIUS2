@@ -142,16 +142,16 @@ void Scene04::Init()
 	//models
 	
 	meshList[GEO_DEER] = MeshBuilder::GenerateOBJMTL("demon","Models//model_containment//obj//musk_deer.obj","Models//model_containment//mtl//musk_deer.mtl");
-	meshList[GEO_DEER]->textureID = LoadTGA("Models//model_containment//textures//musk_deer.tga");
+	meshList[GEO_DEER]->textureID = LoadTGA("Images//model_containment//textures//musk_deer.tga");
 
 	meshList[GEO_COW] = MeshBuilder::GenerateOBJMTL("lowkeychillguy", "Models//model_containment//obj//cow.obj", "Models//model_containment//mtl//cow.mtl");
-	meshList[GEO_COW]->textureID = LoadTGA("Models//model_containment//textures//cow.tga");
+	meshList[GEO_COW]->textureID = LoadTGA("Images//model_containment//textures//cow.tga");
 
 	//meshList[GEO_SHEEP] = MeshBuilder::GenerateOBJMTL("demon", "Models//model_containment//obj//13574_Marco_Polo_Sheep_v1_L3.obj", "Models//model_containment//mtl//13574_Marco_Polo_Sheep_v1_L3.mtl");
 	//meshList[GEO_SHEEP]->textureID = LoadTGA("Models//model_containment//textures//13574_Marco_Polo_Diffuse.tga");
 
 	meshList[GEO_BUCKET] = MeshBuilder::GenerateOBJMTL("dog", "Models//model_containment//obj//rv_bucket.obj", "Models//model_containment//mtl//rv_bucket.mtl");
-	meshList[GEO_BUCKET]->textureID = LoadTGA("Models//model_containment//textures//goal_bucket.tga");
+	meshList[GEO_BUCKET]->textureID = LoadTGA("Images//model_containment//textures//goal_bucket.tga");
 
 	// 16 x 16 is the number of columns and rows for the text
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
@@ -198,7 +198,7 @@ void Scene04::Init()
 
 	//ball innit
 	for (int i = 0; i < ball_num; i++) {
-		bounce_balls[i].ball.mass = 2;
+		bounce_balls[i].ball.mass = 10;
 		bounce_balls[i].ball.bounciness = 1;
 		bounce_balls[i].ball.pos.y = 10;
 		bounce_balls[i].ball.pos.x = 2*i;
