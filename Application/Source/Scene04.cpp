@@ -174,9 +174,9 @@ void Scene04::Init()
 
 	glUniform1i(m_parameters[U_NUMLIGHTS], NUM_LIGHTS);
 
-	light[0].position = glm::vec3(camera.position.x, camera.position.y, camera.position.z);
+	light[0].position = glm::vec3(0.f, -1.0, 0.f);
 	light[0].color = glm::vec3(1, 1, 0.5);
-	light[0].type = Light::LIGHT_POINT;
+	light[0].type = Light::LIGHT_DIRECTIONAL;
 	light[0].power = 1;
 	light[0].kC = 1.f;
 	light[0].kL = 0.01f;
@@ -196,7 +196,7 @@ void Scene04::Init()
 	glUniform1f(m_parameters[U_LIGHT0_COSINNER], cosf(glm::radians<float>(light[0].cosInner)));
 	glUniform1f(m_parameters[U_LIGHT0_EXPONENT], light[0].exponent);
 
-	light[1].position = glm::vec3(camera.position.x, camera.position.y, camera.position.z);
+	light[1].position = glm::vec3(0, 0, 0);
 	light[1].color = glm::vec3(1, 1, 0.5);
 	light[1].type = Light::LIGHT_POINT;
 	light[1].power = 1;
@@ -318,6 +318,10 @@ void Scene04::Update(double dt)
 		std::string result = "you have scored an amazing "+(std::to_string(score)+" balls");
 		send_message(result);
 		change_height  = true;
+		for (int i = 0; i < ball_num; i++) {
+			bounce_balls[i].thrown = false;
+		}
+		ball_select = 0;
 	}
 
 	score = 0;
@@ -490,26 +494,26 @@ void Scene04::Render()
 
 	// Load identity matrix into the model stack
 	modelStack.LoadIdentity();
-
-	if (light[0].type == Light::LIGHT_DIRECTIONAL)
-	{
-		glm::vec3 lightDir(light[0].position.x, light[0].position.y, light[0].position.z);
-		glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
-		glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
+	for (int i = 0; i < NUM_LIGHTS; i++) {
+		if (light[i].type == Light::LIGHT_DIRECTIONAL)
+		{
+			glm::vec3 lightDir(light[i].position.x, light[i].position.y, light[i].position.z);
+			glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
+			glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
+		}
+		else if (light[i].type == Light::LIGHT_SPOT)
+		{
+			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[i].position, 1);
+			glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+			glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[i].spotDirection, 0);
+			glUniform3fv(m_parameters[U_LIGHT0_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
+		}
+		else {
+			// Calculate the light position in camera space
+			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[i].position, 1);
+			glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+		}
 	}
-	else if (light[0].type == Light::LIGHT_SPOT)
-	{
-		glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[0].position, 1);
-		glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-		glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[0].spotDirection, 0);
-		glUniform3fv(m_parameters[U_LIGHT0_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
-	}
-	else {
-		// Calculate the light position in camera space
-		glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[0].position, 1);
-		glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-	}
-
 	// Render objects
 	//RenderMesh(meshList[GEO_AXES], false);
 
@@ -544,9 +548,9 @@ void Scene04::Render()
 				// keep original rotations so the tile faces the same way as before
 				modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
 				modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
-				meshList[GEO_GRASS]->material.kAmbient = glm::vec3(0.6f, 0.6f, 0.f);
-				meshList[GEO_GRASS]->material.kDiffuse = glm::vec3(0.1f, 0.1f, 0.1f);
-				meshList[GEO_GRASS]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+				meshList[GEO_GRASS]->material.kAmbient = glm::vec3(1.f, 1.f, 0.f);
+				meshList[GEO_GRASS]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.1f);
+				meshList[GEO_GRASS]->material.kSpecular = glm::vec3(0.1f, 0.1f, 0.1f);
 				meshList[GEO_GRASS]->material.kShininess = 1.0f;
 				RenderMesh(meshList[GEO_GRASS], true);
 				modelStack.PopMatrix();
@@ -570,6 +574,7 @@ void Scene04::Render()
 	buckets_render();
 	models_render();
 	trees_render();
+	tree_render();
 
 	RenderTextOnScreen(meshList[GEO_TEXT],anouncement,glm::vec3(1.f,0.f,0.f),25, 10, 550);
 }
@@ -607,9 +612,7 @@ void Scene04::models_render() {
 	RenderMesh(meshList[GEO_CUBE], true);
 	modelStack.PopMatrix();
 }
-
 void Scene04::trees_render() {
-	
 	int ii;
 
 	for (int i = 0; i < 25; i++) {
@@ -638,6 +641,42 @@ void Scene04::trees_render() {
 
 		modelStack.PushMatrix();
 		modelStack.Translate(-200.f, 0.f, -ii);
+		modelStack.Scale(0.1f, 0.1f, 0.1f);
+		// keep original rotations so the tile faces the same way as before
+		RenderMesh(meshList[GEO_TREE], true);
+		modelStack.PopMatrix();
+	}
+};
+void Scene04::tree_render() {
+	
+	int ii;
+
+	for (int i = 0; i < 25; i++) {
+		ii = (i * 10);
+
+		modelStack.PushMatrix();
+		modelStack.Translate(ii, 0.f, 200.f);
+		modelStack.Scale(0.1f, 0.1f, 0.1f);
+		// keep original rotations so the tile faces the same way as before
+		RenderMesh(meshList[GEO_TREE], true);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(-ii, 0.f,200.f );
+		modelStack.Scale(0.1f, 0.1f, 0.1f);
+		// keep original rotations so the tile faces the same way as before
+		RenderMesh(meshList[GEO_TREE], true);
+
+		modelStack.PopMatrix();
+		modelStack.PushMatrix();
+		modelStack.Translate(-ii, 0.f,- 200.f);
+		modelStack.Scale(0.1f, 0.1f, 0.1f);
+		// keep original rotations so the tile faces the same way as before
+		RenderMesh(meshList[GEO_TREE], true);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(ii, 0.f, -200.f);
 		modelStack.Scale(0.1f, 0.1f, 0.1f);
 		// keep original rotations so the tile faces the same way as before
 		RenderMesh(meshList[GEO_TREE], true);
@@ -1038,10 +1077,7 @@ void Scene04::HandleKeyPress(double dt)
 	}
 	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_R))
 	{
-		for (int i = 0; i < ball_num; i++) {
-			bounce_balls[i].thrown = false;
-		}
-		ball_select = 0;
+		// reset ball
 	}
 	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_C))
 	{

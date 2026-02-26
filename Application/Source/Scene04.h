@@ -216,6 +216,7 @@ private:
 	void models_render();
 	void buckets_render();
 	void trees_render();
+	void tree_render();
 	void walls_resolve(CollisionData cd);
 	void go_back();
 	void send_message(std::string slring);
