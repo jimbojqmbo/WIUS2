@@ -54,10 +54,13 @@ public:
 		GEO_BIRCHTREE,
 		GEO_CAROUSEL,
 		GEO_DIALOGUE1,
+		GEO_DIALOGUE2,
+		GEO_DIALOGUE3,
 		GEO_FOODCART,
 		GEO_BUMPERCAR,
 		GEO_DUCK,
 		GEO_BUCKET,
+		GEO_TRUCK,
 		NUM_GEOMETRY,
 	};
 
@@ -220,6 +223,21 @@ private:
 	bool inballbouncearea = false;
 	glm::vec3 ballbouncearea;
 	float ballbounceAreaRadius;
+
+	glm::vec3 blackwallMin;
+	glm::vec3 blackwallMax;
+
+	glm::vec3 hotdogMin;
+	glm::vec3 hotdogMax;
+
+	glm::vec3 foodCartMin;
+	glm::vec3 foodCartMax;
+
+	glm::vec3 hotdogMin2;
+	glm::vec3 hotdogMax2;
+
+	glm::vec3 foodCartMin2;
+	glm::vec3 foodCartMax2;
 };
 
 #endif
