@@ -1093,13 +1093,9 @@ void Scene04::HandleKeyPress(double dt)
 		camera.position += right * glm::vec3(0.1);// *speed; 
 		camera.target += right * glm::vec3(0.1);// *speed;
 	}
-	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_R))
-	{
-		// reset ball
-	}
 	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_C))
 	{
-		show_col = not(show_col);
+		//show_col = not(show_col);
 	}
 	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_H))
 	{
