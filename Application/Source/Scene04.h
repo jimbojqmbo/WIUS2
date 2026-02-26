@@ -12,11 +12,22 @@
 #include "fourball.h"
 #include "ringbuck.h"
 #include "Scene01.h"
+#include "Scene02.h"
+#include "SceneGUI.h"
 
 
 class Scene04 : public Scene
 {
 public:
+	enum SCENE_NUM
+	{
+		SCENE_GUI = 0,
+		SCENE_01,
+		SCENE_02,
+		SCENE_03,
+		SCENE_04,
+		TOTAL_SCENE
+	};
 	enum GEOMETRY_TYPE
 	{
 		GEO_AXES,
@@ -156,6 +167,7 @@ private:
 	CollisionData cd;
 	//varibles
 	// game scene
+	Scene *current_scene = this;
 	float gravity = -50;
 
 	float floor_space = 50
@@ -170,8 +182,6 @@ private:
 	float power_min = 0;
 	bool show_col = false;
 	bool playing = false;
-	//scene
-	Scene* main_scene = new Scene01();
 	//functions
 
 	bool OverlapCircle2CYLINDER(const glm::vec3& pos1, float r1, const glm::vec3& pos2, float width,float height);

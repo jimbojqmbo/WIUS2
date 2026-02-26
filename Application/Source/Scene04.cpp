@@ -206,7 +206,6 @@ void Scene04::Init()
 	//baucket innit
 	for (int i = 0; i < ring_num; i++) {
 		rings[i].bucket.bounciness = 1;
-		
 	}
 
 	rings[0].bucket.pos.z = rings[0].radius*2;
@@ -224,8 +223,6 @@ void Scene04::Init()
 	floor.bounciness = 1;
 	floor.pos.y = 0;
 	floor.pos.x = 0;
-	
-
 }
 
 
@@ -322,12 +319,12 @@ void Scene04::balls_update(double dt) {
 			// Define wall half sizes correctly
 			glm::vec3 halfSizeFrontBack(
 				rings[l].wradius,
-				rings[l].height*2,
+				rings[l].height*1.5,
 				rings[l].wall_thin);
 
 			glm::vec3 halfSizeLeftRight(
 				rings[l].wall_thin,
-				rings[l].height * 2,
+				rings[l].height * 1.5,
 				rings[l].wradius);
 
 			// Check 4 walls
@@ -931,6 +928,10 @@ void Scene04::HandleKeyPress(double dt)
 	{
 		playing = not(playing);
 	}
+	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_J))
+	{
+		go_back();
+	}
 	
 	/*
 	if (KeyboardController::GetInstance()->IsKeyDown('I'))
@@ -1119,7 +1120,17 @@ void Scene04::walls_resolve(CollisionData cd) {
 }
 
 void Scene04::go_back() {
-
-	this->Exit();
+	current_scene->Exit();
+	Scene* main_scene = new Scene01();
 	main_scene->Init();
+	delete current_scene;
+
+
+	/*
+	this->Exit();      // exit Scene01
+	scene5->Init();
+	//PlaySound(NULL, 0, 0);
+
+	scene = scene5;
+	*/
 }
