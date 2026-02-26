@@ -209,7 +209,7 @@ private:
 	float linearDamping = 2;   // damping per second (friction)
 	float maxSpeed = 25;       // limit speed from exploding
 	float driveAcceleration = 240; // acceleration (units/s^2) from input
-	float cameraRadius = 3.5f;    // collision radius per camera
+	float cameraRadius = 4.5f;    // collision radius per camera
 
 	bool pausemenu = false;
 	bool isGameRunning = true;

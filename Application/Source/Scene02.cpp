@@ -19,6 +19,7 @@
 #include "KeyboardController.h"
 #include "LoadTGA.h"
 #include "MouseController.h"
+
 #include <iostream>
 
 // repo cloning text test
@@ -63,6 +64,8 @@ void Scene02::Init()
 	m_parameters[U_MATERIAL_DIFFUSE] = glGetUniformLocation(m_programID, "material.kDiffuse");
 	m_parameters[U_MATERIAL_SPECULAR] = glGetUniformLocation(m_programID, "material.kSpecular");
 	m_parameters[U_MATERIAL_SHININESS] = glGetUniformLocation(m_programID, "material.kShininess");
+
+	// LIGHT 0
 	m_parameters[U_LIGHT0_TYPE] = glGetUniformLocation(m_programID, "lights[0].type");
 	m_parameters[U_LIGHT0_POSITION] = glGetUniformLocation(m_programID, "lights[0].position_cameraspace");
 	m_parameters[U_LIGHT0_COLOR] = glGetUniformLocation(m_programID, "lights[0].color");
@@ -74,6 +77,33 @@ void Scene02::Init()
 	m_parameters[U_LIGHT0_COSCUTOFF] = glGetUniformLocation(m_programID, "lights[0].cosCutoff");
 	m_parameters[U_LIGHT0_COSINNER] = glGetUniformLocation(m_programID, "lights[0].cosInner");
 	m_parameters[U_LIGHT0_EXPONENT] = glGetUniformLocation(m_programID, "lights[0].exponent");
+
+	// LIGHT 1
+	m_parameters[U_LIGHT1_TYPE] = glGetUniformLocation(m_programID, "lights[1].type");
+	m_parameters[U_LIGHT1_POSITION] = glGetUniformLocation(m_programID, "lights[1].position_cameraspace");
+	m_parameters[U_LIGHT1_COLOR] = glGetUniformLocation(m_programID, "lights[1].color");
+	m_parameters[U_LIGHT1_POWER] = glGetUniformLocation(m_programID, "lights[1].power");
+	m_parameters[U_LIGHT1_KC] = glGetUniformLocation(m_programID, "lights[1].kC");
+	m_parameters[U_LIGHT1_KL] = glGetUniformLocation(m_programID, "lights[1].kL");
+	m_parameters[U_LIGHT1_KQ] = glGetUniformLocation(m_programID, "lights[1].kQ");
+	m_parameters[U_LIGHT1_SPOTDIRECTION] = glGetUniformLocation(m_programID, "lights[1].spotDirection");
+	m_parameters[U_LIGHT1_COSCUTOFF] = glGetUniformLocation(m_programID, "lights[1].cosCutoff");
+	m_parameters[U_LIGHT1_COSINNER] = glGetUniformLocation(m_programID, "lights[1].cosInner");
+	m_parameters[U_LIGHT1_EXPONENT] = glGetUniformLocation(m_programID, "lights[1].exponent");
+
+	// LIGHT 2
+	m_parameters[U_LIGHT2_TYPE] = glGetUniformLocation(m_programID, "lights[2].type");
+	m_parameters[U_LIGHT2_POSITION] = glGetUniformLocation(m_programID, "lights[2].position_cameraspace");
+	m_parameters[U_LIGHT2_COLOR] = glGetUniformLocation(m_programID, "lights[2].color");
+	m_parameters[U_LIGHT2_POWER] = glGetUniformLocation(m_programID, "lights[2].power");
+	m_parameters[U_LIGHT2_KC] = glGetUniformLocation(m_programID, "lights[2].kC");
+	m_parameters[U_LIGHT2_KL] = glGetUniformLocation(m_programID, "lights[2].kL");
+	m_parameters[U_LIGHT2_KQ] = glGetUniformLocation(m_programID, "lights[2].kQ");
+	m_parameters[U_LIGHT2_SPOTDIRECTION] = glGetUniformLocation(m_programID, "lights[2].spotDirection");
+	m_parameters[U_LIGHT2_COSCUTOFF] = glGetUniformLocation(m_programID, "lights[2].cosCutoff");
+	m_parameters[U_LIGHT2_COSINNER] = glGetUniformLocation(m_programID, "lights[2].cosInner");
+	m_parameters[U_LIGHT2_EXPONENT] = glGetUniformLocation(m_programID, "lights[2].exponent");
+
 	m_parameters[U_COLOR_TEXTURE_ENABLED] = glGetUniformLocation(m_programID, "colorTextureEnabled");
 	m_parameters[U_COLOR_TEXTURE] = glGetUniformLocation(m_programID, "colorTexture");
 	m_parameters[U_LIGHTENABLED] = glGetUniformLocation(m_programID, "lightEnabled");
@@ -224,8 +254,9 @@ void Scene02::Init()
 
 	glUniform1i(m_parameters[U_NUMLIGHTS], NUM_LIGHTS);
 
-	light[0].position = glm::vec3(camera.position.x, camera.position.y, camera.position.z);
-	light[0].color = glm::vec3(1, 1, 0.5);
+	// LIGHT 0
+	light[0].position = glm::vec3(0.f,50.f,0.f);
+	light[0].color = glm::vec3(0.6f, 0.7f, 1.0f);
 	light[0].type = Light::LIGHT_DIRECTIONAL;
 	light[0].power = 1;
 	light[0].kC = 1.f;
@@ -246,6 +277,52 @@ void Scene02::Init()
 	glUniform1f(m_parameters[U_LIGHT0_COSINNER], cosf(glm::radians<float>(light[0].cosInner)));
 	glUniform1f(m_parameters[U_LIGHT0_EXPONENT], light[0].exponent);
 
+	// LIGHT 1
+	light[1].position = glm::vec3(0.f, 13.65f, 30.f);
+	light[1].color = glm::vec3(1.f, 1.f, 0.5f);
+	light[1].type = Light::LIGHT_POINT;
+	light[1].power = 1;
+	light[1].kC = 1.f;
+	light[1].kL = 0.02f;
+	light[1].kQ = 0.002f;
+	light[1].cosCutoff = glm::cos(glm::radians(45.f));
+	light[1].cosInner = glm::cos(glm::radians(30.f));
+	light[1].exponent = 2.f;
+	light[1].spotDirection = glm::vec3(0.f, -1.f, 0.f);
+
+	glUniform3fv(m_parameters[U_LIGHT1_COLOR], 1, &light[1].color.r);
+	glUniform1i(m_parameters[U_LIGHT1_TYPE], light[1].type);
+	glUniform1f(m_parameters[U_LIGHT1_POWER], light[1].power);
+	glUniform1f(m_parameters[U_LIGHT1_KC], light[1].kC);
+	glUniform1f(m_parameters[U_LIGHT1_KL], light[1].kL);
+	glUniform1f(m_parameters[U_LIGHT1_KQ], light[1].kQ);
+	glUniform1f(m_parameters[U_LIGHT1_COSCUTOFF], cosf(glm::radians<float>(light[1].cosCutoff)));
+	glUniform1f(m_parameters[U_LIGHT1_COSINNER], cosf(glm::radians<float>(light[1].cosInner)));
+	glUniform1f(m_parameters[U_LIGHT1_EXPONENT], light[1].exponent);
+
+	// LIGHT 2
+	light[2].position = glm::vec3(0.f, 13.65f, 105.2f);
+	light[2].color = glm::vec3(1.f, 1.f, 0.5f);
+	light[2].type = Light::LIGHT_POINT;
+	light[2].power = 1;
+	light[2].kC = 1.f;
+	light[2].kL = 0.02f;
+	light[2].kQ = 0.002f;
+	light[2].cosCutoff = glm::cos(glm::radians(45.f));
+	light[2].cosInner = glm::cos(glm::radians(30.f));
+	light[2].exponent = 2.f;
+	light[2].spotDirection = glm::vec3(0.f, -1.f, 0.f);
+
+	glUniform3fv(m_parameters[U_LIGHT2_COLOR], 1, &light[2].color.r);
+	glUniform1i(m_parameters[U_LIGHT2_TYPE], light[2].type);
+	glUniform1f(m_parameters[U_LIGHT2_POWER], light[2].power);
+	glUniform1f(m_parameters[U_LIGHT2_KC], light[2].kC);
+	glUniform1f(m_parameters[U_LIGHT2_KL], light[2].kL);
+	glUniform1f(m_parameters[U_LIGHT2_KQ], light[2].kQ);
+	glUniform1f(m_parameters[U_LIGHT2_COSCUTOFF], cosf(glm::radians<float>(light[2].cosCutoff)));
+	glUniform1f(m_parameters[U_LIGHT2_COSINNER], cosf(glm::radians<float>(light[2].cosInner)));
+	glUniform1f(m_parameters[U_LIGHT2_EXPONENT], light[2].exponent);
+
 	enableLight = true;
 	enableHitbox = false;
 	wasMousePressed = false;
@@ -258,13 +335,19 @@ void Scene02::Init()
 
 	section1Start = false;
 	section1End = false;
+	section1SpawnEnd = false;
+	trigger1Timer = 0.f;
+
 	section2Start = false;
 	section2End = false;
+	section2SpawnEnd = false;
+	trigger2Timer = 0.f;
 
 
 	blasterAngle = 0.f;
 	score = 0.f;
 	shotsFired = 0;
+	validTargets = 0;
 
 	targetHitboxSize = glm::vec3(4.f, 5.f, 3.f);
 	targetSize = glm::vec3(0.3f,0.3f,0.3f);
@@ -605,6 +688,95 @@ void Scene02::Update(double dt)
 
 	// Triggers
 	{
+		if (trigger1Activated && !section1SpawnEnd)
+		{
+			trigger1Timer += static_cast<float>(dt);
+			if (trigger1Timer >= 3.f)
+			{
+				trigger1Timer = 3.f;
+				section1SpawnEnd = true;
+
+				glm::vec3 startPos = glm::vec3(1.f, 2.2f, 24.3f);
+				glm::vec3 endPos = glm::vec3(1.f, 2.2f, 35.5f);
+				float speed = 3.f;
+				int repeats = 2;
+
+				SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 1);
+
+				startPos = glm::vec3(5.692f, 4.f, 14.2f);
+				endPos = glm::vec3(10.93f, 4.f, 25.f);
+				speed = 4.f;
+				repeats = 2;
+
+				SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, -1);
+
+				startPos = glm::vec3(8.185f, 4.2f, 40.8f);
+				endPos = glm::vec3(10.93f, 4.2f, 30.f);
+				speed = 5.f;
+				repeats = 5;
+
+				SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 1);
+
+				startPos = glm::vec3(16.72f, 6.2f, 21.1f);
+				endPos = glm::vec3(16.72f, 6.2f, 32.9f);
+				speed = 4.f;
+				repeats = 2;
+
+				SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, -1);
+			}
+		}
+
+		if (trigger2Activated && !section2SpawnEnd)
+		{
+			trigger2Timer += static_cast<float>(dt);
+			if (trigger2Timer >= 3.f)
+			{
+				trigger2Timer = 3.f;
+				section2SpawnEnd = true;
+
+				glm::vec3 startPos = glm::vec3(1.f, 2.2f, 24.3f);
+				glm::vec3 endPos = glm::vec3(1.f, 2.2f, 35.5f);
+				float speed = 3.f;
+				int repeats = 2;
+
+				startPos = glm::vec3(1.236f, 2.2f, 98.4f);
+				endPos = glm::vec3(1.236f, 2.2f, 113.9f);
+				speed = 4.f;
+				repeats = 2;
+
+				SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, -1);
+
+				startPos = glm::vec3(2.736f, 2.2f, 91.f);
+				endPos = glm::vec3(8.47f, 2.2f, 100.7f);
+				speed = 5.f;
+				repeats = 5;
+
+				SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 1);
+
+				startPos = glm::vec3(7.56f, 2.2f, 117.f);
+				endPos = glm::vec3(10.68f, 2.2f, 105.8f);
+				speed = 5.f;
+				repeats = 5;
+
+				SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 1);
+
+				startPos = glm::vec3(13.94f, 4.2f, 96.1f);
+				endPos = glm::vec3(13.94f, 4.2f, 112.f);
+				speed = 4.f;
+				repeats = 2;
+
+				SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, -1);
+
+				startPos = glm::vec3(16.85f, 6.2f, 112.f);
+				endPos = glm::vec3(16.85f, 6.2f, 96.1f);
+				speed = 4.f;
+				repeats = 2;
+
+
+				SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, -1);
+			}
+		}
+
 		CollisionData cd;
 		if (OverlapSphere2OBB(playerHitbox, trigger1, cd) && !trigger1Activated)
 		{
@@ -620,7 +792,7 @@ void Scene02::Update(double dt)
 			speed = 5.f;
 			repeats = 5;
 
-			SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 2);
+			SpawnTarget(startPos, endPos, targetHitboxSize, speed, repeats, 1);
 
 			startPos = glm::vec3(8.185f, 4.2f, 40.8f);
 			endPos = glm::vec3(10.93f, 4.2f, 30.f);
@@ -697,7 +869,7 @@ void Scene02::Update(double dt)
 
 	// Section End Conditions
 	{
-		if (section1Start)
+		if (section1Start && section1SpawnEnd)
 		{
 			if (targets.empty())
 			{
@@ -705,7 +877,7 @@ void Scene02::Update(double dt)
 				section1End = true;
 			}
 		}
-		if (section2Start)
+		if (section2Start && section2SpawnEnd)
 		{
 			if (targets.empty())
 			{
@@ -774,7 +946,7 @@ void Scene02::RenderSkybox() {
 	modelStack.PopMatrix();
 }
 
-void Scene02::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey)
+void Scene02::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey,float rotation)
 {
 	glDisable(GL_DEPTH_TEST);
 
@@ -794,7 +966,7 @@ void Scene02::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, floa
 
 	// To do: Use modelStack to position GUI on screen
 	modelStack.Translate(x, y, 0);
-	modelStack.Rotate(90.f,0.f,0.f,1.f);
+	modelStack.Rotate(rotation,0.f,0.f,1.f);
 
 	// To do: Use modelStack to scale the GUI
 	modelStack.Scale(sizex, sizey, 1);
@@ -898,6 +1070,10 @@ void Scene02::RenderTextOnScreen(Mesh* mesh, std::string text, glm::vec3 color, 
 void Scene02::SpawnTarget(glm::vec3 startingPosition, glm::vec3 endingPosition, glm::vec3 size, float speed, int repeats, int value)
 {
 	targets.push_back(new DuckTarget(startingPosition, endingPosition, size, speed, repeats, value, glm::vec3(0.f,0.f,0.f)));
+	if (value > 0)
+	{
+		validTargets += 1;
+	}
 }
 
 void Scene02::Render()
@@ -916,6 +1092,7 @@ void Scene02::Render()
 	// Load identity matrix into the model stack
 	modelStack.LoadIdentity();
 
+	// LIGHT 0
 	if (light[0].type == Light::LIGHT_DIRECTIONAL)
 	{
 		glm::vec3 lightDir(light[0].position.x, light[0].position.y, light[0].position.z);
@@ -929,25 +1106,56 @@ void Scene02::Render()
 		glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[0].spotDirection, 0);
 		glUniform3fv(m_parameters[U_LIGHT0_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
 	}
-	else {
+	else if (light[0].type == Light::LIGHT_POINT) {
 		// Calculate the light position in camera space
 		glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[0].position, 1);
 		glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+	}
+
+	// LIGHT 1
+	if (light[1].type == Light::LIGHT_DIRECTIONAL)
+	{
+		glm::vec3 lightDir(light[1].position.x, light[1].position.y, light[1].position.z);
+		glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
+		glUniform3fv(m_parameters[U_LIGHT1_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
+	}
+	else if (light[1].type == Light::LIGHT_SPOT)
+	{
+		glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[1].position, 1);
+		glUniform3fv(m_parameters[U_LIGHT1_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+		glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[1].spotDirection, 0);
+		glUniform3fv(m_parameters[U_LIGHT1_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
+	}
+	else if (light[1].type == Light::LIGHT_POINT) {
+		// Calculate the light position in camera space
+		glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[1].position, 1);
+		glUniform3fv(m_parameters[U_LIGHT1_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+	}
+
+	// LIGHT 2
+	if (light[2].type == Light::LIGHT_DIRECTIONAL)
+	{
+		glm::vec3 lightDir(light[2].position.x, light[2].position.y, light[2].position.z);
+		glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
+		glUniform3fv(m_parameters[U_LIGHT2_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
+	}
+	else if (light[2].type == Light::LIGHT_SPOT)
+	{
+		glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[2].position, 1);
+		glUniform3fv(m_parameters[U_LIGHT2_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+		glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[2].spotDirection, 0);
+		glUniform3fv(m_parameters[U_LIGHT2_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
+	}
+	else if (light[2].type == Light::LIGHT_POINT) {
+		// Calculate the light position in camera space
+		glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[2].position, 1);
+		glUniform3fv(m_parameters[U_LIGHT2_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
 	}
 
 	// Render objects
 	//RenderMesh(meshList[GEO_AXES], false);
 
 	// Render light sphere - isolated transformations
-	modelStack.PushMatrix();
-	modelStack.Translate(camera.position.x, 15.f, camera.position.z);
-	modelStack.Scale(0.1f, 0.1f, 0.1f);
-	meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
-	meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-	meshList[GEO_SPHERE]->material.kShininess = 5.0f;
-	RenderMesh(meshList[GEO_SPHERE], true);
-	modelStack.PopMatrix();
 
 	// Skybox - now renders at world origin without accumulated transforms
 	RenderSkybox();
@@ -1299,7 +1507,7 @@ void Scene02::Render()
 		{
 			// SCORE COUNTER
 			{
-				RenderTextOnScreen(meshList[GEO_TEXT], "Score:" + std::to_string(score), glm::vec3(1, 0, 0), 20, 0, 540);
+				RenderTextOnScreen(meshList[GEO_TEXT], "Score Multiplier:" + std::to_string(score), glm::vec3(1.f, 1.f, 0.f), 20, 0, 540);
 			}
 
 			// TIME COUNTER
@@ -1307,7 +1515,7 @@ void Scene02::Render()
 				RenderTextOnScreen(meshList[GEO_TEXT], "Time: " + elapsedTimeText, glm::vec3(1.f, 1.f, 0.f), 20, 0, 500);
 			}
 
-			// TIME COUNTER
+			// SHOTS COUNTER
 			{
 				RenderTextOnScreen(meshList[GEO_TEXT], "Shots Fired: " + std::to_string(shotsFired), glm::vec3(1.f, 1.f, 0.f), 20, 0, 460);
 			}
@@ -1318,41 +1526,71 @@ void Scene02::Render()
 		{
 			if (gameEnded)
 			{
-				RenderMeshOnScreen(meshList[BLACK],400.f,300.f,1600.f,600.f);
-				int shotPoints = shotsFired;
-				if (shotsFired <= 9)
+				RenderMeshOnScreen(meshList[BLACK],400.f,300.f,800.f,600.f, 0.f);
+				int shotMultiplier = shotsFired;
+
+				// Shot Multiplier
+				if (validTargets <= 0)
 				{
-					shotPoints = round(shotPoints / 9);
+					shotMultiplier = 1;
+				}
+				else if (shotsFired <= validTargets)
+				{
+					shotMultiplier = 1;
 				}
 				else
 				{
-					shotPoints = round(shotPoints / 5);
+					shotMultiplier = shotsFired - validTargets;
+					shotMultiplier = shotMultiplier / 3;
 				}
-				int finalScore = score * 100 / (shotPoints * round(totalElapsedTime / 60));
-				if (finalScore >= 900)
+
+				if (shotMultiplier <= 0)
 				{
-					RenderMeshOnScreen(meshList[SRANK], 500.f, 300.f, 100.f, 100.f);
+					shotMultiplier = 1;
 				}
-				else if (finalScore >= 800)
+
+				int timeMultiplier = totalElapsedTime / 60;
+				if (timeMultiplier <= 0)
 				{
-					RenderMeshOnScreen(meshList[ARANK], 500.f, 300.f, 100.f, 100.f);
+					timeMultiplier = 1;
 				}
-				else if (finalScore >= 700)
+
+				int finalScore = 0;
+				if (shotsFired > 0)
 				{
-					RenderMeshOnScreen(meshList[BRANK], 500.f, 300.f, 100.f, 100.f);
+					finalScore = score * 100 / (shotMultiplier * timeMultiplier);
 				}
-				else if (finalScore >= 600)
+
+				int maxScore = max(1, validTargets * 100);
+
+				// Ranking
+				if (finalScore >= maxScore * 0.8f)
 				{
-					RenderMeshOnScreen(meshList[CRANK], 500.f, 300.f, 100.f, 100.f);
+					RenderMeshOnScreen(meshList[SRANK], 540, 340, 100, 100, 90);
+				}
+				else if (finalScore >= maxScore * 0.7f)
+				{
+					RenderMeshOnScreen(meshList[ARANK], 540, 340, 100, 100, 90);
+				}
+				else if (finalScore >= maxScore * 0.6f)
+				{
+					RenderMeshOnScreen(meshList[BRANK], 540, 340, 100, 100, 90);
+				}
+				else if (finalScore >= maxScore * 0.5f)
+				{
+					RenderMeshOnScreen(meshList[CRANK], 540, 340, 100, 100, 90);
 				}
 				else
 				{
-					RenderMeshOnScreen(meshList[DRANK], 500.f, 300.f, 100.f, 100.f);
+					RenderMeshOnScreen(meshList[DRANK], 540, 340, 100, 100, 90);
 				}
-				RenderTextOnScreen(meshList[GEO_TEXT], "Score Multiplier: " + std::to_string(score), glm::vec3(1.f, 1.f, 1.f), 20, 180, 340);
-				RenderTextOnScreen(meshList[GEO_TEXT], "Shots Fired: " + std::to_string(shotsFired), glm::vec3(1.f, 1.f, 1.f), 20, 180, 300);
-				RenderTextOnScreen(meshList[GEO_TEXT], "Time Taken: " + elapsedTimeText, glm::vec3(1.f, 1.f, 1.f), 20, 180, 260);
-				RenderTextOnScreen(meshList[GEO_TEXT], "Final Score: " + std::to_string(finalScore), glm::vec3(1.f, 1.f, 1.f), 30, 180, 200);
+				RenderTextOnScreen(meshList[GEO_TEXT], "Targets Hit: " + std::to_string(score), glm::vec3(1.f, 1.f, 1.f), 20, 220, 380);
+				RenderTextOnScreen(meshList[GEO_TEXT], "Shots Fired: " + std::to_string(shotsFired), glm::vec3(1.f, 1.f, 1.f), 20, 220, 340);
+				RenderTextOnScreen(meshList[GEO_TEXT], "Time Taken: " + elapsedTimeText, glm::vec3(1.f, 1.f, 1.f), 20, 220, 300);
+				RenderTextOnScreen(meshList[GEO_TEXT], "Final Score: " + std::to_string(finalScore), glm::vec3(1.f, 1.f, 1.f), 30, 220, 240);
+
+				RenderTextOnScreen(meshList[GEO_TEXT], "Press [R] to retry", glm::vec3(1.f, 1.f, 1.f), 20, 280, 180);
+				RenderTextOnScreen(meshList[GEO_TEXT], "Press [ENTER] to exit", glm::vec3(1.f, 1.f, 1.f), 20, 265, 140);
 			}
 		}
 	}
@@ -1628,4 +1866,38 @@ void Scene02::HandleKeyPress(double dt)
 			}
 		}
 	}
+	else
+	{
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_R))
+		{
+			section1End = false;
+			section1Start = false;
+
+			section2End = false;
+			section2Start = false;
+
+			score = 0;
+			shotsFired = 0;
+			totalElapsedTime = 0.f;
+			playerHitbox.pos = glm::vec3(0.f, 1.f, 0.f);
+
+			trigger1Activated = false;
+			trigger2Activated = false;
+
+			validTargets = 0;
+
+			for (int i = 0; i < projectiles.size(); i++) {
+				projectiles.erase(projectiles.begin() + i);
+				i--;
+			}
+
+			gameEnded = false;
+		}
+
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_ENTER))
+		{
+			startingSceneRequest = true;
+		}
+	}
+
 }

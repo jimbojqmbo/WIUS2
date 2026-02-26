@@ -278,56 +278,73 @@ void Application::Run()
 
 		{
 			// THE FOLLOWING SCENE SWITCHING MECHANICS ARE FOR SCENE01 ONLY
-
-
-			// === FROM SCENE01 TO SCENE02 (duck shooting) ===
-			if (sceneNum == SCENE_01)
 			{
-				Scene01* s02 = dynamic_cast<Scene01*>(scene);
-				if (s02 && s02->scene02request)
+				// === FROM SCENE01 TO SCENE02 (duck shooting) ===
+				if (sceneNum == SCENE_01)
 				{
-					s02->scene02request = false;
+					Scene01* s02 = dynamic_cast<Scene01*>(scene);
+					if (s02 && s02->scene02request)
+					{
+						s02->scene02request = false;
 
-					scene2->Exit();      // exit Scene01
-					scene3->Init();
-					//PlaySound(NULL, 0, 0);
+						scene2->Exit();      // exit Scene01
+						scene3->Init();
+						//PlaySound(NULL, 0, 0);
 
-					scene = scene3;
-					sceneNum = SCENE_02;
+						scene = scene3;
+						sceneNum = SCENE_02;
+					}
+				}
+
+				// === FROM SCENE01 TO SCENE03 (Basketball) ===
+				if (sceneNum == SCENE_01)
+				{
+					Scene01* s03 = dynamic_cast<Scene01*>(scene);
+					if (s03 && s03->scene03request)
+					{
+						s03->scene03request = false;
+
+						scene2->Exit();      // exit Scene01
+						scene4->Init();      // Scene03 is scene4 in your setup
+						//PlaySound(NULL, 0, 0);
+
+						scene = scene4;
+						sceneNum = SCENE_03;
+					}
+				}
+
+				// === FROM SCENE01 TO SCENE04 (Ball bouncer) ===
+				if (sceneNum == SCENE_01)
+				{
+					Scene01* s04 = dynamic_cast<Scene01*>(scene);
+					if (s04 && s04->scene04request)
+					{
+						s04->scene04request = false;
+
+						scene2->Exit();      // exit Scene01
+						scene5->Init();
+						//PlaySound(NULL, 0, 0);
+
+						scene = scene5;
+						sceneNum = SCENE_04;
+					}
 				}
 			}
 
-			// === FROM SCENE01 TO SCENE03 (Basketball) ===
-			if (sceneNum == SCENE_01)
+			// SCENE SWITCHING MECHANIC FOR SCENE02
+			if (sceneNum == SCENE_02)
 			{
-				Scene01* s03 = dynamic_cast<Scene01*>(scene);
-				if (s03 && s03->scene03request)
+				Scene02* s03 = dynamic_cast<Scene02*>(scene);
+				if (s03 && s03->startingSceneRequest)
 				{
-					s03->scene03request = false;
+					s03->startingSceneRequest = false;
 
-					scene2->Exit();      // exit Scene01
-					scene4->Init();      // Scene03 is scene4 in your setup
+					scene3->Exit();      // exit Scene02
+					scene2->Init();      // init Scene01
 					//PlaySound(NULL, 0, 0);
 
-					scene = scene4;
-					sceneNum = SCENE_03;
-				}
-			}
-
-			// === FROM SCENE01 TO SCENE04 (Ball bouncer) ===
-			if (sceneNum == SCENE_01)
-			{
-				Scene01* s04 = dynamic_cast<Scene01*>(scene);
-				if (s04 && s04->scene04request)
-				{
-					s04->scene04request = false;
-
-					scene2->Exit();      // exit Scene01
-					scene5->Init();
-					//PlaySound(NULL, 0, 0);
-
-					scene = scene5;
-					sceneNum = SCENE_04;
+					scene = scene2;
+					sceneNum = SCENE_01;
 				}
 			}
 		}
