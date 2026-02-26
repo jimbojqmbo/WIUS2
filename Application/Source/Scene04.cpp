@@ -253,7 +253,14 @@ void Scene04::Update(double dt)
 	}
 	camera.Update(dt);
 
-	
+	int score = 0;
+	for (int i = 0; i < ball_select; i++) {
+		if (bounce_balls[i].in == true) {
+			score++;
+		}
+	}
+	std::cout << score << std::endl;
+	score = 0;
 
 }
 
@@ -273,29 +280,6 @@ void Scene04::balls_update(double dt) {
 		}
 		//ball agaisnt buckets
 		for (int l = 0; l < ring_num; l++) {
-			/*
-			rings[l].wall[0].pos = glm::vec3(rings[l].bucket.pos.x, rings[l].bucket.pos.y , rings[l].bucket.pos.z + rings[l].radius);
-			rings[l].wall[1].pos = glm::vec3(rings[l].bucket.pos.x + rings[l].radius, rings[l].bucket.pos.y, rings[l].bucket.pos.z );
-			rings[l].wall[2].pos = glm::vec3(rings[l].bucket.pos.x, rings[l].bucket.pos.y , rings[l].bucket.pos.z - rings[l].radius);
-			rings[l].wall[3].pos = glm::vec3(rings[l].bucket.pos.x - rings[l].radius, rings[l].bucket.pos.y , rings[i].bucket.pos.z );
-
-			if (OverlapCircle2AABB(bounce_balls[i].ball, bounce_balls[i].radius, rings[l].wall[0], glm::vec3(rings[i].radius, rings[i].height*10, rings[i].radius), cd)) {
-				walls_resolve(cd);
-				std::cout << "wall collide"<<std::endl;
-			}
-			if (OverlapCircle2AABB(bounce_balls[i].ball, bounce_balls[i].radius, rings[l].wall[1], glm::vec3(rings[i].wradius, rings[i].height*10, rings[i].radius), cd)) {
-				walls_resolve(cd);
-				std::cout << "wall collide" << std::endl;
-			}
-			if (OverlapCircle2AABB(bounce_balls[i].ball, bounce_balls[i].radius, rings[l].wall[2], glm::vec3(rings[i].radius, rings[i].height * 10, rings[i].radius), cd)) {
-				walls_resolve(cd);
-				std::cout << "wall collide" << std::endl;
-			}
-			if (OverlapCircle2AABB(bounce_balls[i].ball, bounce_balls[i].radius, rings[l].wall[3], glm::vec3(rings[i].radius, rings[i].height * 10, rings[i].radius), cd)) {
-				walls_resolve(cd);
-				std::cout << "wall collide" << std::endl;
-			}
-			*/
 			rings[l].wall[0].pos = glm::vec3(
 				rings[l].bucket.pos.x,
 				rings[l].bucket.pos.y + rings[l].height,
@@ -319,12 +303,12 @@ void Scene04::balls_update(double dt) {
 			// Define wall half sizes correctly
 			glm::vec3 halfSizeFrontBack(
 				rings[l].wradius,
-				rings[l].height*1.5,
+				rings[l].height * 4.f,
 				rings[l].wall_thin);
 
 			glm::vec3 halfSizeLeftRight(
 				rings[l].wall_thin,
-				rings[l].height * 1.5,
+				rings[l].height * 4.f,
 				rings[l].wradius);
 
 			// Check 4 walls
@@ -364,6 +348,22 @@ void Scene04::balls_update(double dt) {
 				walls_resolve(cd);
 			}
 			
+		}
+		for (int l = 0; l < ring_num; l++)
+		{
+			if (OverlapCircle2AABB(
+				bounce_balls[i].ball,
+				bounce_balls[i].radius,
+				rings[l].bucket,
+				glm::vec3(
+					rings[l].radius,
+					rings[l].height * 2.f,
+					rings[l].radius),
+				cd))
+			{
+				bounce_balls[i].in = true;
+				break;  // stop when found
+			}
 		}
 		
 	}
@@ -499,6 +499,7 @@ void Scene04::balls_render() {
 				RenderMesh(meshList[GEO_SPHERE], true);
 				modelStack.PopMatrix();
 			}
+			
 			if (i< 1) {
 				modelStack.PushMatrix();
 				modelStack.Translate(bounce_balls[i].ball.pos.x, bounce_balls[i].ball.pos.y, bounce_balls[i].ball.pos.z);
@@ -553,43 +554,14 @@ void Scene04::walls_render(){
 void Scene04::buckets_render() {
 	for (int i = 0; i < ring_num; i++) {
 		if (show_col == true) {
-			modelStack.PushMatrix();
-			meshList[GEO_CUBE]->material.kAmbient = glm::vec3(0.f, 0.f, 1.f);
+			meshList[GEO_CUBE]->material.kAmbient = glm::vec3(0.f, 1.f, 1.f);
 			meshList[GEO_CUBE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
 			meshList[GEO_CUBE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 			meshList[GEO_CUBE]->material.kShininess = 5.0f;
-			modelStack.Translate(rings[i].bucket.pos.x, rings[i].bucket.pos.y + rings[i].height, rings[i].bucket.pos.z+ rings[i].radius);
-			modelStack.Scale(rings[i].wradius/10, rings[i].height / 10, rings[i].wall_thin / 10);
-			RenderMesh(meshList[GEO_CUBE], true);
-			modelStack.PopMatrix();
-
-			modelStack.PushMatrix();
-			meshList[GEO_CUBE]->material.kAmbient = glm::vec3(0.f, 0.f, 1.f);
-			meshList[GEO_CUBE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
-			meshList[GEO_CUBE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-			meshList[GEO_CUBE]->material.kShininess = 5.0f;
-			modelStack.Translate(rings[i].bucket.pos.x + rings[i].radius, rings[i].bucket.pos.y + rings[i].height, rings[i].bucket.pos.z );
-			modelStack.Scale(rings[i].wall_thin / 10, rings[i].height / 10, rings[i].wradius / 10);
-			RenderMesh(meshList[GEO_CUBE], true);
-			modelStack.PopMatrix();
-
-			modelStack.PushMatrix();
-			meshList[GEO_CUBE]->material.kAmbient = glm::vec3(0.f, 0.f, 1.f);
-			meshList[GEO_CUBE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
-			meshList[GEO_CUBE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-			meshList[GEO_CUBE]->material.kShininess = 5.0f;
-			modelStack.Translate(rings[i].bucket.pos.x - rings[i].radius, rings[i].bucket.pos.y + rings[i].height, rings[i].bucket.pos.z);
-			modelStack.Scale(rings[i].wall_thin / 10, rings[i].height / 10, rings[i].wradius / 10);
-			RenderMesh(meshList[GEO_CUBE], true);
-			modelStack.PopMatrix();
-
-			modelStack.PushMatrix();
-			meshList[GEO_CUBE]->material.kAmbient = glm::vec3(0.f, 0.f, 1.f);
-			meshList[GEO_CUBE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
-			meshList[GEO_CUBE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-			meshList[GEO_CUBE]->material.kShininess = 5.0f;
-			modelStack.Translate(rings[i].bucket.pos.x , rings[i].bucket.pos.y + rings[i].height, rings[i].bucket.pos.z - rings[i].radius);
-			modelStack.Scale(rings[i].wradius / 10, rings[i].height / 10, rings[i].wall_thin / 10);
+			modelStack.Translate(rings[i].bucket.pos.x, rings[i].bucket.pos.y, rings[i].bucket.pos.z);
+			
+			modelStack.Scale(rings[i].radius, rings[i].height * 2.5, rings[i].radius);
+			modelStack.Rotate(0, 1.f, 1.f, 1.f);
 			RenderMesh(meshList[GEO_CUBE], true);
 			modelStack.PopMatrix();
 		}
@@ -872,22 +844,6 @@ void Scene04::HandleKeyPress(double dt)
 		   ///light[0].power = 0.1f;
 	   //glUniform1f(m_parameters[U_LIGHT0_POWER], light[0].power);
 	//}
-	/*
-	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_TAB))
-	{
-		if (light[0].type == Light::LIGHT_POINT) {
-			light[0].type = Light::LIGHT_DIRECTIONAL;
-		}
-		else if (light[0].type == Light::LIGHT_DIRECTIONAL) {
-			light[0].type = Light::LIGHT_SPOT;
-		}
-		else {
-			light[0].type = Light::LIGHT_POINT;
-		}
-
-		glUniform1i(m_parameters[U_LIGHT0_TYPE], light[0].type);
-	};
-	*/
 	// Calculate forward and right vectors based on camera orientation
 	glm::vec3 forward = glm::normalize(camera.target - camera.position);
 	glm::vec3 right = glm::normalize(glm::cross(forward, camera.up));

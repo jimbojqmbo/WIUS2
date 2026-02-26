@@ -6,6 +6,7 @@ class fourball
 public:
 	//rizzy varibles
 	bool thrown = false;
+	bool in = false;
 	//size
 	float radius = 0.5;
 	//object
