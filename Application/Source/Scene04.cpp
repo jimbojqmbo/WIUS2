@@ -381,42 +381,13 @@ void Scene04::balls_update(double dt) {
 				rings[l].radius * 2);
 
 			// Check 4 walls
-			if (OverlapCircle2AABB(bounce_balls[i].ball,
-				bounce_balls[i].radius,
-				rings[l].wall[0],
-				halfSizeFrontBack,
-				cd))
-			{
-				walls_resolve(cd);
+			for (int j=0; j < 4; j++) {
+				CollisionData cd;
+				if (OverlapSphere2OBB(bounce_balls[i].ball,rings[l].wall[j],cd))
+				{
+					ResolveCollision(cd);
+				}
 			}
-
-			if (OverlapCircle2AABB(bounce_balls[i].ball,
-				bounce_balls[i].radius,
-				rings[l].wall[1],
-				halfSizeLeftRight,
-				cd))
-			{
-				walls_resolve(cd);
-			}
-
-			if (OverlapCircle2AABB(bounce_balls[i].ball,
-				bounce_balls[i].radius,
-				rings[l].wall[2],
-				halfSizeFrontBack,
-				cd))
-			{
-				walls_resolve(cd);
-			}
-
-			if (OverlapCircle2AABB(bounce_balls[i].ball,
-				bounce_balls[i].radius,
-				rings[l].wall[3],
-				halfSizeLeftRight,
-				cd))
-			{
-				walls_resolve(cd);
-			}
-			
 		}
 		bool insideAny = false;
 
@@ -428,11 +399,9 @@ void Scene04::balls_update(double dt) {
 				rings[l].radius*2
 			);
 
-			if (OverlapCircle2AABB(
+			if (OverlapSphere2OBB(
 				bounce_balls[i].ball,
-				bounce_balls[i].radius,
 				rings[l].bucket,
-				halfSize,
 				cd))
 			{
 				// Make sure ball is below rim
