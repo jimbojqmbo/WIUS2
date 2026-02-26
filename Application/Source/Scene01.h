@@ -250,6 +250,10 @@ private:
 	// Each entry: first = min, second = max
 	std::vector<std::pair<glm::vec3, glm::vec3>> fenceZones;
 
+	std::vector<std::pair<glm::vec3, glm::vec3>> concertStageZone;
+
+	std::vector<std::pair<glm::vec3, glm::vec3>> basketballBuildingZone;
+
 	// Helper to query fence collision
 	bool IsInsideFence(const glm::vec3& p) const;
 
@@ -275,11 +279,11 @@ private:
 	bool introReturning = false;
 
 	float introTimer = 0.0f;
-	float introDuration = 14.0f;      // seconds to move forward
+	float introDuration = 12.0f;      // seconds to move forward
 	float introReturnDuration = 2.0f; // fast return
 
-	glm::vec3 introStartPos = glm::vec3(-121.f, 3.3f, 10.f);
-	glm::vec3 introEndPos = glm::vec3(100.f, 3.3f, 10.f);
+	glm::vec3 introStartPos = glm::vec3(-67.f, 3.3f, 63.94f);
+	glm::vec3 introEndPos = glm::vec3(90.f, 3.3f, 10.f);
 };
 
 #endif

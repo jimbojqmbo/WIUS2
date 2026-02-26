@@ -161,8 +161,8 @@ void Application::Run()
 
 	//PlaySound(TEXT("Sounds//roblox.wav"), NULL, SND_FILENAME | SND_ASYNC);
 
-	//Scene* scene = scene1; //uncomment this after done editing DO NOT COMMIT THIS CHANGE
-	Scene* scene = scene4; //remove this after done editing DO NOT COMMIT THIS CHANGE
+	Scene* scene = scene1; //uncomment this after done editing DO NOT COMMIT THIS CHANGE
+	//Scene* scene = scene4; //remove this after done editing DO NOT COMMIT THIS CHANGE
 	scene->Init();
 
 	sceneNum = SCENE_GUI;

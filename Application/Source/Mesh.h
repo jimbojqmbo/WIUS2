@@ -51,6 +51,13 @@ public:
 	void Render(unsigned offset, unsigned count);
 
 	std::vector<glm::vec3> vertices;
+
+	void ComputeAABB(); // compute local-space AABB from vertices
+	glm::vec3 aabbMinLocal; // local-space AABB min
+	glm::vec3 aabbMaxLocal; // local-space AABB max
+
+	// Returns {worldMin, worldMax} after transforming local AABB by model matrix
+	std::pair<glm::vec3, glm::vec3> GetAABBWorld(const glm::mat4& model) const;
 };
 
 #endif
