@@ -199,7 +199,7 @@ void Scene04::Init()
 	light[1].position = glm::vec3(0, 0, 0);
 	light[1].color = glm::vec3(1, 1, 0.5);
 	light[1].type = Light::LIGHT_POINT;
-	light[1].power = 1;
+	light[1].power = 5;
 	light[1].kC = 1.f;
 	light[1].kL = 0.01f;
 	light[1].kQ = 0.001f;
@@ -244,6 +244,8 @@ void Scene04::Init()
 	rings[2].bucket.pos.x = -rings[0].radius * 2;
 	rings[2].bucket.pos.z = -rings[0].radius * 2;
 
+	green_cow.pos = glm::vec3(-25.f, 0.f, 0.f);
+
 	player.mass = 0;
 	player.bounciness = 1;
 	player.pos.y = 10;
@@ -280,8 +282,10 @@ void Scene04::Update(double dt)
 		ch = 15.0f;
 		if (change_height == true) {
 			camera.position.y = ch;
-			camera.target.y = ch;
 			change_height = false;
+			glm::vec3 view = glm::normalize(camera.target - camera.position);
+
+			camera.target = camera.position + view;
 		}
 		
 	}
@@ -289,8 +293,10 @@ void Scene04::Update(double dt)
 		ch = 3.0f;
 		if (change_height == true) {
 			camera.position.y = ch;
-			camera.target.y = ch;
 			change_height = false;
+			glm::vec3 view = glm::normalize(camera.target - camera.position);
+
+			camera.target = camera.position + view;
 		}
 		
 	}
@@ -309,6 +315,9 @@ void Scene04::Update(double dt)
 	if (OverlapCircle2(player.pos, 5.f, green_cow.pos, 5.f)){
 		playing = true;
 		change_height = true;
+		glm::vec3 view = glm::normalize(camera.target - camera.position);
+
+		camera.target = camera.position + view;
 	}
 
 
@@ -329,8 +338,12 @@ void Scene04::Update(double dt)
 			bounce_balls[i].thrown = false;
 		}
 		ball_select = 0;
-	}
+		camera.position.x = -50;
+		glm::vec3 view = glm::normalize(camera.target - camera.position);
 
+		camera.target = camera.position + view;
+	}
+	light[1].position = bounce_balls[ball_select].ball.pos;
 	score = 0;
 	camera.Update(dt);
 }
@@ -350,33 +363,30 @@ void Scene04::balls_update(double dt) {
 			walls_resolve(cd);
 		}
 
-		if (OverlapCircle2(bounce_balls[i].ball.pos, 5.f, bounce_balls[i].ball.pos, 5.f)) {
-
-		}
-
 		//ball agaisnt buckets
 		for (int l = 0; l < ring_num; l++) {
 			rings[l].wall[0].pos = glm::vec3(
 				rings[l].bucket.pos.x,
-				rings[l].bucket.pos.y + rings[l].height,
+				rings[l].bucket.pos.y + rings[l].height*2,
 				rings[l].bucket.pos.z + rings[l].radius);
 
 			rings[l].wall[1].pos = glm::vec3(
 				rings[l].bucket.pos.x + rings[l].radius,
-				rings[l].bucket.pos.y + rings[l].height,
+				rings[l].bucket.pos.y + rings[l].height*2,
 				rings[l].bucket.pos.z);
 
 			rings[l].wall[2].pos = glm::vec3(
 				rings[l].bucket.pos.x,
-				rings[l].bucket.pos.y + rings[l].height,
+				rings[l].bucket.pos.y + rings[l].height * 2,
 				rings[l].bucket.pos.z - rings[l].radius);
 
 			rings[l].wall[3].pos = glm::vec3(
 				rings[l].bucket.pos.x - rings[l].radius,
-				rings[l].bucket.pos.y + rings[l].height,
+				rings[l].bucket.pos.y + rings[l].height*2,
 				rings[l].bucket.pos.z);
 
 			// Define wall half sizes correctly
+			/*
 			glm::vec3 halfSizeFrontBack(
 				rings[l].radius * 2,
 				rings[l].height,
@@ -386,7 +396,7 @@ void Scene04::balls_update(double dt) {
 				rings[l].radius * 2,
 				rings[l].height,
 				rings[l].radius * 2);
-
+			*/
 			// Check 4 walls
 			for (int j=0; j < 4; j++) {
 				CollisionData cd;
@@ -402,7 +412,7 @@ void Scene04::balls_update(double dt) {
 
 			glm::vec3 halfSize(
 				rings[l].radius*2,
-				rings[l].height,
+				rings[l].height * 2,
 				rings[l].radius*2
 			);
 
@@ -480,7 +490,10 @@ void Scene04::Render()
 		{
 			glm::vec3 lightDir(light[i].position.x, light[i].position.y, light[i].position.z);
 			glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
-			glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
+			if (i == 0)
+				glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
+			else if (i == 1)
+				glUniform3fv(m_parameters[U_LIGHT1_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
 		}
 		else if (light[i].type == Light::LIGHT_SPOT)
 		{
@@ -492,22 +505,15 @@ void Scene04::Render()
 		else {
 			// Calculate the light position in camera space
 			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[i].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+			if (i == 0)
+				glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+			else if (i == 1)
+				glUniform3fv(m_parameters[U_LIGHT1_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
 		}
+
 	}
 	// Render objects
 	//RenderMesh(meshList[GEO_AXES], false);
-
-	// Render light sphere - isolated transformations
-	modelStack.PushMatrix();
-	modelStack.Translate(camera.position.x, 15.f, camera.position.z);
-	modelStack.Scale(0.1f, 0.1f, 0.1f);
-	meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
-	meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-	meshList[GEO_SPHERE]->material.kShininess = 5.0f;
-	RenderMesh(meshList[GEO_SPHERE], true);
-	modelStack.PopMatrix();
 
 	// Skybox - now renders at world origin without accumulated transforms
 	RenderSkybox(skyboxscale,player.pos);
@@ -751,7 +757,7 @@ void Scene04::buckets_render() {
 			meshList[GEO_CUBE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
 			meshList[GEO_CUBE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 			meshList[GEO_CUBE]->material.kShininess = 5.0f;
-			modelStack.Translate(rings[i].bucket.pos.x, rings[i].bucket.pos.y / 2, rings[i].bucket.pos.z);
+			modelStack.Translate(rings[i].bucket.pos.x, rings[i].bucket.pos.y / 6, rings[i].bucket.pos.z);
 
 			modelStack.Scale(rings[i].radius, rings[i].height, rings[i].radius);
 			modelStack.Rotate(0, 1.f, 1.f, 1.f);
