@@ -663,6 +663,10 @@ Mesh* MeshBuilder::GenerateOBJ(const std::string& meshName, const
 	mesh->indexSize = index_buffer_data.size();
 	mesh->mode = Mesh::DRAW_TRIANGLES;
 
+	mesh->vertices.reserve(vertex_buffer_data.size());
+	for (const auto& v : vertex_buffer_data)
+		mesh->vertices.push_back(v.pos);
+
 	return mesh;
 }
 
@@ -708,6 +712,10 @@ Mesh* MeshBuilder::GenerateOBJMTL(const std::string& meshName,
 
 	mesh->indexSize = index_buffer_data.size();
 	mesh->mode = Mesh::DRAW_TRIANGLES;
+
+	mesh->vertices.reserve(vertex_buffer_data.size());
+	for (const auto& v : vertex_buffer_data)
+		mesh->vertices.push_back(v.pos);
 
 	return mesh;
 }

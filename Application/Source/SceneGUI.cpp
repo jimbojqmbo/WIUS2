@@ -149,7 +149,7 @@ void SceneGUI::Init()
 	meshList[GEO_TEXT]->textureID = LoadTGA("Images//Georgia.tga");
 
 	meshList[GEO_GUI] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	meshList[GEO_GUI]->textureID = LoadTGA("Images//scene01 UI//mainmenufinalprobably.tga");
+	meshList[GEO_GUI]->textureID = LoadTGA("Images//scene01 UI//wiumainmenu3.tga");
 
 	meshList[GEO_EYEBALL] = MeshBuilder::GenerateOBJMTL("eyeballmtl", "Models//eyeball.obj", "Models//eyeball.mtl");
 	meshList[GEO_EYEBALL]->textureID = LoadTGA("Images//Eye_D.tga");

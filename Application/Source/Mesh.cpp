@@ -2,6 +2,7 @@
 #include "Mesh.h"
 #include "GL\glew.h"
 #include "Vertex.h"
+#include <glm/gtc/type_ptr.hpp>
 
 /******************************************************************************/
 /*!
@@ -130,6 +131,58 @@ OpenGL render code
 		if (textureID > 0)
 			glDisableVertexAttribArray(3);
 	
+	}
+
+	void Mesh::ComputeAABB()
+	{
+		if (vertices.empty())
+		{
+			aabbMinLocal = glm::vec3(0.0f);
+			aabbMaxLocal = glm::vec3(0.0f);
+			return;
+		}
+
+		glm::vec3 mn = vertices[0];
+		glm::vec3 mx = vertices[0];
+		for (const auto& v : vertices)
+		{
+			mn.x = glm::min(mn.x, v.x);
+			mn.y = glm::min(mn.y, v.y);
+			mn.z = glm::min(mn.z, v.z);
+			mx.x = glm::max(mx.x, v.x);
+			mx.y = glm::max(mx.y, v.y);
+			mx.z = glm::max(mx.z, v.z);
+		}
+		aabbMinLocal = mn;
+		aabbMaxLocal = mx;
+	}
+
+	std::pair<glm::vec3, glm::vec3> Mesh::GetAABBWorld(const glm::mat4& model) const
+	{
+		// Transform the 8 local corners and recompute AABB in world space
+		glm::vec3 localMin = aabbMinLocal;
+		glm::vec3 localMax = aabbMaxLocal;
+
+		glm::vec3 corners[8] = {
+			{localMin.x, localMin.y, localMin.z},
+			{localMax.x, localMin.y, localMin.z},
+			{localMin.x, localMax.y, localMin.z},
+			{localMin.x, localMin.y, localMax.z},
+			{localMax.x, localMax.y, localMin.z},
+			{localMax.x, localMin.y, localMax.z},
+			{localMin.x, localMax.y, localMax.z},
+			{localMax.x, localMax.y, localMax.z}
+		};
+
+		glm::vec3 wMin(FLT_MAX), wMax(-FLT_MAX);
+		for (int i = 0; i < 8; ++i)
+		{
+			glm::vec4 t = model * glm::vec4(corners[i], 1.0f);
+			glm::vec3 p = glm::vec3(t) / t.w;
+			wMin = glm::min(wMin, p);
+			wMax = glm::max(wMax, p);
+		}
+		return { wMin, wMax };
 	}
 
 unsigned Mesh::locationKa;

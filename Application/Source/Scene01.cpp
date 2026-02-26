@@ -382,13 +382,57 @@ void Scene01::Init()
 		addSegmentAABB(20.0f, -41.0f, -21.0f, -41.0f);
 	}
 
+	{
+		concertStageZone.clear();
+		const float yMin = -1.0f;
+		const float yMax = 50.0f;
+		const float thickness = 4.0f; // thickness around line/segment to make an AABB
+
+		auto addSegmentAABB = [&](float x1, float z1, float x2, float z2)
+			{
+				float minX = (std::min)(x1, x2) - thickness * 0.5f;
+				float maxX = (std::max)(x1, x2) + thickness * 0.5f;
+				float minZ = (std::min)(z1, z2) - thickness * 0.5f;
+				float maxZ = (std::max)(z1, z2) + thickness * 0.5f;
+				fenceZones.emplace_back(glm::vec3(minX, yMin, minZ), glm::vec3(maxX, yMax, maxZ));
+			};
+
+		// Segments requested:
+		// (x, z) to (x, z)
+		addSegmentAABB(106, 40, 106, -10);
+		addSegmentAABB(106, -10, 136, -10);
+		addSegmentAABB(136, -10, 136, 40);
+		addSegmentAABB(136, 40, 106, 40);
+	}
+
+	{
+		basketballBuildingZone.clear();
+		const float yMin = -1.0f;
+		const float yMax = 50.0f;
+		const float thickness = 4.0f; // thickness around line/segment to make an AABB
+
+		auto addSegmentAABB = [&](float x1, float z1, float x2, float z2)
+			{
+				float minX = (std::min)(x1, x2) - thickness * 0.5f;
+				float maxX = (std::max)(x1, x2) + thickness * 0.5f;
+				float minZ = (std::min)(z1, z2) - thickness * 0.5f;
+				float maxZ = (std::max)(z1, z2) + thickness * 0.5f;
+				fenceZones.emplace_back(glm::vec3(minX, yMin, minZ), glm::vec3(maxX, yMax, maxZ));
+			};
+
+		// Segments requested:
+		// (x, z) to (x, z)
+		addSegmentAABB(143, 72, 132, 72);
+		addSegmentAABB(93, 75, 79, 75);
+	}
+
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
 
 
 	glUniform1i(m_parameters[U_NUMLIGHTS], NUM_LIGHTS);
 
-	light[0].position = glm::vec3(-100, -150, 0);
+	light[0].position = glm::vec3(-200, 150, 0);
 	light[0].color = glm::vec3(1, 1, 1);
 	light[0].type = Light::LIGHT_DIRECTIONAL;
 	light[0].power = 1;
@@ -534,7 +578,7 @@ void Scene01::UpdateIntro(double dt)
 		float smoothT = t * t * (3.f - 2.f * t);
 
 		camera1.position = glm::mix(introStartPos, introEndPos, smoothT);
-		camera1.target = camera1.position + glm::vec3(1, 0, 0);
+		camera1.target = camera1.position + glm::vec3(0.9, 0.1, -0.8);
 	}
 	else
 	{
@@ -549,7 +593,7 @@ void Scene01::UpdateIntro(double dt)
 		float smoothT = t * t * (3.f - 2.f * t);
 
 		camera1.position = glm::mix(introEndPos, introStartPos, smoothT);
-		camera1.target = camera1.position + glm::vec3(1, 0, 0);
+		camera1.target = camera1.position + glm::vec3(0.9, 0.1, -0.8);
 	}
 }
 
@@ -1164,15 +1208,15 @@ void Scene01::Update(double dt)
 
 	// SONG DATA
 	static std::vector<std::wstring> songs = {
-		L"Sounds//Justin Bieber - Sorry (8D Audio).wav",
-		L"Sounds//Wiz-Khalifa-See-You-Again-ft.-Charlie-Puth-_8D-Audio-__.wav",
-		L"Sounds//SPAGHETTI.wav"
+		L"Sounds//8DAUDIO_Disfigure_Blank.wav",
+		L"F.O.O.L_Criminals.wav",
+		L"Sounds//roblox.wav"
 	};
 
 	static std::vector<int> songDurations = {
 		199,
-		226,
-		172
+		251,
+		60
 	};
 
 	static size_t currentSongIndex = 0;
@@ -2203,7 +2247,7 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 				meshList[BUMPERCARTENT]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
 				meshList[BUMPERCARTENT]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
 				meshList[BUMPERCARTENT]->material.kShininess = 5.0f;
-				RenderMesh(meshList[BUMPERCARTENT], false);
+				RenderMesh(meshList[BUMPERCARTENT], true);
 				modelStack.PopMatrix();
 			}
 			
@@ -2271,7 +2315,7 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 		modelStack.Scale(0.025, 0.025, 0.025);
 		modelStack.Rotate(270, 0, 1, 0);
 		meshList[CONCERTSTAGE]->material.kAmbient = glm::vec3(0.1, 0.1, 0.1);
-		meshList[CONCERTSTAGE]->material.kDiffuse = glm::vec3(0.8, 0, 0);
+		meshList[CONCERTSTAGE]->material.kDiffuse = glm::vec3(0.6, 0.6, 0.6);
 		meshList[CONCERTSTAGE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 		meshList[CONCERTSTAGE]->material.kShininess = 5.0f;
 		RenderMesh(meshList[CONCERTSTAGE], true);
@@ -2541,11 +2585,6 @@ void Scene01::Render()
 		glEnable(GL_DEPTH_TEST);
 		return;
 	}
-	else
-	{
-		std::string temp("FPS:" + std::to_string(fps));
-		RenderTextOnScreen(meshList[GEO_TEXT], temp.substr(0, 9), glm::vec3(1, 1, 1), 40, 0, 560);
-	}
 
 	if (BumperCarGameEntered)
 	{
@@ -2631,6 +2670,9 @@ void Scene01::Render()
 			glEnable(GL_DEPTH_TEST);
 		}
 	}
+	std::string temp("FPS:" + std::to_string(fps));
+	RenderTextOnScreen(meshList[GEO_TEXT], temp.substr(0, 9), glm::vec3(1, 1, 1), 25, 5, 560);
+
 }
 
 void Scene01::RenderMesh(Mesh* mesh, bool enableLight)
