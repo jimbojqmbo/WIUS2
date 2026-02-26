@@ -159,7 +159,8 @@ void Application::Run()
 	Scene* scene4 = new Scene03();
 	Scene* scene5 = new Scene04();
 
-	Scene* scene = scene1;
+	Scene* scene = scene1; //uncomment this after done editing DO NOT COMMIT THIS CHANGE
+	//Scene* scene = scene4; //remove this after done editing DO NOT COMMIT THIS CHANGE
 	scene->Init();
 
 	sceneNum = SCENE_GUI;
@@ -344,6 +345,62 @@ void Application::Run()
 
 					scene = scene2;
 					sceneNum = SCENE_01;
+				}
+			}
+		}
+
+		{
+			// THE FOLLOWING SCENE SWITCHING MECHANICS ARE FOR SCENE03 ONLY
+
+
+			// === FROM SCENE03 TO SCENE01 (bumper car) ===
+			if (sceneNum == SCENE_03)
+			{
+				Scene03* s01 = dynamic_cast<Scene03*>(scene);
+				if (s01 && s01->scene01request)
+				{
+					s01->scene01request = false;
+
+					scene4->Exit();      // exit Scene03
+					scene2->Init();
+					//PlaySound(NULL, 0, 0);
+
+					scene = scene2;
+					sceneNum = SCENE_01;
+				}
+			}
+
+			// === FROM SCENE03 TO SCENE02 (duck shootout) ===
+			if (sceneNum == SCENE_03)
+			{
+				Scene03* s02 = dynamic_cast<Scene03*>(scene);
+				if (s02 && s02->scene02request)
+				{
+					s02->scene02request = false;
+
+					scene4->Exit();      // exit Scene03
+					scene3->Init();
+					//PlaySound(NULL, 0, 0);
+
+					scene = scene3;
+					sceneNum = SCENE_02;
+				}
+			}
+
+			// === FROM SCENE03 TO SCENE04 (Ball bouncer) ===
+			if (sceneNum == SCENE_03)
+			{
+				Scene03* s04 = dynamic_cast<Scene03*>(scene);
+				if (s04 && s04->scene04request)
+				{
+					s04->scene04request = false;
+
+					scene4->Exit();      // exit Scene03
+					scene5->Init();
+					//PlaySound(NULL, 0, 0);
+
+					scene = scene5;
+					sceneNum = SCENE_04;
 				}
 			}
 		}

@@ -39,19 +39,15 @@ Scene01::~Scene01()
 {
 }
 
-bool Scene01::IsInsideFence(const glm::vec3& p) const
-{
-	// Check against all fence AABBs
-	for (const auto& box : fenceZones)
-	{
+bool Scene01::IsInsideFence(const glm::vec3& p) const {
+	// Use the fenceZones vector you populate in Init()
+	for (const auto& box : fenceZones) {
 		const glm::vec3& mn = box.first;
 		const glm::vec3& mx = box.second;
 		if (p.x >= mn.x && p.x <= mx.x &&
 			p.y >= mn.y && p.y <= mx.y &&
 			p.z >= mn.z && p.z <= mx.z)
-		{
 			return true;
-		}
 	}
 	return false;
 }
@@ -62,6 +58,16 @@ void Scene01::Init()
 	EnterBumperCarGamePrompt = false;
 	ExitBumperCarGamePrompt = false;
 	pausemenu = false;
+
+	gravity = -30.0f;
+	jumpSpeed = 10.0f;
+	cameraVerticalVel1 = 0.0f;
+	cameraVerticalVel2 = 0.0f;
+	isJumping1 = false;
+	isJumping2 = false;
+
+	objectPos = glm::vec3(0.0f, 0.0f, 0.0f);
+	moveSpeed = 5.0f; // units per second
 
 	// Set background color to dark blue
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
@@ -190,8 +196,8 @@ void Scene01::Init()
 
 	meshList[GEO_CYLINDER] = MeshBuilder::GenerateCylinder("Cylinder", glm::vec3(1.f, 1.f, 1.f), 36, 1.f, 2.f);
 
-	meshList[GEO_GRASS] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
-	meshList[GEO_GRASS]->textureID = LoadTGA("Images//coast_sand_rocks_02 copy.tga");
+	//meshList[GEO_GRASS] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
+	//meshList[GEO_GRASS]->textureID = LoadTGA("Images//coast_sand_rocks_02 copy.tga");
 
 	meshList[SOLIDGREENGRASS] = MeshBuilder::GenerateQuad("Quad", glm::vec3(1.f, 1.f, 1.f), 10.f);
 	meshList[SOLIDGREENGRASS]->textureID = LoadTGA("Images//solidgreengrass.tga");
@@ -203,14 +209,14 @@ void Scene01::Init()
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Images//Georgia.tga");
 
-	meshList[GEO_GUI] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	meshList[GEO_GUI]->textureID = LoadTGA("Images//blackblack.tga");
+	//meshList[GEO_GUI] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	//meshList[GEO_GUI]->textureID = LoadTGA("Images//blackblack.tga");
 
-	meshList[GEO_SHADOW] = MeshBuilder::GenerateOBJMTL("shadow", "Models//swamp_monster.obj", "Models//swamp_monster.mtl");
-	meshList[GEO_SHADOW]->textureID = LoadTGA("Images//FOREST_MONSTER_V1_mat_diffuse.tga");
+	//meshList[GEO_SHADOW] = MeshBuilder::GenerateOBJMTL("shadow", "Models//swamp_monster.obj", "Models//swamp_monster.mtl");
+	//meshList[GEO_SHADOW]->textureID = LoadTGA("Images//FOREST_MONSTER_V1_mat_diffuse.tga");
 
-	meshList[GEO_ABANDONEDHOUSE] = MeshBuilder::GenerateOBJMTL("bumper car", "Models//abandoned_house.obj", "Models//abandoned_house.mtl");
-	meshList[GEO_ABANDONEDHOUSE]->textureID = LoadTGA("Images//abandonedhouseBaseColor.tga");
+	//meshList[GEO_ABANDONEDHOUSE] = MeshBuilder::GenerateOBJMTL("bumper car", "Models//abandoned_house.obj", "Models//abandoned_house.mtl");
+	//meshList[GEO_ABANDONEDHOUSE]->textureID = LoadTGA("Images//abandonedhouseBaseColor.tga");
 
 	{
 		// BUMPER CAR ITEMS
@@ -221,17 +227,14 @@ void Scene01::Init()
 		meshList[BUMPERCARTENT]->textureID = LoadTGA("Images//Bumper Car//bumpercar_tent.tga");
 	}
 
-	meshList[TALLTREE] = MeshBuilder::GenerateOBJMTL("bumper car", "Models//tree//VeryTallTree.obj", "Models//tree//VeryTallTree.mtl");
-	meshList[TALLTREE]->textureID = LoadTGA("Images//TallTree_baseColor.tga");
-
-	meshList[JEFFREYEPSTEIN] = MeshBuilder::GenerateOBJMTL("bumper car", "Models//jeffrey//jeffreyepsteinfiles.obj", "Models//jeffrey//jeffreyepsteinfiles.mtl");
-	meshList[JEFFREYEPSTEIN]->textureID = LoadTGA("Images//jeffrey//jeffreyepstein_baseColor.tga");
+	//meshList[TALLTREE] = MeshBuilder::GenerateOBJMTL("bumper car", "Models//tree//VeryTallTree.obj", "Models//tree//VeryTallTree.mtl");
+	//meshList[TALLTREE]->textureID = LoadTGA("Images//TallTree_baseColor.tga");
 
 	meshList[FOREST] = MeshBuilder::GenerateOBJMTL("bumper car", "Models//forest//forest.obj", "Models//forest//forest.mtl");
 	meshList[FOREST]->textureID = LoadTGA("Images//forest//forest_baseColor.tga");
 
-	meshList[EXITBUTTON] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	meshList[EXITBUTTON]->textureID = LoadTGA("Images//exitScene01button.tga");
+	//meshList[EXITBUTTON] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	//meshList[EXITBUTTON]->textureID = LoadTGA("Images//exitScene01button.tga");
 
 	meshList[PAUSEMENU] = MeshBuilder::GenerateQuad("pause", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[PAUSEMENU]->textureID = LoadTGA("Images//scene01pausemenuv2.tga");
@@ -273,11 +276,11 @@ void Scene01::Init()
 
 	{
 		// PLAYER INDICATOR
-		meshList[PLAYER1INDICATORUI] = MeshBuilder::GenerateQuad("player1", glm::vec3(1.f, 1.f, 1.f), 1.f);
-		meshList[PLAYER1INDICATORUI]->textureID = LoadTGA("Images//scene01 UI//scene01player1_indicatorUI.tga");
+		//meshList[PLAYER1INDICATORUI] = MeshBuilder::GenerateQuad("player1", glm::vec3(1.f, 1.f, 1.f), 1.f);
+		//meshList[PLAYER1INDICATORUI]->textureID = LoadTGA("Images//scene01 UI//scene01player1_indicatorUI.tga");
 
-		meshList[PLAYER2INDICATORUI] = MeshBuilder::GenerateQuad("player2", glm::vec3(1.f, 1.f, 1.f), 1.f);
-		meshList[PLAYER2INDICATORUI]->textureID = LoadTGA("Images//scene01 UI//scene01player2_indicatorUI.tga");
+		//meshList[PLAYER2INDICATORUI] = MeshBuilder::GenerateQuad("player2", glm::vec3(1.f, 1.f, 1.f), 1.f);
+		//meshList[PLAYER2INDICATORUI]->textureID = LoadTGA("Images//scene01 UI//scene01player2_indicatorUI.tga");
 	}
 
 	{
@@ -317,12 +320,12 @@ void Scene01::Init()
 
 	{
 		// GRASS CLUMP
-		meshList[GRASSCLUMP] = MeshBuilder::GenerateOBJMTL("grassclump", "Models//lowpolygrassclump//low_poly_grass_clump.obj", "Models//lowpolygrassclump//low_poly_grass_clump.mtl");
+		//meshList[GRASSCLUMP] = MeshBuilder::GenerateOBJMTL("grassclump", "Models//lowpolygrassclump//low_poly_grass_clump.obj", "Models//lowpolygrassclump//low_poly_grass_clump.mtl");
 	}
 
 	{
 		// CUTE CHARACTER
-		meshList[CUTECHARACTER] = MeshBuilder::GenerateOBJMTL("cutre", "Models//cute character//cute_character.obj", "Models//cute character//cute_character.mtl");
+		//meshList[CUTECHARACTER] = MeshBuilder::GenerateOBJMTL("cutre", "Models//cute character//cute_character.obj", "Models//cute character//cute_character.mtl");
 	}
 
 	// Setup invisible fence zones (AABB) using the coordinates provided
@@ -368,7 +371,7 @@ void Scene01::Init()
 	light[0].position = glm::vec3(200, -150, 0);
 	light[0].color = glm::vec3(1, 1, 0.1);
 	light[0].type = Light::LIGHT_DIRECTIONAL;
-	light[0].power = 0.6;
+	light[0].power = 0.8;
 	light[0].kC = 1.f;
 	light[0].kL = 0.01f;
 	light[0].kQ = 0.001f;
@@ -450,6 +453,43 @@ void Scene01::HandleMouseInput(FPCamera& cam) {
 	// Re-init so FPCamera::Refresh() recalculates 'up' and other derived vectors
 	// Use normalized up vector (0,1,0) instead of a scaled up vector
 	cam.Init(cam.position, cam.target, glm::vec3(0.0f, 1.0f, 0.0f));
+}
+
+void Scene01::UpdateObjectMovement(double dt)
+{
+	if (!BumperCarGameEntered)
+	{
+		// Forward
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT))
+			objectPos.z -= moveSpeed * dt;
+
+		// Backward
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_RIGHT))
+			objectPos.z += moveSpeed * dt;
+
+		// Left
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_DOWN))
+			objectPos.x -= moveSpeed * dt;
+
+		// Right
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_UP))
+			objectPos.x += moveSpeed * dt;
+
+		// Up
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_I))
+			objectPos.y += moveSpeed * dt;
+
+		// Down
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_K))
+			objectPos.y -= moveSpeed * dt;
+
+		// Print position
+		std::cout << "Object Position: ("
+			<< objectPos.x << ", "
+			<< objectPos.y << ", "
+			<< objectPos.z << ")"
+			<< std::endl;
+	}
 }
 
 void Scene01::Update(double dt)
@@ -777,6 +817,78 @@ void Scene01::Update(double dt)
 		}
 	}
 
+	{
+		const float groundY = 3.3f;
+
+		// Player1 vertical integration when not in car
+		if (!player1InCar)
+		{
+			if (isJumping1 || cameraVerticalVel1 != 0.0f)
+			{
+				// integrate
+				cameraVerticalVel1 += gravity * static_cast<float>(dt);
+				float deltaY = cameraVerticalVel1 * static_cast<float>(dt);
+
+				camera1.position.y += deltaY;
+				camera1.target.y += deltaY;
+
+				// Land check
+				if (camera1.position.y <= groundY)
+				{
+					camera1.position.y = groundY;
+					cameraVerticalVel1 = 0.0f;
+					isJumping1 = false;
+
+					// Recompute look direction from stored azimuth/altitude to avoid abrupt pitch/target snaps
+					float az = glm::radians(camera1.azimuth);
+					float alt = glm::radians(camera1.altitude);
+					glm::vec3 dir;
+					dir.x = cosf(alt) * cosf(az);
+					dir.y = sinf(alt);
+					dir.z = cosf(alt) * sinf(az);
+					camera1.target = camera1.position + glm::normalize(dir);
+
+					// Refresh camera internals
+					camera1.Init(camera1.position, camera1.target, camera1.up);
+				}
+			}
+		}
+
+		// Player2 vertical integration when not in car
+		if (!player2InCar)
+		{
+			if (isJumping2 || cameraVerticalVel2 != 0.0f)
+			{
+				// integrate
+				cameraVerticalVel2 += gravity * static_cast<float>(dt);
+				float deltaY2 = cameraVerticalVel2 * static_cast<float>(dt);
+
+				camera2.position.y += deltaY2;
+				camera2.target.y += deltaY2;
+
+				// Land check
+				if (camera2.position.y <= groundY)
+				{
+					camera2.position.y = groundY;
+					cameraVerticalVel2 = 0.0f;
+					isJumping2 = false;
+
+					// Recompute look direction from stored azimuth/altitude to avoid abrupt pitch/target snaps
+					float az = glm::radians(camera2.azimuth);
+					float alt = glm::radians(camera2.altitude);
+					glm::vec3 dir;
+					dir.x = cosf(alt) * cosf(az);
+					dir.y = sinf(alt);
+					dir.z = cosf(alt) * sinf(az);
+					camera2.target = camera2.position + glm::normalize(dir);
+
+					// Refresh camera internals
+					camera2.Init(camera2.position, camera2.target, camera2.up);
+				}
+			}
+		}
+	}
+
 	float temp = 1.f / dt;
 	fps = glm::round(temp * 100.f) / 100.f;
 
@@ -813,7 +925,7 @@ void Scene01::Update(double dt)
 
 			if (EnterBumperCarGamePrompt)
 			{
-				PlaySound(TEXT("Sounds//paper-ripping.wav"), NULL, SND_FILENAME | SND_ASYNC);
+				//PlaySound(TEXT("Sounds//paper-ripping.wav"), NULL, SND_FILENAME | SND_ASYNC);
 			}
 
 			if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_ENTER))
@@ -838,7 +950,7 @@ void Scene01::Update(double dt)
 			ExitBumperCarGamePrompt = true;
 			if (ExitBumperCarGamePrompt)
 			{
-				PlaySound(TEXT("Sounds//paper-ripping.wav"), NULL, SND_FILENAME | SND_ASYNC);
+				//PlaySound(TEXT("Sounds//paper-ripping.wav"), NULL, SND_FILENAME | SND_ASYNC);
 			}
 
 			if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_ENTER))
@@ -883,7 +995,7 @@ void Scene01::Update(double dt)
 			EnterBasketballGamePrompt = true;
 			if (EnterBasketballGamePrompt)
 			{
-				PlaySound(TEXT("Sounds//paper-ripping.wav"), NULL, SND_FILENAME | SND_ASYNC);
+				//PlaySound(TEXT("Sounds//paper-ripping.wav"), NULL, SND_FILENAME | SND_ASYNC);
 			}
 
 			if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_ENTER))
@@ -924,7 +1036,7 @@ void Scene01::Update(double dt)
 			EnterBallBouncerGamePrompt = true;
 			if (EnterBallBouncerGamePrompt)
 			{
-				PlaySound(TEXT("Sounds//paper-ripping.wav"), NULL, SND_FILENAME | SND_ASYNC);
+				//PlaySound(TEXT("Sounds//paper-ripping.wav"), NULL, SND_FILENAME | SND_ASYNC);
 			}
 
 			if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_ENTER))
@@ -965,7 +1077,7 @@ void Scene01::Update(double dt)
 			EnterDuckShootingGamePrompt = true;
 			if (EnterDuckShootingGamePrompt)
 			{
-				PlaySound(TEXT("Sounds//paper-ripping.wav"), NULL, SND_FILENAME | SND_ASYNC);
+				//PlaySound(TEXT("Sounds//paper-ripping.wav"), NULL, SND_FILENAME | SND_ASYNC);
 			}
 
 			if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_ENTER))
@@ -982,6 +1094,8 @@ void Scene01::Update(double dt)
 			}
 		}
 	}
+
+	UpdateObjectMovement(dt);
 }
 
 void Scene01::RenderSkybox()
@@ -1141,326 +1255,38 @@ void Scene01::RenderGamePathways()
 	modelStack.PopMatrix();
 }
 
-void Scene01::RenderGrassClump()
-{
-	modelStack.PushMatrix();
-	{
-		modelStack.PushMatrix();
-		modelStack.Translate(30, 0, 53);
-		modelStack.Scale(10, 1.5, 12);
-		RenderMesh(meshList[GEO_SPHERE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(48, 0, 66);
-		modelStack.Scale(10, 1.5, 12);
-		RenderMesh(meshList[GEO_SPHERE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(65, 0, 69);
-		modelStack.Scale(10, 1.5, 12);
-		RenderMesh(meshList[GEO_SPHERE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(66, 0, 83);
-		modelStack.Scale(10, 1.5, 12);
-		RenderMesh(meshList[GEO_SPHERE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(55, 0, 92);
-		modelStack.Scale(10, 1.5, 12);
-		RenderMesh(meshList[GEO_SPHERE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(44, 0, 109);
-		modelStack.Scale(10, 1.5, 12);
-		RenderMesh(meshList[GEO_SPHERE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(52, 0, 117);
-		modelStack.Scale(10, 1.5, 12);
-		RenderMesh(meshList[GEO_SPHERE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(67, 0, 120);
-		modelStack.Scale(10, 1.5, 12);
-		RenderMesh(meshList[GEO_SPHERE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(74, 0, 130);
-		modelStack.Scale(10, 1.5, 12);
-		RenderMesh(meshList[GEO_SPHERE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(71, 0, 140);
-		modelStack.Scale(10, 1.5, 12);
-		RenderMesh(meshList[GEO_SPHERE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(60, 0, 146);
-		modelStack.Scale(10, 1.5, 12);
-		RenderMesh(meshList[GEO_SPHERE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(52, 0, 137);
-		modelStack.Scale(10, 1.5, 12);
-		RenderMesh(meshList[GEO_SPHERE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(41, 0, 143);
-		modelStack.Scale(10, 1.5, 12);
-		RenderMesh(meshList[GEO_SPHERE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(34, 0, 135);
-		modelStack.Scale(10, 1.5, 12);
-		RenderMesh(meshList[GEO_SPHERE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(1, 0, 153);
-		modelStack.Scale(10, 1.5, 12);
-		RenderMesh(meshList[GEO_SPHERE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(0, 0, 144);
-		modelStack.Scale(10, 1.5, 12);
-		RenderMesh(meshList[GEO_SPHERE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(0, 0, 128);
-		modelStack.Scale(10, 1.5, 12);
-		RenderMesh(meshList[GEO_SPHERE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(-4, 0, 112);
-		modelStack.Scale(10, 1.5, 12);
-		RenderMesh(meshList[GEO_SPHERE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(0, 0, 98);
-		modelStack.Scale(10, 1.5, 12);
-		RenderMesh(meshList[GEO_SPHERE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(-6, 0, 86);
-		modelStack.Scale(10, 1.5, 12);
-		RenderMesh(meshList[GEO_SPHERE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(-14, 0, 92);
-		modelStack.Scale(10, 1.5, 12);
-		RenderMesh(meshList[GEO_SPHERE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(-15, 0, 124);
-		modelStack.Scale(10, 1.5, 12);
-		RenderMesh(meshList[GEO_SPHERE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(-16, 0, 107);
-		modelStack.Scale(10, 1.5, 12);
-		RenderMesh(meshList[GEO_SPHERE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(-18, 0, 136);
-		modelStack.Scale(10, 1.5, 12);
-		RenderMesh(meshList[GEO_SPHERE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(-14, 0, 151);
-		modelStack.Scale(10, 1.5, 12);
-		RenderMesh(meshList[GEO_SPHERE], true);
-		modelStack.PopMatrix();
-	}
-	meshList[GEO_SPHERE]->material.kAmbient = glm::vec3(0.6f, 0.8f, 0.7f);
-	meshList[GEO_SPHERE]->material.kDiffuse = glm::vec3(0.6f, 0.9f, 0.7f);
-	meshList[GEO_SPHERE]->material.kSpecular = glm::vec3(0.3f, 0.3f, 0.3f);
-	meshList[GEO_SPHERE]->material.kShininess = 3.0f;
-	modelStack.PopMatrix();
-}
-
 void Scene01::RenderBirchTrees()
 {
-	modelStack.PushMatrix();
+	// positions from the original explicit list
+	static const std::vector<glm::vec3> positions = {
+		{30,0,53},{48,0,66},{65,0,69},{66,0,83},{55,0,92},{44,0,109},
+		{52,0,117},{67,0,120},{74,0,130},{71,0,140},{60,0,146},{52,0,137},
+		{41,0,143},{34,0,135},{1,0,153},{0,0,144},{0,0,128},{-4,0,112},
+		{0,0,98},{-6,0,86},{-14,0,92},{-15,0,124},{-16,0,107},{-18,0,136},
+		{-14,0,151}
+	};
+
+	const float cullRadius = 300.f;
+	const float cullRadius2 = cullRadius * cullRadius;
+	glm::vec3 camPos = viewStack.Top() * glm::vec4(0, 0, 0, 1);
+
+	// set material once
+	meshList[BIRCHTREE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[BIRCHTREE]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
+	meshList[BIRCHTREE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+	meshList[BIRCHTREE]->material.kShininess = 5.0f;
+
+	for (const auto& pos : positions)
 	{
-		modelStack.PushMatrix();
-		modelStack.Translate(30, 0, 53);
-		modelStack.Scale(0.1, 0.1, 0.1);
-		RenderMesh(meshList[BIRCHTREE], true);
-		modelStack.PopMatrix();
+		float dist2 = glm::dot(pos - camPos, pos - camPos);
+		if (dist2 > cullRadius2) continue;
 
 		modelStack.PushMatrix();
-		modelStack.Translate(48, 0, 66);
-		modelStack.Scale(0.1, 0.1, 0.1);
-		RenderMesh(meshList[BIRCHTREE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(65, 0, 69);
-		modelStack.Scale(0.1, 0.1, 0.1);
-		RenderMesh(meshList[BIRCHTREE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(66, 0, 83);
-		modelStack.Scale(0.1, 0.1, 0.1);
-		RenderMesh(meshList[BIRCHTREE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(55, 0, 92);
-		modelStack.Scale(0.1, 0.1, 0.1);
-		RenderMesh(meshList[BIRCHTREE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(44, 0, 109);
-		modelStack.Scale(0.1, 0.1, 0.1);
-		RenderMesh(meshList[BIRCHTREE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(52, 0, 117);
-		modelStack.Scale(0.1, 0.1, 0.1);
-		RenderMesh(meshList[BIRCHTREE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(67, 0, 120);
-		modelStack.Scale(0.1, 0.1, 0.1);
-		RenderMesh(meshList[BIRCHTREE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(74, 0, 130);
-		modelStack.Scale(0.1, 0.1, 0.1);
-		RenderMesh(meshList[BIRCHTREE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(71, 0, 140);
-		modelStack.Scale(0.1, 0.1, 0.1);
-		RenderMesh(meshList[BIRCHTREE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(60, 0, 146);
-		modelStack.Scale(0.1, 0.1, 0.1);
-		RenderMesh(meshList[BIRCHTREE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(52, 0, 137);
-		modelStack.Scale(0.1, 0.1, 0.1);
-		RenderMesh(meshList[BIRCHTREE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(41, 0, 143);
-		modelStack.Scale(0.1, 0.1, 0.1);
-		RenderMesh(meshList[BIRCHTREE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(34, 0, 135);
-		modelStack.Scale(0.1, 0.1, 0.1);
-		RenderMesh(meshList[BIRCHTREE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(1, 0, 153);
-		modelStack.Scale(0.1, 0.1, 0.1);
-		RenderMesh(meshList[BIRCHTREE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(0, 0, 144);
-		modelStack.Scale(0.1, 0.1, 0.1);
-		RenderMesh(meshList[BIRCHTREE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(0, 0, 128);
-		modelStack.Scale(0.1, 0.1, 0.1);
-		RenderMesh(meshList[BIRCHTREE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(-4, 0, 112);
-		modelStack.Scale(0.1, 0.1, 0.1);
-		RenderMesh(meshList[BIRCHTREE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(0, 0, 98);
-		modelStack.Scale(0.1, 0.1, 0.1);
-		RenderMesh(meshList[BIRCHTREE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(-6, 0, 86);
-		modelStack.Scale(0.1, 0.1, 0.1);
-		RenderMesh(meshList[BIRCHTREE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(-14, 0, 92);
-		modelStack.Scale(0.1, 0.1, 0.1);
-		RenderMesh(meshList[BIRCHTREE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(-15, 0, 124);
-		modelStack.Scale(0.1, 0.1, 0.1);
-		RenderMesh(meshList[BIRCHTREE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(-16, 0, 107);
-		modelStack.Scale(0.1, 0.1, 0.1);
-		RenderMesh(meshList[BIRCHTREE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(-18, 0, 136);
-		modelStack.Scale(0.1, 0.1, 0.1);
-		RenderMesh(meshList[BIRCHTREE], true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(-14, 0, 151);
+		modelStack.Translate(pos.x, pos.y, pos.z);
 		modelStack.Scale(0.1, 0.1, 0.1);
 		RenderMesh(meshList[BIRCHTREE], true);
 		modelStack.PopMatrix();
 	}
-	meshList[BIRCHTREE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList[BIRCHTREE]->material.kDiffuse = glm::vec3(1, 1, 1);
-	meshList[BIRCHTREE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-	meshList[BIRCHTREE]->material.kShininess = 5.0f;
-	modelStack.PopMatrix();
 }
 
 void Scene01::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey)
@@ -1672,10 +1498,23 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 			const float start = -250.f;
 			const float end = 250.f;
 			const float step = 50.f;
+			const float cullRadius = 300.f; // tweak: tiles beyond this distance from the camera are skipped
+			const float cullRadius2 = cullRadius * cullRadius;
+
+			glm::vec3 camPos = renderPos; // renderPos is the camera used for viewStack
+
+			// Set material once for the grass mesh
+			meshList[SOLIDGREENGRASS]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
+
 			for (float x = start; x <= end; x += step)
 			{
 				for (float z = start; z <= end; z += step)
 				{
+					// quick distance cull (squared)
+					glm::vec3 center(x, 0.f, z);
+					float dist2 = glm::dot(center - camPos, center - camPos);
+					if (dist2 > cullRadius2) continue;
+
 					modelStack.PushMatrix();
 					modelStack.Translate(x, 0.f, z);
 					modelStack.Scale(5.f, 1.f, 5.f);
@@ -1686,15 +1525,12 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 					modelStack.PopMatrix();
 				}
 			}
-			// keep the ambient material tweak from original code
-			meshList[SOLIDGREENGRASS]->material.kAmbient = glm::vec3(0.3f, 0.3f, 0.3f);
 		}
 		modelStack.PopMatrix();
 
 		RenderPathway();
 		RenderGamePathways();
 		RenderBirchTrees();
-		RenderGrassClump();
 
 		/*
 		========================================
@@ -2305,6 +2141,18 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 		RenderMesh(meshList[GEO_TENT], true);
 		modelStack.PopMatrix();
 
+		{
+			modelStack.PushMatrix();
+
+			// Apply translation
+			modelStack.Translate(objectPos.x, objectPos.y, objectPos.z);
+
+			modelStack.Scale(3, 3, 3);
+			RenderMesh(meshList[BUMPERCAR], true);
+			modelStack.PopMatrix();
+
+		}
+
 		if (!player1InCar)
 		{
 			modelStack.PushMatrix();
@@ -2411,16 +2259,20 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 				drawPos1 += -forward1 * behindDistance;
 			}
 
+			modelStack.PushMatrix();
 			modelStack.Translate(drawPos1.x, 0.5f, drawPos1.z);
 			modelStack.Scale(3.f, 3.f, 3.f);
 
-			// Make the model face the direction camera1 is facing:
+			// Make the model face the movement direction (based on forward vector)
 			{
-				glm::vec3 pForward = glm::normalize(camera1.target - camera1.position);
+				// Recompute forward here (same as in driving code)
+				float cosYaw = cos(carYaw);
+				float sinYaw = sin(carYaw);
+				glm::vec3 forward = -glm::vec3(sinYaw, 0.0f, cosYaw);  // Inverted, matches driving
+				glm::vec3 pForward = glm::normalize(forward);  // Ensure normalized
 				float yaw = glm::degrees(atan2(pForward.z, pForward.x));
-				modelStack.Rotate(yaw, 0.f, -1.f, 0.f);
+				modelStack.Rotate(yaw, 0.f, -1.f, 0.f);  // Use -Y axis to match original
 			}
-
 			meshList[BUMPERCAR]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
 			meshList[BUMPERCAR]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
 			meshList[BUMPERCAR]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
@@ -2467,16 +2319,20 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 				drawPos2 += -forward2 * behindDistance;
 			}
 
-			modelStack.Translate(drawPos2.x, 0.5, drawPos2.z);
+			modelStack.PushMatrix();
+			modelStack.Translate(drawPos2.x, 0.5f, drawPos2.z);
 			modelStack.Scale(3.f, 3.f, 3.f);
 
-			// Make the model face the direction camera2 is facing:
+			// Make the model face the movement direction (based on forward vector)
 			{
-				glm::vec3 pForward = glm::normalize(camera2.target - camera2.position);
+				// Recompute forward here (same as in driving code)
+				float cosYaw = cos(carYaw2);
+				float sinYaw = sin(carYaw2);
+				glm::vec3 forward = -glm::vec3(sinYaw, 0.0f, cosYaw);  // Inverted, matches driving
+				glm::vec3 pForward = glm::normalize(forward);  // Ensure normalized
 				float yaw = glm::degrees(atan2(pForward.z, pForward.x));
-				modelStack.Rotate(yaw, 0.f, -1.f, 0.f);
+				modelStack.Rotate(yaw, 0.f, -1.f, 0.f);  // Use -Y axis to match original
 			}
-
 			meshList[BUMPERCAR]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
 			meshList[BUMPERCAR]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
 			meshList[BUMPERCAR]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
@@ -2612,38 +2468,56 @@ void Scene01::Render()
 
 void Scene01::RenderMesh(Mesh* mesh, bool enableLight)
 {
-	glm::mat4 MVP, modelView, modelView_inverse_transpose;
+	// Small state cache to avoid redundant GL calls per-frame
+	static int lastTextureBound = -1;
+	static bool lastLightState = false;
 
-	MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top();
+	glm::mat4 MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top();
 	glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, glm::value_ptr(MVP));
-	modelView = viewStack.Top() * modelStack.Top();
+	glm::mat4 modelView = viewStack.Top() * modelStack.Top();
 	glUniformMatrix4fv(m_parameters[U_MODELVIEW], 1, GL_FALSE, glm::value_ptr(modelView));
 
 	if (enableLight) {
-		glUniform1i(m_parameters[U_LIGHTENABLED], 1);
-		modelView_inverse_transpose = glm::inverseTranspose(modelView);
+		if (!lastLightState) {
+			glUniform1i(m_parameters[U_LIGHTENABLED], 1);
+			lastLightState = true;
+		}
+		glm::mat4 modelView_inverse_transpose = glm::inverseTranspose(modelView);
 		glUniformMatrix4fv(m_parameters[U_MODELVIEW_INVERSE_TRANSPOSE], 1, GL_FALSE, glm::value_ptr(modelView_inverse_transpose));
 
+		// material must be supplied per-mesh (can't skip)
 		glUniform3fv(m_parameters[U_MATERIAL_AMBIENT], 1, &mesh->material.kAmbient.r);
 		glUniform3fv(m_parameters[U_MATERIAL_DIFFUSE], 1, &mesh->material.kDiffuse.r);
 		glUniform3fv(m_parameters[U_MATERIAL_SPECULAR], 1, &mesh->material.kSpecular.r);
 		glUniform1f(m_parameters[U_MATERIAL_SHININESS], mesh->material.kShininess);
 	}
 	else {
-		glUniform1i(m_parameters[U_LIGHTENABLED], 0);
+		if (lastLightState) {
+			glUniform1i(m_parameters[U_LIGHTENABLED], 0);
+			lastLightState = false;
+		}
 	}
 
+	// Texture bind caching
 	if (mesh->textureID > 0) {
+		if (lastTextureBound != static_cast<int>(mesh->textureID)) {
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, mesh->textureID);
+			glUniform1i(m_parameters[U_COLOR_TEXTURE], 0);
+			lastTextureBound = static_cast<int>(mesh->textureID);
+		}
 		glUniform1i(m_parameters[U_COLOR_TEXTURE_ENABLED], 1);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, mesh->textureID);
-		glUniform1i(m_parameters[U_COLOR_TEXTURE], 0);
 	}
 	else {
+		if (lastTextureBound != -1) {
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, 0);
+			lastTextureBound = -1;
+		}
 		glUniform1i(m_parameters[U_COLOR_TEXTURE_ENABLED], 0);
 	}
 
-	mesh->Render();   // only once
+	mesh->Render();
 }
 
 void Scene01::Exit()
@@ -2749,13 +2623,25 @@ void Scene01::HandleKeyPress1(FPCamera& cam, double dt)
 			// else: movement blocked by fence
 		}
 
+		if (!player1InCar && !player2InCar && KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_SPACE))
+		{
+			// Only start a jump if grounded / not already jumping
+			const float groundY = 3.3f;
+			if (!isJumping1 && camera1.position.y <= groundY + 0.05f)
+			{
+				isJumping1 = true;
+				cameraVerticalVel1 = jumpSpeed;
+			}
+		}
+
 		// Clamp camera height to adjusted limits
 		if (cam.position.y < 3.3f) {
 			cam.position.y = 3.3f;
 			if (cam.target.y < 3.3f)
 				cam.target.y = 3.3f;
 		}
-		if (cam.position.y > 3.5f) {
+		// Only enforce the upper limit when not jumping
+		if (!isJumping1 && cam.position.y > 3.5f) {
 			cam.position.y = 3.5f;
 			if (cam.target.y > 3.5f)
 				cam.target.y = 3.5f;
@@ -2764,25 +2650,64 @@ void Scene01::HandleKeyPress1(FPCamera& cam, double dt)
 
 	if (player1InCar)
 	{
-		// Use IsKeyDown for continuous movement while holding the key
-		glm::vec3 inputAccel(0.0f);
-		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_W)) inputAccel += forward;
-		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_S)) inputAccel -= forward;
-		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_A)) inputAccel -= right;
-		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_D)) inputAccel += right;
+		// Constants for realistic driving (tune as needed)
+		const float turnRate = 2.5f;          // Radians per second for turning
+		const float maxSpeed = 40.0f;         // Max speed in m/s
+		const float dragCoefficient = 0.92f;  // Drag factor per second
+		const float brakeAcceleration = 18.0f; // Deceleration when braking
 
-		float accelScale = driveAcceleration;
-		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT_SHIFT))
-			accelScale *= 1.5f;
+		// Compute car's local forward and right vectors based on yaw
+		float cosYaw = cos(carYaw);
+		float sinYaw = sin(carYaw);
+		glm::vec3 forward = -glm::vec3(sinYaw, 0.0f, cosYaw);    // Forward direction (XZ plane)
+		glm::vec3 right(cosYaw, 0.0f, -sinYaw);     // Right direction (XZ plane)
 
-		if (glm::length(glm::vec2(inputAccel.x, inputAccel.z)) > 0.001f)
-		{
-			// normalize across XZ and apply acceleration magnitude (keep Y zero)
-			glm::vec3 dir = glm::normalize(glm::vec3(inputAccel.x, 0.0f, inputAccel.z));
-			(*pVel) += dir * (accelScale * static_cast<float>(dt));
+		// Handle acceleration (forward/backward only)
+		float accelMagnitude = 0.0f;
+		bool isBraking = false;
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_W)) {
+			accelMagnitude += driveAcceleration;
+		}
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_S)) {
+			accelMagnitude -= brakeAcceleration;
+			isBraking = true;
 		}
 
-		// Clamp camera height to adjusted limits
+		// Apply boost if shift is held (only for acceleration, not braking)
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT_SHIFT) && !isBraking) {
+			accelMagnitude *= 1.5f;
+		}
+
+		// Apply acceleration to velocity (only along XZ)
+		glm::vec3 accelDir = forward * accelMagnitude;
+		*pVel += accelDir * static_cast<float>(dt);
+
+		// Handle turning (A/D keys rotate the car's yaw) (swapped to see if things work)
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_D)) {
+			carYaw -= turnRate * static_cast<float>(dt);
+		}
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_A)) {
+			carYaw += turnRate * static_cast<float>(dt);
+		}
+
+		// Apply drag/friction
+		glm::vec3 velXZ = glm::vec3((*pVel).x, 0.0f, (*pVel).z);
+		float speed = glm::length(velXZ);
+		if (speed > 0.001f) {
+			velXZ *= pow(dragCoefficient, static_cast<float>(dt));
+			(*pVel).x = velXZ.x;
+			(*pVel).z = velXZ.z;
+		}
+
+		// Clamp speed to maximum
+		speed = glm::length(velXZ);
+		if (speed > maxSpeed) {
+			velXZ = glm::normalize(velXZ) * maxSpeed;
+			(*pVel).x = velXZ.x;
+			(*pVel).z = velXZ.z;
+		}
+
+		// Clamp camera height (unchanged)
 		if (cam.position.y < 3.3f) {
 			cam.position.y = 3.3f;
 			if (cam.target.y < 3.3f)
@@ -2794,7 +2719,9 @@ void Scene01::HandleKeyPress1(FPCamera& cam, double dt)
 				cam.target.y = 3.5f;
 		}
 
-		// Ensure FPCamera internal vectors are recalculated after manual changes
+		// Removed: Camera target locking to car's forward (allows free-look)
+
+		// Ensure FPCamera internal vectors are recalculated
 		cam.Init(cam.position, cam.target, cam.up);
 	}
 
@@ -2967,8 +2894,21 @@ void Scene01::HandleKeyPress2(FPCamera& cam, double dt)
 				// else blocked
 			}
 
-			// 2. Clamp only the Position
-			cam.position.y = glm::clamp(cam.position.y, 3.3f, 3.5f);
+			if (!player2InCar && !player1InCar && KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_RIGHT_CONTROL))
+			{
+				const float groundY = 3.3f;
+				if (!isJumping2 && camera2.position.y <= groundY + 0.05f)
+				{
+					isJumping2 = true;
+					cameraVerticalVel2 = jumpSpeed;
+				}
+			}
+
+			cam.position.y = (glm::max)(cam.position.y, 3.3f);      // always enforce lower bound
+			if (!isJumping2)
+			{
+				cam.position.y = (glm::min)(cam.position.y, 3.5f);
+			}
 
 			// 3. RE-CALCULATE target based on current position + stored angles
 			float az = glm::radians(cam.azimuth);
@@ -2983,72 +2923,97 @@ void Scene01::HandleKeyPress2(FPCamera& cam, double dt)
 
 			// 4. Update internal camera vectors
 			cam.Init(cam.position, cam.target, glm::vec3(0.0f, 1.0f, 0.0f));
-		}
 
+			if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_C))
+			{
+				player2InCar = true;
+			}
+		}
+		
 		if (player2InCar)
 		{
-			// --- 1. ROTATION (Update the Master Angles) ---
-			const float rotationSpeed = 90.0f;
+			// Constants for realistic driving
+			const float turnRate = 2.5f;
+			const float maxSpeed = 40.0f;
+			const float dragCoefficient = 0.92f;
+			const float brakeAcceleration = 18.0f;
 
+			// Compute car's local forward and right vectors based on yaw
+			float cosYaw = cos(carYaw2);
+			float sinYaw = sin(carYaw2);
+			glm::vec3 forward = -glm::vec3(sinYaw, 0.0f, cosYaw);
+			glm::vec3 right(cosYaw, 0.0f, -sinYaw);
+
+			// Handle acceleration
+			float accelMagnitude = 0.0f;
+			bool isBraking = false;
+			if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_UP)) {
+				accelMagnitude += driveAcceleration;
+			}
+			if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_DOWN)) {
+				accelMagnitude -= brakeAcceleration;
+				isBraking = true;
+			}
+
+			// Apply boost
+			if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_RIGHT_SHIFT) && !isBraking) {
+				accelMagnitude *= 1.5f;
+			}
+
+			// Apply acceleration to velocity
+			glm::vec3 accelDir = forward * accelMagnitude;
+			*pVel += accelDir * static_cast<float>(dt);
+
+			// Handle turning (LEFT/RIGHT keys rotate the car's yaw) (swapped to see things)
+			if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_RIGHT)) {
+				carYaw2 -= turnRate * static_cast<float>(dt);
+			}
+			if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT)) {
+				carYaw2 += turnRate * static_cast<float>(dt);
+			}
+
+			// Apply drag/friction
+			glm::vec3 velXZ = glm::vec3((*pVel).x, 0.0f, (*pVel).z);
+			float speed = glm::length(velXZ);
+			if (speed > 0.001f) {
+				velXZ *= pow(dragCoefficient, static_cast<float>(dt));
+				(*pVel).x = velXZ.x;
+				(*pVel).z = velXZ.z;
+			}
+
+			// Clamp speed
+			speed = glm::length(velXZ);
+			if (speed > maxSpeed) {
+				velXZ = glm::normalize(velXZ) * maxSpeed;
+				(*pVel).x = velXZ.x;
+				(*pVel).z = velXZ.z;
+			}
+
+			// Clamp camera height
+			cam.position.y = glm::clamp(cam.position.y, 3.3f, 3.5f);
+
+			// --- Camera Free-Look Rotation (independent of car facing) ---
+			const float rotationSpeed = 125.0f;
 			if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_I)) cam.altitude += rotationSpeed * dt;
 			if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_K)) cam.altitude -= rotationSpeed * dt;
 			if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_J)) cam.azimuth -= rotationSpeed * dt;
 			if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_L)) cam.azimuth += rotationSpeed * dt;
 
-			// Clamp altitude to stay horizontal-ish and wrap azimuth
+			// Clamp altitude
 			cam.altitude = glm::clamp(cam.altitude, -89.0f, 89.0f);
 			cam.azimuth = fmod(cam.azimuth + 360.0f, 360.0f);
 
-			// --- 2. MOVEMENT (Update Velocity/Position) ---
-			glm::vec3 inputAccel(0.0f);
-			if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_UP))    inputAccel += forward;
-			if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_DOWN))  inputAccel -= forward;
-			if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT))  inputAccel -= right;
-			if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_RIGHT)) inputAccel += right;
-
-			float accelScale = driveAcceleration;
-			if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_RIGHT_SHIFT)) accelScale *= 1.5f;
-
-			if (glm::length(glm::vec2(inputAccel.x, inputAccel.z)) > 0.001f)
-			{
-				glm::vec3 moveDir = glm::normalize(glm::vec3(inputAccel.x, 0.0f, inputAccel.z));
-				(*pVel) += moveDir * (accelScale * static_cast<float>(dt));
-			}
-
-			// --- 3. FINAL TARGET SYNC ---
-			// Now that the car has potentially moved (changing cam.position), 
-			// we force the target to stay at the correct angle relative to the new position.
-
+			// Update camera target based on azimuth/altitude (free-look)
 			float azRad = glm::radians(cam.azimuth);
 			float altRad = glm::radians(cam.altitude);
-
 			glm::vec3 lookDir;
 			lookDir.x = cosf(altRad) * cosf(azRad);
 			lookDir.y = sinf(altRad);
 			lookDir.z = cosf(altRad) * sinf(azRad);
-
-			// This ensures the camera looks where the ANGLES say it should look,
-			// regardless of how the car turned.
 			cam.target = cam.position + lookDir;
 
+			// Update internal camera vectors
 			cam.Init(cam.position, cam.target, glm::vec3(0.0f, 1.0f, 0.0f));
-		}
-
-		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_C))
-		{
-			const glm::vec3 minPos(-21, -1, -70);
-			const glm::vec3 maxPos(-1, 5, -50);
-
-			auto isInsideBox = [](const glm::vec3& p, const glm::vec3& mn, const glm::vec3& mx) {
-				return (p.x >= mn.x && p.x <= mx.x) &&
-					(p.y >= mn.y && p.y <= mx.y) &&
-					(p.z >= mn.z && p.z <= mx.z);
-				};
-
-			if (isInsideBox(cam.position, minPos, maxPos))
-			{
-				player2InCar = true;
-			}
 		}
 	}
 }

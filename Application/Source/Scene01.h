@@ -20,6 +20,16 @@ struct Player
 	FPCamera camera;
 };
 
+// Simple AABB struct for fence tree
+struct AABB {
+	glm::vec3 min, max;
+	bool intersects(const glm::vec3& point) const {
+		return point.x >= min.x && point.x <= max.x &&
+			point.y >= min.y && point.y <= max.y &&
+			point.z >= min.z && point.z <= max.z;
+	}
+};
+
 class Scene01 : public Scene
 {
 public:
@@ -167,6 +177,8 @@ private:
 	void RenderText(Mesh* mesh, std::string text, glm::vec3 color);
 	void RenderTextOnScreen(Mesh* mesh, std::string text, glm::vec3 color, float size, float x, float y);
 
+	void UpdateObjectMovement(double dt);
+
 	void RenderPathway();
 	void RenderGamePathways();
 	void RenderBirchTrees();
@@ -180,6 +192,7 @@ private:
 	double lastMouseX = 400.0;  // Center of 800x600 window
 	double lastMouseY = 300.0;
 
+	glm::vec3 objectPos;
 	float moveSpeed = 15;
 
 	Player player1;
@@ -228,6 +241,18 @@ private:
 	glm::vec3 bumperCarPos1 = glm::vec3(-11.0f, 0.0f, -90.0f);
 	glm::vec3 bumperCarPos2 = glm::vec3(-11.0f, 0.0f, -60.0f);
 
+	float carYaw = glm::radians(0.0f);   // Player 1 car yaw (in radians)
+	float carYaw2 = glm::radians(0.0f);  // Player 2 car yaw (in radians)
+		
+	float gravity = -30.0f;              // units / s^2 (negative)
+	float jumpSpeed = 10.0f;             // initial jump velocity
+	float cameraVerticalVel1 = 0.0f;     // current vertical velocity for player1
+	float cameraVerticalVel2 = 0.0f;     // current vertical velocity for player2
+	bool isJumping1 = false;             // whether player1 is mid-jump
+	bool isJumping2 = false;;
+
+	// AABB tree for optimized fence collision queries
+	std::vector<AABB> fenceTree;
 };
 
 #endif
