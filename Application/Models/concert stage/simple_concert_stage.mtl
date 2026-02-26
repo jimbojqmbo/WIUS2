@@ -1,0 +1,12 @@
+#
+#
+#
+
+newmtl  Mesh_mat0
+illum 2
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ns 201.787292
+map_Kd Scene_-_Root_baseColor.png
+

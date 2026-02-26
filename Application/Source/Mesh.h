@@ -49,6 +49,8 @@ public:
 	static unsigned locationNs;
 
 	void Render(unsigned offset, unsigned count);
+
+	std::vector<glm::vec3> vertices;
 };
 
 #endif

@@ -9,6 +9,7 @@
 #include "PhysicsObject.h"
 #include <vector>
 #include <algorithm> // for std::min/std::max
+#include <chrono>
 
 // GLM Headers
 #include <glm\glm.hpp>
@@ -58,6 +59,8 @@ void Scene01::Init()
 	EnterBumperCarGamePrompt = false;
 	ExitBumperCarGamePrompt = false;
 	pausemenu = false;
+	enterCar1Check = false;
+	enterCar2Check = false;
 
 	gravity = -30.0f;
 	jumpSpeed = 10.0f;
@@ -211,7 +214,7 @@ void Scene01::Init()
 
 	// 16 x 16 is the number of columns and rows for the text
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
-	meshList[GEO_TEXT]->textureID = LoadTGA("Images//Georgia.tga");
+	meshList[GEO_TEXT]->textureID = LoadTGA("Images//cascadiamonosemibold.tga");
 
 	//meshList[GEO_GUI] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	//meshList[GEO_GUI]->textureID = LoadTGA("Images//blackblack.tga");
@@ -236,6 +239,9 @@ void Scene01::Init()
 
 	meshList[FOREST] = MeshBuilder::GenerateOBJMTL("bumper car", "Models//forest//forest.obj", "Models//forest//forest.mtl");
 	meshList[FOREST]->textureID = LoadTGA("Images//forest//forest_baseColor.tga");
+
+	meshList[CLOWN] = MeshBuilder::GenerateOBJMTL("Clown", "Models//clown.obj", "Models//clown.mtl");
+	meshList[CLOWN]->textureID = LoadTGA("Images//clown.tga");
 
 	//meshList[EXITBUTTON] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	//meshList[EXITBUTTON]->textureID = LoadTGA("Images//exitScene01button.tga");
@@ -266,7 +272,7 @@ void Scene01::Init()
 		//meshList[GEO_DEER]->textureID = LoadTGA("Models//model_containment//textures//musk_deer.tga");
 
 		meshList[GEO_COW] = MeshBuilder::GenerateOBJMTL("lowkeychillguy", "Models//model_containment//obj//cow.obj", "Models//model_containment//mtl//cow.mtl");
-		meshList[GEO_COW]->textureID = LoadTGA("Models//model_containment//textures//cow.tga");
+		meshList[GEO_COW]->textureID = LoadTGA("Images//model_containment//textures//cow.tga");
 
 		//meshList[GEO_SHEEP] = MeshBuilder::GenerateOBJMTL("demon", "Models//model_containment//obj//13574_Marco_Polo_Sheep_v1_L3.obj", "Models//model_containment//mtl//13574_Marco_Polo_Sheep_v1_L3.mtl");
 		//meshList[GEO_SHEEP]->textureID = LoadTGA("Models//model_containment//textures//13574_Marco_Polo_Diffuse.tga");
@@ -308,6 +314,9 @@ void Scene01::Init()
 	{
 		// CARNIVAL TENT
 		meshList[CARNIVALTENT] = MeshBuilder::GenerateOBJMTL("carnival tent", "Models//tent//carnivaltent.obj", "Models//tent//carnivaltent.mtl");
+
+		meshList[ALVINTENT] = MeshBuilder::GenerateOBJMTL("CarnivalTent", "Models//alvintent.obj", "Models//alvintent.mtl");
+		meshList[ALVINTENT]->textureID = LoadTGA("Images//alvintent.tga");
 	}
 
 	{
@@ -323,13 +332,20 @@ void Scene01::Init()
 	}
 
 	{
-		// GRASS CLUMP
-		//meshList[GRASSCLUMP] = MeshBuilder::GenerateOBJMTL("grassclump", "Models//lowpolygrassclump//low_poly_grass_clump.obj", "Models//lowpolygrassclump//low_poly_grass_clump.mtl");
+		// MCDONALDS
+		//meshList[MCDONALDS] = MeshBuilder::GenerateOBJMTL("mcd", "Models//mcdonalds//mcdonalds.obj", "Models//mcdonalds//mcdonalds.mtl");
+		//meshList[MCDONALDS]->textureID = LoadTGA("Images//mcondalds//mcdonalds_baseColor2.tga");
 	}
 
 	{
 		// CUTE CHARACTER
 		//meshList[CUTECHARACTER] = MeshBuilder::GenerateOBJMTL("cutre", "Models//cute character//cute_character.obj", "Models//cute character//cute_character.mtl");
+	}
+
+	{
+		// CONCERT
+		meshList[CONCERTSTAGE] = MeshBuilder::GenerateOBJMTL("concert", "Models//concert stage//simple_concert_stage.obj", "Models//concert stage//simple_concert_stage.mtl");
+		meshList[CONCERTSTAGE]->textureID = LoadTGA("Images//concert stage//Scene_-_Root_baseColor copy.tga");
 	}
 
 	// Setup invisible fence zones (AABB) using the coordinates provided
@@ -372,10 +388,10 @@ void Scene01::Init()
 
 	glUniform1i(m_parameters[U_NUMLIGHTS], NUM_LIGHTS);
 
-	light[0].position = glm::vec3(200, -150, 0);
-	light[0].color = glm::vec3(1, 1, 0.1);
+	light[0].position = glm::vec3(-100, -150, 0);
+	light[0].color = glm::vec3(1, 1, 1);
 	light[0].type = Light::LIGHT_DIRECTIONAL;
-	light[0].power = 0.8;
+	light[0].power = 1;
 	light[0].kC = 1.f;
 	light[0].kL = 0.01f;
 	light[0].kQ = 0.001f;
@@ -487,17 +503,64 @@ void Scene01::UpdateObjectMovement(double dt)
 		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_K))
 			objectPos.y -= moveSpeed * dt;
 
-		// Print position
-		std::cout << "Object Position: ("
-			<< objectPos.x << ", "
-			<< objectPos.y << ", "
-			<< objectPos.z << ")"
-			<< std::endl;
+		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_LEFT_ALT))
+		{
+			// Print position
+			std::cout << "Object Position: ("
+				<< objectPos.x << ", "
+				<< objectPos.y << ", "
+				<< objectPos.z << ")"
+				<< std::endl;
+		}
+	}
+}
+
+void Scene01::UpdateIntro(double dt)
+{
+	introTimer += static_cast<float>(dt);
+
+	if (!introReturning)
+	{
+		float t = introTimer / introDuration;
+
+		if (t >= 1.0f)
+		{
+			t = 1.0f;
+			introReturning = true;
+			introTimer = 0.0f;
+		}
+
+		// Smooth movement (ease in/out)
+		float smoothT = t * t * (3.f - 2.f * t);
+
+		camera1.position = glm::mix(introStartPos, introEndPos, smoothT);
+		camera1.target = camera1.position + glm::vec3(1, 0, 0);
+	}
+	else
+	{
+		float t = introTimer / introReturnDuration;
+
+		if (t >= 1.0f)
+		{
+			t = 1.0f;
+			introActive = false;  // intro finished
+		}
+
+		float smoothT = t * t * (3.f - 2.f * t);
+
+		camera1.position = glm::mix(introEndPos, introStartPos, smoothT);
+		camera1.target = camera1.position + glm::vec3(1, 0, 0);
 	}
 }
 
 void Scene01::Update(double dt)
 {
+	if (introActive)
+	{
+		UpdateIntro(dt);
+		return; // skip normal game update
+	}
+
 	/*
 	if (KeyboardController::GetInstance()->IsKeyDown('I'))
 		light[0].position.z -= static_cast<float>(dt) * 5.f;
@@ -1099,6 +1162,81 @@ void Scene01::Update(double dt)
 		}
 	}
 
+	// SONG DATA
+	static std::vector<std::wstring> songs = {
+		L"Sounds//Justin Bieber - Sorry (8D Audio).wav",
+		L"Sounds//Wiz-Khalifa-See-You-Again-ft.-Charlie-Puth-_8D-Audio-__.wav",
+		L"Sounds//SPAGHETTI.wav"
+	};
+
+	static std::vector<int> songDurations = {
+		199,
+		226,
+		172
+	};
+
+	static size_t currentSongIndex = 0;
+	static bool isPlaying = false;
+	static std::chrono::steady_clock::time_point playStartTime;
+
+
+	// ENTER CONCERT ZONE
+	const glm::vec3 minPos(80, -1, -8);
+	const glm::vec3 maxPos(135, 6, 42);
+
+	auto isInsideBox = [](const glm::vec3& p, const glm::vec3& mn, const glm::vec3& mx) {
+		return (p.x >= mn.x && p.x <= mx.x) &&
+			(p.y >= mn.y && p.y <= mx.y) &&
+			(p.z >= mn.z && p.z <= mx.z);
+		};
+
+	bool inside = isInsideBox(camera1.position, minPos, maxPos);
+
+	if (inside)
+	{
+		if (!isPlaying)
+		{
+			// Start first song
+			PlaySound(songs[currentSongIndex].c_str(), NULL, SND_FILENAME | SND_ASYNC);
+			playStartTime = std::chrono::steady_clock::now();
+			isPlaying = true;
+
+			std::cout << "Started song " << currentSongIndex << "\n";
+		}
+		else
+		{
+			auto now = std::chrono::steady_clock::now();
+			auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - playStartTime).count();
+
+			// Check duration of CURRENT song
+			if (elapsed >= songDurations[currentSongIndex])
+			{
+				// Stop current
+				PlaySound(NULL, 0, 0);
+
+				// Move to next
+				currentSongIndex = (currentSongIndex + 1) % songs.size();
+
+				// Play next
+				PlaySound(songs[currentSongIndex].c_str(), NULL, SND_FILENAME | SND_ASYNC);
+
+				playStartTime = now;
+
+				std::cout << "Switched to song " << currentSongIndex << "\n";
+			}
+		}
+	}
+	else
+	{
+		if (isPlaying)
+		{
+			PlaySound(NULL, 0, 0);
+			isPlaying = false;
+
+			std::cout << "Stopped playing\n";
+		}
+	}
+
 	UpdateObjectMovement(dt);
 }
 
@@ -1267,7 +1405,8 @@ void Scene01::RenderBirchTrees()
 		{52,0,117},{67,0,120},{74,0,130},{71,0,140},{60,0,146},{52,0,137},
 		{41,0,143},{34,0,135},{1,0,153},{0,0,144},{0,0,128},{-4,0,112},
 		{0,0,98},{-6,0,86},{-14,0,92},{-15,0,124},{-16,0,107},{-18,0,136},
-		{-14,0,151}
+		{-14,0,151}, {-23, 0, -10}, {-30, 0, -10}, {-42, 0, -8}, {-50, 0, -16}, {-42, 0, -23}, {-26, 0, -26}, {3, 0, -18},
+		{41, 0, -14}, {43, 0, -22}, {51, 0, -31}, {63, 0, -34}, {62, 0, -24}, {70, 0, -18}
 	};
 
 	const float cullRadius = 300.f;
@@ -1275,10 +1414,10 @@ void Scene01::RenderBirchTrees()
 	glm::vec3 camPos = viewStack.Top() * glm::vec4(0, 0, 0, 1);
 
 	// set material once
-	meshList[BIRCHTREE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList[BIRCHTREE]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
-	meshList[BIRCHTREE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-	meshList[BIRCHTREE]->material.kShininess = 5.0f;
+	meshList[BIRCHTREE]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+	meshList[BIRCHTREE]->material.kDiffuse = glm::vec3(0.8f, 0.9f, 0.7f);  // leaf green tint
+	meshList[BIRCHTREE]->material.kSpecular = glm::vec3(0.3f, 0.3f, 0.3f);  // subtle highlights
+	meshList[BIRCHTREE]->material.kShininess = 15.0f;
 
 	for (const auto& pos : positions)
 	{
@@ -1290,6 +1429,42 @@ void Scene01::RenderBirchTrees()
 		modelStack.Scale(0.1, 0.1, 0.1);
 		RenderMesh(meshList[BIRCHTREE], true);
 		modelStack.PopMatrix();
+	}
+
+	modelStack.PushMatrix();
+	{
+
+		// spacing chosen to match the previous manual placement (50 units)
+		const float start = -170.f;
+		const float end = -45.f;
+		const float step = 25.f;
+		const float cullRadius = 300.f; // tweak: tiles beyond this distance from the camera are skipped
+		const float cullRadius2 = cullRadius * cullRadius;
+
+		glm::vec3 camPos = viewStack.Top() * glm::vec4(0, 0, 0, 1);
+
+		// Set material once for the TREE mesh
+		meshList[BIRCHTREE]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+		meshList[BIRCHTREE]->material.kDiffuse = glm::vec3(0.8f, 0.9f, 0.7f);  // leaf green tint
+		meshList[BIRCHTREE]->material.kSpecular = glm::vec3(0.3f, 0.3f, 0.3f);  // subtle highlights
+		meshList[BIRCHTREE]->material.kShininess = 15.0f;
+
+		for (float x = start; x <= end; x += step)
+		{
+			for (float z = start; z <= end; z += step)
+			{
+				// quick distance cull (squared)
+				glm::vec3 center(x, 0.f, z);
+				float dist2 = glm::dot(center - camPos, center - camPos);
+				if (dist2 > cullRadius2) continue;
+
+				modelStack.PushMatrix();
+				modelStack.Translate(x, 0.f, z);
+				modelStack.Scale(0.1, 0.1, 0.1);
+				RenderMesh(meshList[BIRCHTREE], true);
+				modelStack.PopMatrix();
+			}
+		}
 	}
 }
 
@@ -1351,7 +1526,7 @@ void Scene01::RenderText(Mesh* mesh, std::string text, glm::vec3 color)
 	for (unsigned i = 0; i < text.length(); ++i)
 	{
 		glm::mat4 characterSpacing = glm::translate(
-			glm::mat4(1.f),
+			glm::mat4(0.3f),
 			glm::vec3(i * 1.f, 0, 0));
 		glm::mat4 MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top() * characterSpacing;
 		glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, glm::value_ptr(MVP));
@@ -1729,22 +1904,22 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 		{
 
 			modelStack.PushMatrix();
-			modelStack.Translate(250, -2, 0.f);
-			modelStack.Scale(10, 10, 10);
+			modelStack.Translate(300, -2, 0.f);
+			modelStack.Scale(20, 20, 20);
 			meshList[FOREST]->material.kAmbient = glm::vec3(0, 0, 0);
 			RenderMesh(meshList[FOREST], false);
 			modelStack.PopMatrix();
 
 			modelStack.PushMatrix();
-			modelStack.Translate(250, -2, 150);
-			modelStack.Scale(10, 10, 10);
+			modelStack.Translate(300, -2, 150);
+			modelStack.Scale(20, 20, 20);
 			meshList[FOREST]->material.kAmbient = glm::vec3(0, 0, 0);
 			RenderMesh(meshList[FOREST], false);
 			modelStack.PopMatrix();
 
 			modelStack.PushMatrix();
-			modelStack.Translate(250, -2, -150);
-			modelStack.Scale(10, 10, 10);
+			modelStack.Translate(300, -2, -150);
+			modelStack.Scale(20, 20, 20);
 			meshList[FOREST]->material.kAmbient = glm::vec3(0, 0, 0);
 			RenderMesh(meshList[FOREST], false);
 			modelStack.PopMatrix();
@@ -2059,49 +2234,6 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 			modelStack.PopMatrix();
 		}
 
-		{
-			modelStack.PushMatrix();
-			modelStack.Translate(48, 0.5, 57);
-			modelStack.Scale(0.1, 0.1, 0.1);
-			meshList[BIRCHTREE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-			meshList[BIRCHTREE]->material.kDiffuse = glm::vec3(1, 1, 1);
-			meshList[BIRCHTREE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-			meshList[BIRCHTREE]->material.kShininess = 5.0f;
-			RenderMesh(meshList[BIRCHTREE], true);
-			modelStack.PopMatrix();
-
-			modelStack.PushMatrix();
-			modelStack.Translate(18, 0, 60);
-			modelStack.Scale(0.1, 0.1, 0.1);
-			meshList[BIRCHTREE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-			meshList[BIRCHTREE]->material.kDiffuse = glm::vec3(1, 1, 1);
-			meshList[BIRCHTREE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-			meshList[BIRCHTREE]->material.kShininess = 5.0f;
-			RenderMesh(meshList[BIRCHTREE], true);
-			modelStack.PopMatrix();
-
-			modelStack.PushMatrix();
-			modelStack.Translate(-8, 0, 67);
-			modelStack.Scale(0.1, 0.1, 0.1);
-			meshList[BIRCHTREE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-			meshList[BIRCHTREE]->material.kDiffuse = glm::vec3(1, 1, 1);
-			meshList[BIRCHTREE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-			meshList[BIRCHTREE]->material.kShininess = 5.0f;
-			RenderMesh(meshList[BIRCHTREE], true);
-			modelStack.PopMatrix();
-
-			modelStack.PushMatrix();
-			modelStack.Translate(-37, 0, 70);
-			modelStack.Rotate(180, 1, 0, 0);
-			modelStack.Scale(0.1, 0.1, 0.1);
-			meshList[BIRCHTREE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-			meshList[BIRCHTREE]->material.kDiffuse = glm::vec3(1, 1, 1);
-			meshList[BIRCHTREE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-			meshList[BIRCHTREE]->material.kShininess = 5.0f;
-			RenderMesh(meshList[BIRCHTREE], true);
-			modelStack.PopMatrix();
-		}
-
 		modelStack.PushMatrix();
 		modelStack.Translate(0.f, 0.f, -25.f);
 		modelStack.Scale(1, 1, 1);
@@ -2113,14 +2245,13 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(-145, 0, -18);
-		modelStack.Scale(3, 3, 3);
-		modelStack.Rotate(120, 0, 1, 0);
-		meshList[CARNIVALTENT]->material.kAmbient = glm::vec3(0.1, 0.1, 0.1);
-		meshList[CARNIVALTENT]->material.kDiffuse = glm::vec3(0.8, 0, 0);
-		meshList[CARNIVALTENT]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-		meshList[CARNIVALTENT]->material.kShininess = 5.0f;
-		RenderMesh(meshList[CARNIVALTENT], true);
+		modelStack.Translate(-130, 0, 10);
+		modelStack.Scale(10, 10, 10);
+		meshList[ALVINTENT]->material.kAmbient = glm::vec3(0.1, 0.1, 0.1);
+		meshList[ALVINTENT]->material.kDiffuse = glm::vec3(0.8, 0, 0);
+		meshList[ALVINTENT]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[ALVINTENT]->material.kShininess = 5.0f;
+		RenderMesh(meshList[ALVINTENT], true);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
@@ -2132,6 +2263,18 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 		meshList[CARNIVALTENT]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 		meshList[CARNIVALTENT]->material.kShininess = 5.0f;
 		RenderMesh(meshList[CARNIVALTENT], true);
+		modelStack.PopMatrix();
+
+		
+		modelStack.PushMatrix();
+		modelStack.Translate(110, 3, 15);
+		modelStack.Scale(0.025, 0.025, 0.025);
+		modelStack.Rotate(270, 0, 1, 0);
+		meshList[CONCERTSTAGE]->material.kAmbient = glm::vec3(0.1, 0.1, 0.1);
+		meshList[CONCERTSTAGE]->material.kDiffuse = glm::vec3(0.8, 0, 0);
+		meshList[CONCERTSTAGE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+		meshList[CONCERTSTAGE]->material.kShininess = 5.0f;
+		RenderMesh(meshList[CONCERTSTAGE], true);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
@@ -2146,13 +2289,28 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 		modelStack.PopMatrix();
 
 		{
+			// CLOWN NPC
+			modelStack.PushMatrix();
+			modelStack.Translate(-1, 0.3, 54);
+			modelStack.Scale(3, 3, 3);
+			modelStack.Rotate(200, 0, 1, 0);
+			modelStack.Rotate(90, 1, 0, 0);
+			meshList[CLOWN]->material.kAmbient = glm::vec3(0.1, 0.1, 0.1);
+			meshList[CLOWN]->material.kDiffuse = glm::vec3(0.8, 0, 0);
+			meshList[CLOWN]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+			meshList[CLOWN]->material.kShininess = 5.0f;
+			RenderMesh(meshList[CLOWN], false);
+			modelStack.PopMatrix();
+		}
+
+		{
 			modelStack.PushMatrix();
 
 			// Apply translation
 			modelStack.Translate(objectPos.x, objectPos.y, objectPos.z);
 
-			modelStack.Scale(3, 3, 3);
-			RenderMesh(meshList[BUMPERCAR], true);
+			modelStack.Scale(0.1, 0.1, 0.1);
+			RenderMesh(meshList[CLOWN], false);
 			modelStack.PopMatrix();
 
 		}
@@ -2162,9 +2320,9 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 			modelStack.PushMatrix();
 			modelStack.Translate(-11, 0, -90);
 			modelStack.Scale(3, 3, 3);
-			meshList[BUMPERCAR]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+			meshList[BUMPERCAR]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
 			meshList[BUMPERCAR]->material.kDiffuse = glm::vec3(1, 1, 1);
-			meshList[BUMPERCAR]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+			meshList[BUMPERCAR]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
 			meshList[BUMPERCAR]->material.kShininess = 5.0f;
 			RenderMesh(meshList[BUMPERCAR], true);
 			modelStack.PopMatrix();
@@ -2207,10 +2365,10 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 			modelStack.PushMatrix();
 			modelStack.Translate(-11, 0, -60);
 			modelStack.Scale(3, 3, 3);
-			meshList[BUMPERCAR]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+			meshList[BUMPERCAR]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
 			meshList[BUMPERCAR]->material.kDiffuse = glm::vec3(1, 1, 1);
-			meshList[BUMPERCAR]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-			meshList[BUMPERCAR]->material.kShininess = 5.0f;
+			meshList[BUMPERCAR]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
+			meshList[BUMPERCAR]->material.kShininess = 5.f;
 			RenderMesh(meshList[BUMPERCAR], true);
 			modelStack.PopMatrix();
 
@@ -2278,9 +2436,9 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 				modelStack.Rotate(yaw, 0.f, -1.f, 0.f);  // Use -Y axis to match original
 			}
 			meshList[BUMPERCAR]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
-			meshList[BUMPERCAR]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+			meshList[BUMPERCAR]->material.kDiffuse = glm::vec3(1, 1, 1);
 			meshList[BUMPERCAR]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-			meshList[BUMPERCAR]->material.kShininess = 5.0f;
+			meshList[BUMPERCAR]->material.kShininess = 5.f;
 			RenderMesh(meshList[BUMPERCAR], true);
 			modelStack.PopMatrix();
 
@@ -2338,9 +2496,9 @@ void Scene01::RenderSceneFromCamera(FPCamera& cam)
 				modelStack.Rotate(yaw, 0.f, -1.f, 0.f);  // Use -Y axis to match original
 			}
 			meshList[BUMPERCAR]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
-			meshList[BUMPERCAR]->material.kDiffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+			meshList[BUMPERCAR]->material.kDiffuse = glm::vec3(1, 1, 1);
 			meshList[BUMPERCAR]->material.kSpecular = glm::vec3(0.8f, 0.8f, 0.8f);
-			meshList[BUMPERCAR]->material.kShininess = 5.0f;
+			meshList[BUMPERCAR]->material.kShininess = 5.f;
 			RenderMesh(meshList[BUMPERCAR], true);
 			modelStack.PopMatrix();
 
@@ -2382,6 +2540,11 @@ void Scene01::Render()
 		RenderMeshOnScreen(meshList[MAINPAUSE], 800, 450, 1600, 900);
 		glEnable(GL_DEPTH_TEST);
 		return;
+	}
+	else
+	{
+		std::string temp("FPS:" + std::to_string(fps));
+		RenderTextOnScreen(meshList[GEO_TEXT], temp.substr(0, 9), glm::vec3(1, 1, 1), 40, 0, 560);
 	}
 
 	if (BumperCarGameEntered)
@@ -2472,52 +2635,40 @@ void Scene01::Render()
 
 void Scene01::RenderMesh(Mesh* mesh, bool enableLight)
 {
-	// Small state cache to avoid redundant GL calls per-frame
-	static int lastTextureBound = -1;
-	static bool lastLightState = false;
-
+	// Compute matrices
 	glm::mat4 MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top();
 	glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, glm::value_ptr(MVP));
 	glm::mat4 modelView = viewStack.Top() * modelStack.Top();
 	glUniformMatrix4fv(m_parameters[U_MODELVIEW], 1, GL_FALSE, glm::value_ptr(modelView));
 
+	// Always explicitly set light enabled uniform for correct per-draw state
 	if (enableLight) {
-		if (!lastLightState) {
-			glUniform1i(m_parameters[U_LIGHTENABLED], 1);
-			lastLightState = true;
-		}
+		glUniform1i(m_parameters[U_LIGHTENABLED], 1);
+
 		glm::mat4 modelView_inverse_transpose = glm::inverseTranspose(modelView);
 		glUniformMatrix4fv(m_parameters[U_MODELVIEW_INVERSE_TRANSPOSE], 1, GL_FALSE, glm::value_ptr(modelView_inverse_transpose));
 
-		// material must be supplied per-mesh (can't skip)
+		// material must be supplied per-mesh
 		glUniform3fv(m_parameters[U_MATERIAL_AMBIENT], 1, &mesh->material.kAmbient.r);
 		glUniform3fv(m_parameters[U_MATERIAL_DIFFUSE], 1, &mesh->material.kDiffuse.r);
 		glUniform3fv(m_parameters[U_MATERIAL_SPECULAR], 1, &mesh->material.kSpecular.r);
 		glUniform1f(m_parameters[U_MATERIAL_SHININESS], mesh->material.kShininess);
 	}
 	else {
-		if (lastLightState) {
-			glUniform1i(m_parameters[U_LIGHTENABLED], 0);
-			lastLightState = false;
-		}
+		glUniform1i(m_parameters[U_LIGHTENABLED], 0);
 	}
 
-	// Texture bind caching
+	// Explicitly bind texture every draw to avoid cross-viewport caching issues
 	if (mesh->textureID > 0) {
-		if (lastTextureBound != static_cast<int>(mesh->textureID)) {
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, mesh->textureID);
-			glUniform1i(m_parameters[U_COLOR_TEXTURE], 0);
-			lastTextureBound = static_cast<int>(mesh->textureID);
-		}
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, mesh->textureID);
+		glUniform1i(m_parameters[U_COLOR_TEXTURE], 0);
 		glUniform1i(m_parameters[U_COLOR_TEXTURE_ENABLED], 1);
 	}
 	else {
-		if (lastTextureBound != -1) {
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, 0);
-			lastTextureBound = -1;
-		}
+		// ensure no texture is bound
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, 0);
 		glUniform1i(m_parameters[U_COLOR_TEXTURE_ENABLED], 0);
 	}
 
@@ -2757,6 +2908,7 @@ void Scene01::HandleKeyPress1(FPCamera& cam, double dt)
 
 		if (isInsideBox(cam.position, minPos, maxPos))
 		{
+			enterCar1Check = true;
 			player1InCar = true;
 		}
 	}

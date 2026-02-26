@@ -192,7 +192,7 @@ void Application::Run()
 				PlaySound(NULL, 0, 0);
 				scene = scene2;
 				sceneNum = SCENE_01;
-				PlaySound(TEXT("Sounds//lowkirkenuinely.wav"), NULL, SND_FILENAME | SND_ASYNC);
+				//PlaySound(TEXT("Sounds//lowkirkenuinely.wav"), NULL, SND_FILENAME | SND_ASYNC);
 			}
 		}
 

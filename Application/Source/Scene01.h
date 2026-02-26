@@ -52,6 +52,7 @@ public:
 		GEO_COW,
 		GEO_SHEEP,
 		GEO_TENT,
+		CLOWN,
 
 		GEO_NOTE,
 		BUMPERCAR,
@@ -61,6 +62,7 @@ public:
 		BLOXBURGTREE,
 		CARTOONFENCE,
 		CARNIVALTENT,
+		ALVINTENT,
 		BASKETBALLCOURT,
 
 		GEO_SPARKLING_STAR,
@@ -75,6 +77,7 @@ public:
 		GRASSCLUMP,
 
 		GEO_FLASHLIGHT,
+		CONCERTSTAGE,
 
 		GEO_EYEBALL,
 		GEO_EYEBALL_MTL,
@@ -92,6 +95,10 @@ public:
 		ENTERBASKETBALLPROMPT,
 		ENTERBALLBOUNCERPROMPT,
 		ENTERDUCKSHOOTINGPROMPT,
+
+		NPCINTERACTION,
+		NPCINTERACTION2,
+		NPCINTERACTION3,
 
 		NUM_GEOMETRY,
 	};
@@ -203,6 +210,8 @@ private:
 	bool BumperCarGameEntered = false;
 	bool EnterBumperCarGamePrompt = false;
 	bool ExitBumperCarGamePrompt = false;
+	bool enterCar1Check = false;
+	bool enterCar2Check = false;
 
 	bool BasketballGameEntered = false;
 	bool EnterBasketballGamePrompt = false;
@@ -212,6 +221,13 @@ private:
 
 	bool DuckShootingGameEntered = false;
 	bool EnterDuckShootingGamePrompt = false;
+
+	bool concertEntered = false;
+
+	bool isNPCinteracted = false;
+	bool NPCinteraction = false;
+	bool NPCinteraction2 = false;
+	bool NPCinteraction3 = false;
 
 	// Physics / bumper-car properties
 	glm::vec3 cameraVelocity1 = glm::vec3(0.0f);
@@ -253,6 +269,17 @@ private:
 
 	// AABB tree for optimized fence collision queries
 	std::vector<AABB> fenceTree;
+
+	void UpdateIntro(double dt);
+	bool introActive = true;
+	bool introReturning = false;
+
+	float introTimer = 0.0f;
+	float introDuration = 14.0f;      // seconds to move forward
+	float introReturnDuration = 2.0f; // fast return
+
+	glm::vec3 introStartPos = glm::vec3(-121.f, 3.3f, 10.f);
+	glm::vec3 introEndPos = glm::vec3(100.f, 3.3f, 10.f);
 };
 
 #endif
