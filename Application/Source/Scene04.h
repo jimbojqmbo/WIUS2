@@ -90,6 +90,19 @@ public:
 		U_LIGHT0_COSCUTOFF,
 		U_LIGHT0_COSINNER,
 		U_LIGHT0_EXPONENT,
+
+		U_LIGHT1_TYPE,
+		U_LIGHT1_POSITION,
+		U_LIGHT1_COLOR,
+		U_LIGHT1_POWER,
+		U_LIGHT1_KC,
+		U_LIGHT1_KL,
+		U_LIGHT1_KQ,
+		U_LIGHT1_SPOTDIRECTION,
+		U_LIGHT1_COSCUTOFF,
+		U_LIGHT1_COSINNER,
+		U_LIGHT1_EXPONENT,
+
 		U_NUMLIGHTS,
 		U_COLOR_TEXTURE_ENABLED,
 		U_COLOR_TEXTURE,
@@ -133,7 +146,7 @@ private:
 
 	MatrixStack modelStack, viewStack, projectionStack;
 
-	static const int NUM_LIGHTS = 1;
+	static const int NUM_LIGHTS = 2;
 	Light light[NUM_LIGHTS];
 	bool enableLight;
 
@@ -202,6 +215,7 @@ private:
 	void walls_render();
 	void models_render();
 	void buckets_render();
+	void trees_render();
 	void walls_resolve(CollisionData cd);
 	void go_back();
 	void send_message(std::string slring);

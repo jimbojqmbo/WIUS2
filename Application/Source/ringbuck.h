@@ -16,5 +16,7 @@ public:
 	//functions
 	ringbuck();
 	~ringbuck();
+
+	
 };
 

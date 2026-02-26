@@ -73,6 +73,19 @@ void Scene04::Init()
 	m_parameters[U_LIGHT0_COSCUTOFF] = glGetUniformLocation(m_programID, "lights[0].cosCutoff");
 	m_parameters[U_LIGHT0_COSINNER] = glGetUniformLocation(m_programID, "lights[0].cosInner");
 	m_parameters[U_LIGHT0_EXPONENT] = glGetUniformLocation(m_programID, "lights[0].exponent");
+
+	m_parameters[U_LIGHT1_TYPE] = glGetUniformLocation(m_programID, "lights[1].type");
+	m_parameters[U_LIGHT1_POSITION] = glGetUniformLocation(m_programID, "lights[1].position_cameraspace");
+	m_parameters[U_LIGHT1_COLOR] = glGetUniformLocation(m_programID, "lights[1].color");
+	m_parameters[U_LIGHT1_POWER] = glGetUniformLocation(m_programID, "lights[1].power");
+	m_parameters[U_LIGHT1_KC] = glGetUniformLocation(m_programID, "lights[1].kC");
+	m_parameters[U_LIGHT1_KL] = glGetUniformLocation(m_programID, "lights[1].kL");
+	m_parameters[U_LIGHT1_KQ] = glGetUniformLocation(m_programID, "lights[1].kQ");
+	m_parameters[U_LIGHT1_SPOTDIRECTION] = glGetUniformLocation(m_programID, "lights[1].spotDirection");
+	m_parameters[U_LIGHT1_COSCUTOFF] = glGetUniformLocation(m_programID, "lights[1].cosCutoff");
+	m_parameters[U_LIGHT1_COSINNER] = glGetUniformLocation(m_programID, "lights[1].cosInner");
+	m_parameters[U_LIGHT1_EXPONENT] = glGetUniformLocation(m_programID, "lights[1].exponent");
+
 	m_parameters[U_COLOR_TEXTURE_ENABLED] = glGetUniformLocation(m_programID, "colorTextureEnabled");
 	m_parameters[U_COLOR_TEXTURE] = glGetUniformLocation(m_programID, "colorTexture");
 	m_parameters[U_LIGHTENABLED] = glGetUniformLocation(m_programID, "lightEnabled");
@@ -88,17 +101,6 @@ void Scene04::Init()
 		glm::vec3(0.0f, 1.0f, 0.0f), // target:  Y = 1.0f (same height -> no pitch)
 		glm::vec3(0.0f, 1.0f, 0.0f)  // world up
 	);
-
-	// enforce minimum Y at launch
-	/*
-	if (camera.position.y < 3.3f) {
-		camera.position.y = 3.3f;
-		// keep the camera looking at the same relative height (adjust target to avoid looking too far down)
-		if (camera.target.y < 3.3f) camera.target.y = 3.3f;
-		// re-initialize so FPCamera::Init() recomputes its internal vectors (Refresh)
-		camera.Init(camera.position, camera.target, camera.up);
-	}
-	*/
 
 	// Init VBO here
 	for (int i = 0; i < NUM_GEOMETRY; ++i)
@@ -194,6 +196,28 @@ void Scene04::Init()
 	glUniform1f(m_parameters[U_LIGHT0_COSINNER], cosf(glm::radians<float>(light[0].cosInner)));
 	glUniform1f(m_parameters[U_LIGHT0_EXPONENT], light[0].exponent);
 
+	light[1].position = glm::vec3(camera.position.x, camera.position.y, camera.position.z);
+	light[1].color = glm::vec3(1, 1, 0.5);
+	light[1].type = Light::LIGHT_POINT;
+	light[1].power = 1;
+	light[1].kC = 1.f;
+	light[1].kL = 0.01f;
+	light[1].kQ = 0.001f;
+	light[1].cosCutoff = 4.f;
+	light[1].cosInner = 30.f;
+	light[1].exponent = 3.f;
+	light[1].spotDirection = glm::vec3(0.f, 1.f, 0.f);
+
+	glUniform3fv(m_parameters[U_LIGHT1_COLOR], 1, &light[1].color.r);
+	glUniform1i(m_parameters[U_LIGHT1_TYPE], light[1].type);
+	glUniform1f(m_parameters[U_LIGHT1_POWER], light[1].power);
+	glUniform1f(m_parameters[U_LIGHT1_KC], light[1].kC);
+	glUniform1f(m_parameters[U_LIGHT1_KL], light[1].kL);
+	glUniform1f(m_parameters[U_LIGHT1_KQ], light[1].kQ);
+	glUniform1f(m_parameters[U_LIGHT1_COSCUTOFF], cosf(glm::radians<float>(light[1].cosCutoff)));
+	glUniform1f(m_parameters[U_LIGHT1_COSINNER], cosf(glm::radians<float>(light[1].cosInner)));
+	glUniform1f(m_parameters[U_LIGHT1_EXPONENT], light[1].exponent);
+
 	enableLight = true;
 
 	m_parameters[U_TEXT_ENABLED] = glGetUniformLocation(m_programID, "textEnabled");
@@ -274,10 +298,13 @@ void Scene04::Update(double dt)
 		camera.position.y = ch;
 		if (camera.target.y < ch)
 			camera.target.y = ch;
-		camera.Init(camera.position, camera.target, camera.up);
-	}
-	camera.Update(dt);
+		glm::vec3 view = glm::normalize(camera.target - camera.position);
 
+		camera.target = camera.position + view;
+
+		camera.up = glm::vec3(0.0f, 1.0f, 0.0f);
+		//camera.Init(camera.position, camera.target, camera.up);
+	}
 	int score = 0;
 	for (int i = 0; i < ball_select; i++) {
 		if (bounce_balls[i].in == true) {
@@ -285,8 +312,16 @@ void Scene04::Update(double dt)
 		}
 	}
 	std::cout << score << std::endl;
-	score = 0;
 
+	if (ball_select >= 10) {
+		playing = false;
+		std::string result = "you have scored an amazing "+(std::to_string(score)+" balls");
+		send_message(result);
+		change_height  = true;
+	}
+
+	score = 0;
+	camera.Update(dt);
 }
 
 void Scene04::balls_update(double dt) {
@@ -327,14 +362,14 @@ void Scene04::balls_update(double dt) {
 
 			// Define wall half sizes correctly
 			glm::vec3 halfSizeFrontBack(
-				rings[l].wradius,
-				rings[l].height * 4.f,
-				rings[l].wall_thin);
+				rings[l].radius * 2,
+				rings[l].height,
+				rings[l].radius * 2);
 
 			glm::vec3 halfSizeLeftRight(
-				rings[l].wall_thin,
-				rings[l].height * 4.f,
-				rings[l].wradius);
+				rings[l].radius * 2,
+				rings[l].height,
+				rings[l].radius * 2);
 
 			// Check 4 walls
 			if (OverlapCircle2AABB(bounce_balls[i].ball,
@@ -374,26 +409,34 @@ void Scene04::balls_update(double dt) {
 			}
 			
 		}
-		bool outsideAll = true;
+		bool insideAny = false;
+
 		for (int l = 0; l < ring_num; l++) {
+
+			glm::vec3 halfSize(
+				rings[l].radius*2,
+				rings[l].height,
+				rings[l].radius*2
+			);
+
 			if (OverlapCircle2AABB(
 				bounce_balls[i].ball,
 				bounce_balls[i].radius,
 				rings[l].bucket,
-				glm::vec3(
-					rings[l].radius,
-					rings[l].height * 0.5f,
-					rings[l].radius),
-				cd)) {
-				bounce_balls[i].in = true;
-				outsideAll = false;
-				break;
-			}
-			if (outsideAll)
+				halfSize,
+				cd))
 			{
-				bounce_balls[i].in = false;
+				// Make sure ball is below rim
+				if (bounce_balls[i].ball.pos.y <
+					rings[l].bucket.pos.y + rings[l].height)
+				{
+					insideAny = true;
+					break;
+				}
 			}
 		}
+
+		bounce_balls[i].in = insideAny;
 		
 	}
 	
@@ -501,7 +544,7 @@ void Scene04::Render()
 				// keep original rotations so the tile faces the same way as before
 				modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
 				modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
-				meshList[GEO_GRASS]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+				meshList[GEO_GRASS]->material.kAmbient = glm::vec3(0.6f, 0.6f, 0.f);
 				meshList[GEO_GRASS]->material.kDiffuse = glm::vec3(0.1f, 0.1f, 0.1f);
 				meshList[GEO_GRASS]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 				meshList[GEO_GRASS]->material.kShininess = 1.0f;
@@ -512,11 +555,21 @@ void Scene04::Render()
 		// keep the ambient material tweak from original code
 	}
 	modelStack.PopMatrix();
+	meshList[GEO_TREE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+	meshList[GEO_TREE]->material.kDiffuse = glm::vec3(0.8, 0, 0);
+	meshList[GEO_TREE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+	meshList[GEO_TREE]->material.kShininess = 1.0f;
+
+	meshList[GEO_TENT]->material.kAmbient = glm::vec3(0.1, 0.1, 0.1);
+	meshList[GEO_TENT]->material.kDiffuse = glm::vec3(0.8, 0, 0);
+	meshList[GEO_TENT]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+	meshList[GEO_TENT]->material.kShininess = 5.0f;
 
 	balls_render();
 	walls_render();
 	buckets_render();
 	models_render();
+	trees_render();
 
 	RenderTextOnScreen(meshList[GEO_TEXT],anouncement,glm::vec3(1.f,0.f,0.f),25, 10, 550);
 }
@@ -526,11 +579,12 @@ void Scene04::models_render() {
 	modelStack.PushMatrix();
 	modelStack.Translate(-50.f, 0.f, 0.f);
 	modelStack.Scale(1.f, 1.f, 1.f);
+	modelStack.Rotate(-90.f, 0.f,1.f, 0.f);
 	// keep original rotations so the tile faces the same way as before
-	meshList[GEO_COW]->material.kAmbient = glm::vec3(0.1, 0.1, 0.1);
-	meshList[GEO_COW]->material.kDiffuse = glm::vec3(0.8, 0, 0);
-	meshList[GEO_COW]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-	meshList[GEO_COW]->material.kShininess = 5.0f;
+	meshList[GEO_COW]->material.kAmbient = glm::vec3(0.0f, 1.f, 0.0f);
+	meshList[GEO_COW]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 0.0f);
+	meshList[GEO_COW]->material.kSpecular = glm::vec3(0.3f, 0.3f, 0.3f);
+	meshList[GEO_COW]->material.kShininess = 1.f;
 	RenderMesh(meshList[GEO_COW], true);
 	modelStack.PopMatrix();
 
@@ -539,10 +593,6 @@ void Scene04::models_render() {
 	modelStack.Translate(-100.f, 0.f, 0.f);
 	modelStack.Scale(1.f, 1.f, 1.f);
 	// keep original rotations so the tile faces the same way as before
-	meshList[GEO_TENT]->material.kAmbient = glm::vec3(0.1, 0.1, 0.1);
-	meshList[GEO_TENT]->material.kDiffuse = glm::vec3(0.8, 0, 0);
-	meshList[GEO_TENT]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-	meshList[GEO_TENT]->material.kShininess = 5.0f;
 	RenderMesh(meshList[GEO_TENT], true);
 	modelStack.PopMatrix();
 
@@ -556,19 +606,38 @@ void Scene04::models_render() {
 	meshList[GEO_CUBE]->material.kShininess = 1.0f;
 	RenderMesh(meshList[GEO_CUBE], true);
 	modelStack.PopMatrix();
+}
 
+void Scene04::trees_render() {
 	
-	meshList[GEO_TREE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
-	meshList[GEO_TREE]->material.kDiffuse = glm::vec3(0.8, 0, 0);
-	meshList[GEO_TREE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
-	meshList[GEO_TREE]->material.kShininess = 1.0f;
 	int ii;
 
-	for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < 25; i++) {
 		ii = (i * 10);
 
 		modelStack.PushMatrix();
 		modelStack.Translate(200.f, 0.f, ii);
+		modelStack.Scale(0.1f, 0.1f, 0.1f);
+		// keep original rotations so the tile faces the same way as before
+		RenderMesh(meshList[GEO_TREE], true);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(200.f, 0.f, -ii);
+		modelStack.Scale(0.1f, 0.1f, 0.1f);
+		// keep original rotations so the tile faces the same way as before
+		RenderMesh(meshList[GEO_TREE], true);
+
+		modelStack.PopMatrix();
+		modelStack.PushMatrix();
+		modelStack.Translate(-200.f, 0.f, ii);
+		modelStack.Scale(0.1f, 0.1f, 0.1f);
+		// keep original rotations so the tile faces the same way as before
+		RenderMesh(meshList[GEO_TREE], true);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(-200.f, 0.f, -ii);
 		modelStack.Scale(0.1f, 0.1f, 0.1f);
 		// keep original rotations so the tile faces the same way as before
 		RenderMesh(meshList[GEO_TREE], true);
@@ -629,14 +698,14 @@ void Scene04::balls_render() {
 	}
 }
 
-void Scene04::walls_render(){
+void Scene04::walls_render() {
 	modelStack.PushMatrix();
-	meshList[GEO_CUBE]->material.kAmbient = glm::vec3(0.f, 1.f, 1.f);
-	meshList[GEO_CUBE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_CUBE]->material.kAmbient = glm::vec3(0.f, 0.1f, 0.f);
+	meshList[GEO_CUBE]->material.kDiffuse = glm::vec3(0.f, 0.1f, 0.f);
 	meshList[GEO_CUBE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 	meshList[GEO_CUBE]->material.kShininess = 5.0f;
 	modelStack.Translate(floor.pos.x, floor.pos.y, floor.pos.z);
-	modelStack.Scale(floor_space/10, floor_height/10, floor_space/10);
+	modelStack.Scale(floor_space / 10, floor_height / 10, floor_space / 10);
 	modelStack.Rotate(0, 1.f, 1.f, 1.f);
 	RenderMesh(meshList[GEO_CUBE], true);
 	modelStack.PopMatrix();
@@ -649,9 +718,9 @@ void Scene04::buckets_render() {
 			meshList[GEO_CUBE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
 			meshList[GEO_CUBE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 			meshList[GEO_CUBE]->material.kShininess = 5.0f;
-			modelStack.Translate(rings[i].bucket.pos.x, rings[i].bucket.pos.y/2, rings[i].bucket.pos.z);
-			
-			modelStack.Scale(rings[i].radius, rings[i].height * 2.5, rings[i].radius);
+			modelStack.Translate(rings[i].bucket.pos.x, rings[i].bucket.pos.y / 2, rings[i].bucket.pos.z);
+
+			modelStack.Scale(rings[i].radius, rings[i].height, rings[i].radius);
 			modelStack.Rotate(0, 1.f, 1.f, 1.f);
 			RenderMesh(meshList[GEO_CUBE], true);
 			modelStack.PopMatrix();
@@ -659,7 +728,7 @@ void Scene04::buckets_render() {
 
 		modelStack.PushMatrix();
 		modelStack.Translate(rings[i].bucket.pos.x, rings[i].bucket.pos.y, rings[i].bucket.pos.z);
-		modelStack.Scale((rings[i].radius), (rings[i].height)/2.5, (rings[i].radius));
+		modelStack.Scale((rings[i].radius), (rings[i].height) / 2.5, (rings[i].radius));
 		meshList[GEO_BUCKET]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
 		meshList[GEO_BUCKET]->material.kDiffuse = glm::vec3(0.1f, 0.1f, 0.1f);
 		meshList[GEO_BUCKET]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
@@ -669,19 +738,19 @@ void Scene04::buckets_render() {
 	}
 }
 
-void Scene04::RenderSkybox(float scale,glm::vec3 camerapos)
+void Scene04::RenderSkybox(float scale, glm::vec3 camerapos)
 {
 	modelStack.PushMatrix();
 	// Offset in Z direction by -50 units
-	modelStack.Translate(camerapos.x , camerapos.y, camerapos.z -(50*scale));
-	modelStack.Scale(scale,scale,scale);
+	modelStack.Translate(camerapos.x, camerapos.y, camerapos.z - (50 * scale));
+	modelStack.Scale(scale, scale, scale);
 	meshList[GEO_FRONT]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
 	RenderMesh(meshList[GEO_FRONT], false);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
 	// Offset in Z direction by -50 units
-	modelStack.Translate(camerapos.x , camerapos.y, camerapos.z +(50*scale));
+	modelStack.Translate(camerapos.x, camerapos.y, camerapos.z + (50 * scale));
 	modelStack.Scale(scale, scale, scale);
 	modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
 	meshList[GEO_BACK]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
@@ -705,7 +774,7 @@ void Scene04::RenderSkybox(float scale,glm::vec3 camerapos)
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	modelStack.Translate(camerapos.x , camerapos.y + (50 * scale), camerapos.z);
+	modelStack.Translate(camerapos.x, camerapos.y + (50 * scale), camerapos.z);
 	modelStack.Scale(scale, scale, scale);
 	modelStack.Rotate(90.f, 1.f, 0.f, 0.f);
 	meshList[GEO_TOP]->material.kAmbient = glm::vec3(0.25f, 0.25f, 0.25f);
@@ -993,6 +1062,8 @@ void Scene04::HandleKeyPress(double dt)
 		if (ball_power >= power_max) {
 			ball_power = power_max;
 		}
+		std::string result = "current throwing strength: " + (std::to_string(ball_power));
+		send_message(result);
 	}
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_Q))
 	{
@@ -1000,22 +1071,9 @@ void Scene04::HandleKeyPress(double dt)
 		if (ball_power <= power_min) {
 			ball_power = power_min;
 		}
+		std::string result = "current throwing strength: " + (std::to_string(ball_power));
+		send_message(result);
 	}
-	/*
-	if (KeyboardController::GetInstance()->IsKeyDown('I'))
-		light[0].position.z -= static_cast<float>(dt) * 5.f;
-	if (KeyboardController::GetInstance()->IsKeyDown('K'))
-		light[0].position.z += static_cast<float>(dt) * 5.f;
-	if (KeyboardController::GetInstance()->IsKeyDown('J'))
-		light[0].position.x -= static_cast<float>(dt) * 5.f;
-	if (KeyboardController::GetInstance()->IsKeyDown('L'))
-		light[0].position.x += static_cast<float>(dt) * 5.f;
-	if (KeyboardController::GetInstance()->IsKeyDown('O'))
-		light[0].position.y -= static_cast<float>(dt) * 5.f;
-	if (KeyboardController::GetInstance()->IsKeyDown('P'))
-		light[0].position.y += static_cast<float>(dt) * 5.f;
-	*/
-	// Clamp camera height to adjusted limits
 }
 
 void Scene04::HandleMouseInput() {
@@ -1064,10 +1122,16 @@ void Scene04::HandleMouseInput() {
 	dir.y = sinf(alt);
 	dir.z = cosf(alt) * sinf(az);
 
-	camera.target = camera.position + glm::normalize(dir);
+	//camera.target = camera.position + glm::normalize(dir);
 
 	// Re-init so FPCamera::Refresh() recalculates 'up' and other derived vectors
-	camera.Init(camera.position, camera.target, glm::vec3(0.0f, 3.0f, 0.0f));
+	glm::vec3 view = glm::normalize(camera.target - camera.position);
+
+	camera.target = camera.position + view;
+
+	camera.up = glm::vec3(0.0f, 1.0f, 0.0f);
+
+	//camera.Init(camera.position, camera.target, glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 bool Scene04::OverlapCircle2CYLINDER(const glm::vec3& pos1, float r1, const glm::vec3& pos2, float width, float height){
@@ -1188,6 +1252,7 @@ void Scene04::walls_resolve(CollisionData cd) {
 }
 
 void Scene04::go_back() {
+	send_message("goinhg back to clowntopia");
 	scene01request = true;
 }
 
