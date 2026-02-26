@@ -10,6 +10,7 @@ public:
 	float height = 1.5f;
 	//object
 	PhysicsObject bucket;
+	PhysicsObject wall[4];
 	//functions
 	ringbuck();
 	~ringbuck();

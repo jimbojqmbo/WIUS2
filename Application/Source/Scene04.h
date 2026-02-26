@@ -149,20 +149,20 @@ private:
 	PhysicsObject player;//test
 	//AABB
 	PhysicsObject floor;
-	//ring
+
 	static const int  ring_num = 3;
 	ringbuck rings[ring_num];
-	float ren_height;
 	//else
 	CollisionData cd;
 	//varibles
 	// game scene
 	float gravity = -50;
 
-	float floor_space = 10;
+	float floor_space = 50
+		;
 	float floor_height = 0.25;
 
-	float skyboxscale = 2 ;
+	float skyboxscale = 4 ;
 	//unspecified
 	int ball_select = 0;
 	float ball_power = 50;
