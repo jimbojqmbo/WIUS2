@@ -1005,51 +1005,43 @@ void Scene04::HandleKeyPress(double dt){
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_W))
 	{
 		// Move forward
-		if (playing == false) {
-			glm::vec3 view = glm::normalize(camera.target - camera.position);
+		glm::vec3 view = glm::normalize(camera.target - camera.position);
 
-			camera.position.x += view.x * 0.1;
-			camera.position.z += view.z * 0.1;
+		camera.position.x += view.x * 0.1;
+		camera.position.z += view.z * 0.1;
 
-			camera.target = camera.position + view;
-		}
+		camera.target = camera.position + view;
 	}
 
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_S))
 	{
-		if (playing == false) {
-			// Move backward
-			glm::vec3 view = glm::normalize(camera.target - camera.position);
+		//Move back
+		glm::vec3 view = glm::normalize(camera.target - camera.position);
 
-			camera.position.x -= view.x * 0.1;
-			camera.position.z -= view.z * 0.1;
+		camera.position.x -= view.x * 0.1;
+		camera.position.z -= view.z * 0.1;
 
-			camera.target = camera.position + view;
-		}
+		camera.target = camera.position + view;
 	}
 
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_A))
 	{
-		if (playing == false) {
-			// Move left (strafe)
-			glm::vec3 view = glm::normalize(camera.target - camera.position);
-			glm::vec3 right = glm::normalize(glm::cross(view, camera.up));
+		// Move left (strafe)
+		glm::vec3 view = glm::normalize(camera.target - camera.position);
+		glm::vec3 right = glm::normalize(glm::cross(view, camera.up));
 
-			camera.position -= right * glm::vec3(0.1);// *speed; 
-			camera.target -= right * glm::vec3(0.1);// *speed;
-		}
+		camera.position -= right * glm::vec3(0.1);// *speed; 
+		camera.target -= right * glm::vec3(0.1);// *speed;
 	}
 
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_D))
 	{
-		if (playing == false) {
 			// Move right (strafe)
-			glm::vec3 view = glm::normalize(camera.target - camera.position);
-			glm::vec3 right = glm::normalize(glm::cross(view, camera.up));
+		glm::vec3 view = glm::normalize(camera.target - camera.position);
+		glm::vec3 right = glm::normalize(glm::cross(view, camera.up));
 
-			camera.position += right * glm::vec3(0.1);// *speed; 
-			camera.target += right * glm::vec3(0.1);// *speed;
-		}
+		camera.position += right * glm::vec3(0.1);// *speed; 
+		camera.target += right * glm::vec3(0.1);// *speed;
 	}
 	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_J))
 	{
