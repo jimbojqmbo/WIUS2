@@ -111,6 +111,9 @@ public:
 	virtual void Update(double dt);
 	virtual void Render();
 	virtual void Exit();
+	bool scene02request = false;
+	bool scene03request = false;
+	bool scene01request = false;
 
 private:
 	void HandleKeyPress(double dt);
@@ -167,7 +170,8 @@ private:
 	CollisionData cd;
 	//varibles
 	// game scene
-	Scene *current_scene = this;
+	Scene* main_scene = new Scene01;
+	Scene* scene = this;
 	float gravity = -50;
 
 	float floor_space = 50

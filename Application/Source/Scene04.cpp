@@ -1120,17 +1120,5 @@ void Scene04::walls_resolve(CollisionData cd) {
 }
 
 void Scene04::go_back() {
-	current_scene->Exit();
-	Scene* main_scene = new Scene01();
-	main_scene->Init();
-	delete current_scene;
-
-
-	/*
-	this->Exit();      // exit Scene01
-	scene5->Init();
-	//PlaySound(NULL, 0, 0);
-
-	scene = scene5;
-	*/
+	scene01request = true;
 }

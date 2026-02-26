@@ -410,6 +410,21 @@ void Application::Run()
 					sceneNum = SCENE_04;
 				}
 			}
+			if (sceneNum == SCENE_04)
+			{
+				Scene04* s01 = dynamic_cast<Scene04*>(scene);
+				if (s01 && s01->scene01request)
+				{
+					s01->scene01request = false;
+
+					scene5->Exit();      // exit Scene03
+					scene2->Init();
+					//PlaySound(NULL, 0, 0);
+
+					scene = scene2;
+					sceneNum = SCENE_01;
+				}
+			}
 		}
 
 		if (KeyboardController::GetInstance()->IsKeyPressed('N'))
