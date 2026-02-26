@@ -1078,9 +1078,11 @@ void Scene04::HandleKeyPress(double dt)
 	{
 		// Move forward
 		glm::vec3 view = glm::normalize(camera.target - camera.position);
-
-		camera.position.x += view.x * 0.1;
-		camera.position.z += view.z * 0.1;
+		if (playing == false) {
+			camera.position.x += view.x * 0.1;
+			camera.position.z += view.z * 0.1;
+		}
+		
 
 		camera.target = camera.position + view;
 	}
@@ -1089,10 +1091,10 @@ void Scene04::HandleKeyPress(double dt)
 	{
 		//Move back
 		glm::vec3 view = glm::normalize(camera.target - camera.position);
-
-		camera.position.x -= view.x * 0.1;
-		camera.position.z -= view.z * 0.1;
-
+		if (playing == false) {
+			camera.position.x -= view.x * 0.1;
+			camera.position.z -= view.z * 0.1;
+		}
 		camera.target = camera.position + view;
 	}
 
