@@ -162,6 +162,7 @@ void Scene04::Init()
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Images//Georgia.tga");
 
+
 	meshList[GEO_GUI] = MeshBuilder::GenerateQuad("GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_GUI]->textureID = LoadTGA("Images//blackblack.tga");
 
@@ -402,19 +403,20 @@ void Scene04::balls_update(double dt) {
 	if (!isLeftUp && MouseController::GetInstance()->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
 
 		isLeftUp = true;
-		if (ball_select < 10) {
-			std::cout << bounce_balls[ball_select].ball.mass << std::endl;
-			bounce_balls[ball_select].ball.vel = glm::vec3(0.f);
-			//camera.target
-			glm::vec3 direction = camera.target - camera.position;
-			bounce_balls[ball_select].ball.pos = camera.position;
-			bounce_balls[ball_select].ball.AddImpulse(direction * ball_power);
-			bounce_balls[ball_select].ball.rotation = direction;
-			std::cout << bounce_balls[ball_select].ball.rotation.x << std::endl;
-			bounce_balls[ball_select].thrown = true;
-			ball_select++;
+		if (playing == true) {
+			if (ball_select < 10) {
+				std::cout << bounce_balls[ball_select].ball.mass << std::endl;
+				bounce_balls[ball_select].ball.vel = glm::vec3(0.f);
+				//camera.target
+				glm::vec3 direction = camera.target - camera.position;
+				bounce_balls[ball_select].ball.pos = camera.position;
+				bounce_balls[ball_select].ball.AddImpulse(direction * ball_power);
+				bounce_balls[ball_select].ball.rotation = direction;
+				std::cout << bounce_balls[ball_select].ball.rotation.x << std::endl;
+				bounce_balls[ball_select].thrown = true;
+				ball_select++;
+			}
 		}
-
 	}
 	else if (isLeftUp && MouseController::GetInstance()->IsButtonUp(GLFW_MOUSE_BUTTON_LEFT))
 	{
@@ -515,12 +517,23 @@ void Scene04::Render()
 	walls_render();
 	buckets_render();
 	models_render();
-	
+
+	RenderTextOnScreen(meshList[GEO_TEXT],anouncement,glm::vec3(1.f,0.f,0.f),25, 10, 550);
 }
 
 void Scene04::models_render() {
 
-	modelStack.LoadIdentity();
+	modelStack.PushMatrix();
+	modelStack.Translate(-50.f, 0.f, 0.f);
+	modelStack.Scale(1.f, 1.f, 1.f);
+	// keep original rotations so the tile faces the same way as before
+	meshList[GEO_COW]->material.kAmbient = glm::vec3(0.1, 0.1, 0.1);
+	meshList[GEO_COW]->material.kDiffuse = glm::vec3(0.8, 0, 0);
+	meshList[GEO_COW]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
+	meshList[GEO_COW]->material.kShininess = 5.0f;
+	RenderMesh(meshList[GEO_COW], true);
+	modelStack.PopMatrix();
+
 
 	modelStack.PushMatrix();
 	modelStack.Translate(-100.f, 0.f, 0.f);
@@ -636,7 +649,7 @@ void Scene04::buckets_render() {
 			meshList[GEO_CUBE]->material.kDiffuse = glm::vec3(0.f, 0.f, 0.f);
 			meshList[GEO_CUBE]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 			meshList[GEO_CUBE]->material.kShininess = 5.0f;
-			modelStack.Translate(rings[i].bucket.pos.x, rings[i].bucket.pos.y, rings[i].bucket.pos.z);
+			modelStack.Translate(rings[i].bucket.pos.x, rings[i].bucket.pos.y/2, rings[i].bucket.pos.z);
 			
 			modelStack.Scale(rings[i].radius, rings[i].height * 2.5, rings[i].radius);
 			modelStack.Rotate(0, 1.f, 1.f, 1.f);
@@ -646,7 +659,7 @@ void Scene04::buckets_render() {
 
 		modelStack.PushMatrix();
 		modelStack.Translate(rings[i].bucket.pos.x, rings[i].bucket.pos.y, rings[i].bucket.pos.z);
-		modelStack.Scale((rings[i].radius), (rings[i].height)/2, (rings[i].radius));
+		modelStack.Scale((rings[i].radius), (rings[i].height)/2.5, (rings[i].radius));
 		meshList[GEO_BUCKET]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
 		meshList[GEO_BUCKET]->material.kDiffuse = glm::vec3(0.1f, 0.1f, 0.1f);
 		meshList[GEO_BUCKET]->material.kSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
@@ -904,24 +917,7 @@ void Scene04::HandleKeyPress(double dt)
 		// Key press to enable wireframe mode for the polygon
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //wireframe mode
 	}
-	/*
-	if (KeyboardController::GetInstance()->IsKeyPressed(VK_SPACE))
-	{
-		// Change to black background
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	}
 
-	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_0))
-	{
-		//Toggle light on or off
-	   /*enableLight = !enableLight;*/
-
-	   //if (light[0].power <= 0.1f)
-		   //light[0].power = 1.f;
-	   //else
-		   ///light[0].power = 0.1f;
-	   //glUniform1f(m_parameters[U_LIGHT0_POWER], light[0].power);
-	//}
 	// Calculate forward and right vectors based on camera orientation
 	glm::vec3 forward = glm::normalize(camera.target - camera.position);
 	glm::vec3 right = glm::normalize(glm::cross(forward, camera.up));

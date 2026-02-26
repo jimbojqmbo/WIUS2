@@ -189,7 +189,7 @@ private:
 	bool show_col = false;
 	bool playing = false;
 	bool change_height = false;
-	std::string anouncement = " ";
+	std::string anouncement = "GO TO GREEN COW TO PLAY";
 	//functions
 
 	bool OverlapCircle2CYLINDER(const glm::vec3& pos1, float r1, const glm::vec3& pos2, float width,float height);
